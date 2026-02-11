@@ -1,0 +1,53 @@
+---
+alwaysApply: true
+---
+# Tổng quan
+
+
+
+## Rule
+- Luôn nói “Xin chào anh Minh” trước khi trả lời câu hỏi
+- Câu trả lời không chứa bình luận
+- Trước khi hoàn thành nhiệm vụ, xóa đoạn code thừa và tóm tắt: Việc gì đã làm được, việc gì chưa làm được
+
+QUAN TRỌNG: bắt buộc phải tuân thủ các rule dưới đây:
+1. Bắt buộc các object, dto phải dùng class-validator class-transformer, ApiProperty trong `@nestjs/swagger` để verify object và tài liệu hóa các object từ request gửi lên và trả về cho client
+2. Luôn phải hash password trước khi lưu xuống DB
+3. RefreshToken được set luôn vào cookie của response, và lưu trong DB
+4. Trước khi hành động một api nào đó luôn phải check role và permission. Lưu ý: role = admin thì làm được hết
+6. Luôn dùng api-query-params để build query filter
+- Với body gửi lên 
+```js
+{
+    page: number, // (trang hiện tại)
+    limit: number, // (số lượng bản ghi muốn lấy)
+    query string, // điều kiện query (ví dụ tìm theo tên, tìm theo email...)
+}
+```
+
+7. Dùng decorator customize để lấy thông tin đang đăng nhập
+```ts
+export const User = createParamDecorator((data:
+    unknown, ctx: ExecutionContext) => {
+        const request = ctx.switchToHttp().getRequest();
+        return request.user;
+    },
+);
+```
+8. Phải tuân thủ struture dự án
+9. Ở các service hãy dùng logger theo cách dưới đây:
+```ts
+
+import { Logger, Injectable } from '@nestjs/common';
+
+@Injectable()
+class MyService {
+  private readonly logger = new Logger(MyService.name);
+
+  doSomething() {
+    this.logger.log('Doing something...');
+  }
+}
+```
+- 10. Luôn mô tả resoonse trả ra của tất cả các api trong swagger
+- 11. Không được xóa cứng bản ghi mà hãy xóa mềm. Tức là update isDeleted = true. Và ở tất cả các lần query cần bổ sung fillter isUpdate = false

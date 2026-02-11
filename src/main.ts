@@ -2,12 +2,12 @@ import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { AppModule } from './app.module.js';
-import { join } from 'path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { JwtAuthGuard } from './presentation/auth/guards/jwt-auth.guard.js';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor.js';
 import cookieParser from 'cookie-parser';
+import { join } from 'path';
+import { AppModule } from './app.module.js';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor.js';
+import { JwtAuthGuard } from './presentation/auth/guards/jwt-auth.guard.js';
 
 const logger = new Logger('Bootstrap');
 
@@ -78,8 +78,20 @@ async function bootstrap() {
     },
   });
 
+  // Swagger JSON endpoint
+  app
+    .getHttpAdapter()
+    .get(
+      '/swagger-json',
+      (req: unknown, res: { json: (body: unknown) => void }) => {
+        res.json(document);
+      },
+    );
+
   const port = configService.get<number>('PORT', 3000);
   await app.listen(port);
   logger.log(`Server is running http://localhost:${port}/swagger`);
+  logger.log(`Server is running http://localhost:${port}/swagger-json`);
 }
+
 bootstrap();

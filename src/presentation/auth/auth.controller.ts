@@ -1,36 +1,32 @@
-import {
-  Controller,
-  Post,
-  UseGuards,
-  Req,
-  Res,
-  Get,
-  Body,
-} from '@nestjs/common';
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ApiBody,
-  ApiOkResponse,
   ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
-  ApiOperation,
 } from '@nestjs/swagger';
 import { Request, Response } from 'express';
-import { LocalAuthGuard } from './guards/local-auth.guard.js';
-import { SigninUseCase } from '../../application/auth/signin.usecase.js';
-import { RefreshTokenUseCase } from '../../application/auth/refresh-token.usecase.js';
-import { LogoutUseCase } from '../../application/auth/logout.usecase.js';
-import { Public } from '../../common/decorators/public.decorator.js';
-import { User } from '../../common/decorators/user.decorator.js';
-import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
+import ms from 'ms';
 import { SigninDto } from '../../application/auth/dto/signin.dto.js';
+import { LogoutUseCase } from '../../application/auth/logout.usecase.js';
+import { RefreshTokenUseCase } from '../../application/auth/refresh-token.usecase.js';
+import { SigninUseCase } from '../../application/auth/signin.usecase.js';
+import { Public } from '../../common/decorators/public.decorator.js';
+import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
+import { User } from '../../common/decorators/user.decorator.js';
+import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
-  SigninResponseDto,
-  RefreshTokenResponseDto,
-  LogoutResponseDto,
   AccountResponseDto,
+  LogoutResponseDto,
+  RefreshTokenResponseDto,
+  SigninResponseDto,
 } from '../../common/swagger/auth-response.dto.js';
+import { LocalAuthGuard } from './guards/local-auth.guard.js';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -39,6 +35,7 @@ export class AuthController {
     private readonly signinUseCase: SigninUseCase,
     private readonly refreshTokenUseCase: RefreshTokenUseCase,
     private readonly logoutUseCase: LogoutUseCase,
+    private readonly configService: ConfigService,
   ) {}
 
   @Public()
@@ -57,13 +54,16 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const result = await this.signinUseCase.execute(req.user);
+    const refreshTokenExpireConfig = (this.configService.get<string>(
+      'REFRESH_TOKEN_EXPIRE_TIME',
+    ) ?? '7d') as Parameters<typeof ms>[0];
+    const refreshTokenCookieMaxAge = ms(refreshTokenExpireConfig);
 
-    // Set refresh token vào cookie
     response.cookie('refresh_token', result.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: refreshTokenCookieMaxAge,
     });
 
     return {
@@ -93,13 +93,16 @@ export class AuthController {
     }
 
     const result = await this.refreshTokenUseCase.execute(refreshToken);
+    const refreshTokenExpireConfig = (this.configService.get<string>(
+      'REFRESH_TOKEN_EXPIRE_TIME',
+    ) ?? '7d') as Parameters<typeof ms>[0];
+    const refreshTokenCookieMaxAge = ms(refreshTokenExpireConfig);
 
-    // Set new refresh token vào cookie
     response.cookie('refresh_token', result.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: refreshTokenCookieMaxAge,
     });
 
     return {
@@ -120,10 +123,8 @@ export class AuthController {
     @User() user: ICurrentUser,
     @Res({ passthrough: true }) response: Response,
   ) {
-    // Clear refresh token in DB
     await this.logoutUseCase.execute(user._id);
 
-    // Remove refresh_token cookie
     response.clearCookie('refresh_token');
 
     return 'ok';

@@ -13,10 +13,12 @@ import {
   UserSchema,
 } from '../../infrastructure/mongo/user/user.schema.js';
 import { UserController } from './user.controller.js';
+import { RoleModule } from '../role/role.module.js';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    RoleModule,
   ],
   controllers: [UserController],
   providers: [

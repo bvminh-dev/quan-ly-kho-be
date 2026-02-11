@@ -40,7 +40,7 @@ flowchart TD
   D -->|Sai| E[Trả về lỗi<br \>Email hoặc mật khẩu không đúng]
   D -->|Đúng| F[Tạo Access Token & Refresh Token]
   F --> G[Lưu Refresh Token vào CSDL<br \>của user]
-  G --> H[Ghi Refresh Token vào cookie<br \>refresh_token (httpOnly, secure)]
+  G --> H[Ghi Refresh Token vào cookie<br \>refresh_token]
   H --> I[Trả về Access Token<br \>+ thông tin user + quyền]
 ```
 
@@ -154,7 +154,7 @@ flowchart TD
   D -->|Đã tồn tại| E[Trả về lỗi<br \>Email đã tồn tại]
   D -->|Chưa tồn tại| F[Mã hóa mật khẩu]
   F --> G[Tạo user mới trong CSDL<br \>lưu kèm role & trạng thái]
-  G --> H[Trả về thông tin user mới<br \>(ẩn mật khẩu)]
+  G --> H[Trả về thông tin user mới]
 ```
 
 ### 7. Flow kiểm tra role & phân quyền (Role + Permission)
@@ -177,11 +177,11 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  A[Frontend gọi 1 API bất kỳ<br \>kèm Access Token] --> B[Backend kiểm tra token<br \>(có hợp lệ không)]
+  A[Frontend gọi 1 API bất kỳ<br \>kèm Access Token] --> B[Backend kiểm tra token<br \>có hợp lệ không]
   B -->|Token sai/hết hạn| C[Trả về lỗi<br \>Chưa đăng nhập hoặc token sai]
-  B -->|Token đúng| D[Lấy thông tin user<br \>(role + permissions)]
+  B -->|Token đúng| D[Lấy thông tin user<br \>role + permissions]
   D --> E[API này có đánh dấu public?]
-  E -->|Có| F[Cho phép truy cập<br \>(không cần kiểm tra quyền)]
+  E -->|Có| F[Cho phép truy cập<br \>không cần kiểm tra quyền]
   E -->|Không| G[Role của user có phải admin?]
   G -->|Admin| H[Cho phép truy cập<br \>mọi chức năng]
   G -->|Không phải admin| I[So sánh API hiện tại<br \>với danh sách permissions của user]
@@ -212,7 +212,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  A[Quản trị muốn buộc<br \>user A đăng xuất] --> B[Thao tác trên hệ thống<br \>(xóa Refresh Token hoặc khóa user)]
+  A[Quản trị muốn buộc<br \>user A đăng xuất] --> B[Thao tác trên hệ thống<br \>xóa Refresh Token hoặc khóa user]
   B --> C[Refresh Token của user A<br \>không còn hợp lệ trong CSDL]
   C --> D[User A vẫn dùng Access Token cũ<br \>cho tới khi hết hạn]
   D --> E[Khi Access Token hết hạn,<br \>frontend gọi /auth/refresh]

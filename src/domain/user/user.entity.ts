@@ -3,7 +3,7 @@ export class UserEntity {
   name: string;
   email: string;
   password: string;
-  role: string | null;
+  role: string | { _id: string; name: string } | null;
   refreshToken: string | null;
   createdBy: string | null;
   updatedBy: string | null;

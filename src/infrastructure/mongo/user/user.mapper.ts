@@ -8,7 +8,12 @@ export class UserMapper {
       name: doc.name,
       email: doc.email,
       password: doc.password,
-      role: doc.role ? doc.role.toString() : null,
+      role:
+        doc.role && typeof doc.role === 'object' && doc.role.name
+          ? { _id: doc.role._id.toString(), name: doc.role.name }
+          : doc.role
+            ? doc.role.toString()
+            : null,
       refreshToken: doc.refreshToken || null,
       createdBy: doc.createdBy ? doc.createdBy.toString() : null,
       updatedBy: doc.updatedBy ? doc.updatedBy.toString() : null,

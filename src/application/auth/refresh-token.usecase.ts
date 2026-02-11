@@ -38,8 +38,10 @@ export class RefreshTokenUseCase {
     await this.userRepository.updateRefreshToken(user._id, newRefreshToken);
 
     // Get role with permissions
-    const role = user.role
-      ? await this.roleRepository.findByIdWithPopulate(user.role)
+    const roleId =
+      typeof user.role === 'object' ? user.role?._id : user.role;
+    const role = roleId
+      ? await this.roleRepository.findByIdWithPopulate(roleId)
       : null;
 
     return {

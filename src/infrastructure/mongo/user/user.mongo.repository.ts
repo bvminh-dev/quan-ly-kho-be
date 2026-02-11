@@ -78,7 +78,10 @@ export class UserMongoRepository implements IUserRepository {
       .skip(offset)
       .limit(pageSize)
       .sort(sort as any)
-      .populate(population)
+      .populate([
+        { path: 'role', select: '_id name' },
+        ...(Array.isArray(population) ? population : []),
+      ])
       .lean();
 
     return {

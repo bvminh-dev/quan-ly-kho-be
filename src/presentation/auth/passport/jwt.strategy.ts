@@ -26,8 +26,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) return null;
 
     // Get role with populated permissions
-    const role = user.role
-      ? await this.roleRepository.findByIdWithPopulate(user.role)
+    const roleId =
+      typeof user.role === 'object' ? user.role?._id : user.role;
+    const role = roleId
+      ? await this.roleRepository.findByIdWithPopulate(roleId)
       : null;
 
     return {

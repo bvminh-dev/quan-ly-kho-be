@@ -56,11 +56,10 @@ export class RoleMongoRepository implements IRoleRepository {
     return RoleMapper.toDomain(updated);
   }
 
-  async softDelete(id: string, deleteBy: string): Promise<any> {
-    return this.roleModel.findOneAndUpdate(
+  async softDelete(id: string, deleteBy: string): Promise<void> {
+    await this.roleModel.findOneAndUpdate(
       { _id: id, isDeleted: false },
       { isDeleted: true, deleteBy },
-      { new: true },
     );
   }
 

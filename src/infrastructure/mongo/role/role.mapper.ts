@@ -8,7 +8,9 @@ export class RoleMapper {
       name: doc.name,
       description: doc.description,
       permissions: doc.permissions
-        ? doc.permissions.map((p: any) => (typeof p === 'object' && p._id ? p : p?.toString()))
+        ? doc.permissions.map((p: any) =>
+            typeof p === 'object' && p._id ? p : p?.toString(),
+          )
         : [],
       createdBy: doc.createdBy ? doc.createdBy.toString() : null,
       updatedBy: doc.updatedBy ? doc.updatedBy.toString() : null,
@@ -21,6 +23,8 @@ export class RoleMapper {
   }
 
   static toDomainList(docs: any[]): RoleEntity[] {
-    return docs.map((doc) => RoleMapper.toDomain(doc)).filter(Boolean) as RoleEntity[];
+    return docs
+      .map((doc) => RoleMapper.toDomain(doc))
+      .filter(Boolean) as RoleEntity[];
   }
 }

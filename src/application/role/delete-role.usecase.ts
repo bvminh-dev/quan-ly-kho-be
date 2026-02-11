@@ -8,13 +8,12 @@ export class DeleteRoleUseCase {
     private readonly roleRepository: IRoleRepository,
   ) {}
 
-  async execute(id: string, deleteBy: string) {
-    // Check if it's the admin role
+  async execute(id: string, deleteBy: string): Promise<void> {
     const role = await this.roleRepository.findById(id);
     if (role && role.name === 'admin') {
       throw new BadRequestException('Không thể xóa role admin');
     }
 
-    return this.roleRepository.softDelete(id, deleteBy);
+    await this.roleRepository.softDelete(id, deleteBy);
   }
 }

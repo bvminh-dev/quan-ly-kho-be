@@ -6,7 +6,7 @@ export interface IUserRepository {
   findByRefreshToken(refreshToken: string): Promise<UserEntity | null>;
   create(user: Partial<UserEntity>): Promise<UserEntity>;
   update(id: string, data: Partial<UserEntity>): Promise<UserEntity | null>;
-  softDelete(id: string, deleteBy: string): Promise<any>;
+  softDelete(id: string, deleteBy: string): Promise<void>;
   findAll(
     queryString: string,
     currentPage: number,

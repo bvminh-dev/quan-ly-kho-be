@@ -8,7 +8,7 @@ export class DeletePermissionUseCase {
     private readonly permissionRepository: IPermissionRepository,
   ) {}
 
-  async execute(id: string, deleteBy: string) {
-    return this.permissionRepository.softDelete(id, deleteBy);
+  async execute(id: string, deleteBy: string): Promise<void> {
+    await this.permissionRepository.softDelete(id, deleteBy);
   }
 }

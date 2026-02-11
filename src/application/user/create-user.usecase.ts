@@ -1,8 +1,8 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { genSaltSync, hashSync } from 'bcryptjs';
 import type { IUserRepository } from '../../domain/user/user.repository.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
-import { hashSync, genSaltSync } from 'bcryptjs';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class CreateUserUseCase {
@@ -15,7 +15,9 @@ export class CreateUserUseCase {
   async execute(dto: CreateUserDto, createdBy: string) {
     const existing = await this.userRepository.findByEmail(dto.email);
     if (existing) {
-      throw new BadRequestException(`Email ${dto.email} đã tồn tại trong hệ thống`);
+      throw new BadRequestException(
+        `Email ${dto.email} đã tồn tại trong hệ thống`,
+      );
     }
 
     const salt = genSaltSync(10);

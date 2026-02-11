@@ -4,7 +4,7 @@ export interface IPermissionRepository {
   findById(id: string): Promise<PermissionEntity | null>;
   create(permission: Partial<PermissionEntity>): Promise<PermissionEntity>;
   update(id: string, data: Partial<PermissionEntity>): Promise<PermissionEntity | null>;
-  softDelete(id: string, deleteBy: string): Promise<any>;
+  softDelete(id: string, deleteBy: string): Promise<void>;
   findAll(
     queryString: string,
     currentPage: number,

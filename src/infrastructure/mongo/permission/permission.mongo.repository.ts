@@ -40,11 +40,10 @@ export class PermissionMongoRepository implements IPermissionRepository {
     return PermissionMapper.toDomain(updated);
   }
 
-  async softDelete(id: string, deleteBy: string): Promise<any> {
-    return this.permissionModel.findOneAndUpdate(
+  async softDelete(id: string, deleteBy: string): Promise<void> {
+    await this.permissionModel.findOneAndUpdate(
       { _id: id, isDeleted: false },
       { isDeleted: true, deleteBy },
-      { new: true },
     );
   }
 

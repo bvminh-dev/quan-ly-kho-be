@@ -1,48 +1,48 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import {
-  ApiTags,
-  ApiOkResponse,
-  ApiCreatedResponse,
-  ApiUnauthorizedResponse,
   ApiBadRequestResponse,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { CreateUserUseCase } from '../../application/user/create-user.usecase.js';
-import { GetUsersUseCase } from '../../application/user/get-users.usecase.js';
-import { GetUserUseCase } from '../../application/user/get-user.usecase.js';
-import { UpdateUserUseCase } from '../../application/user/update-user.usecase.js';
 import { DeleteUserUseCase } from '../../application/user/delete-user.usecase.js';
-import { UpdatePasswordUseCase } from '../../application/user/update-password.usecase.js';
-import { ResetPasswordUseCase } from '../../application/user/reset-password.usecase.js';
 import { CreateUserDto } from '../../application/user/dto/create-user.dto.js';
-import { UpdateUserDto } from '../../application/user/dto/update-user.dto.js';
-import { UpdatePasswordDto } from '../../application/user/dto/update-password.dto.js';
 import { ResetPasswordDto } from '../../application/user/dto/reset-password.dto.js';
+import { UpdatePasswordDto } from '../../application/user/dto/update-password.dto.js';
+import { UpdateUserDto } from '../../application/user/dto/update-user.dto.js';
+import { GetUserUseCase } from '../../application/user/get-user.usecase.js';
+import { GetUsersUseCase } from '../../application/user/get-users.usecase.js';
+import { ResetPasswordUseCase } from '../../application/user/reset-password.usecase.js';
+import { UpdatePasswordUseCase } from '../../application/user/update-password.usecase.js';
+import { UpdateUserUseCase } from '../../application/user/update-user.usecase.js';
+import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
-import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
   CreateUserResponseDto,
-  GetUsersResponseDto,
-  GetUserResponseDto,
-  UpdateUserResponseDto,
   DeleteUserResponseDto,
-  UpdatePasswordResponseDto,
+  GetUserResponseDto,
+  GetUsersResponseDto,
   ResetPasswordResponseDto,
+  UpdatePasswordResponseDto,
+  UpdateUserResponseDto,
 } from '../../common/swagger/user-response.dto.js';
 
 @ApiTags('Users')
@@ -64,7 +64,9 @@ export class UserController {
     description: 'Tạo user thành công',
     type: CreateUserResponseDto,
   })
-  @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ hoặc email đã tồn tại' })
+  @ApiBadRequestResponse({
+    description: 'Dữ liệu không hợp lệ hoặc email đã tồn tại',
+  })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Create a new User')
   async create(@Body() dto: CreateUserDto, @User() user: ICurrentUser) {

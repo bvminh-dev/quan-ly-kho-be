@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -54,11 +53,10 @@ export class UserMongoRepository implements IUserRepository {
     return UserMapper.toDomain(updated);
   }
 
-  async softDelete(id: string, deleteBy: string): Promise<any> {
-    return this.userModel.findOneAndUpdate(
+  async softDelete(id: string, deleteBy: string): Promise<void> {
+    await this.userModel.findOneAndUpdate(
       { _id: id, isDeleted: false },
       { isDeleted: true, deleteBy },
-      { new: true },
     );
   }
 

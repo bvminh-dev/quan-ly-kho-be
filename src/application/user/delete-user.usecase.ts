@@ -8,7 +8,7 @@ export class DeleteUserUseCase {
     private readonly userRepository: IUserRepository,
   ) {}
 
-  async execute(id: string, deleteBy: string) {
-    return this.userRepository.softDelete(id, deleteBy);
+  async execute(id: string, deleteBy: string): Promise<void> {
+    await this.userRepository.softDelete(id, deleteBy);
   }
 }

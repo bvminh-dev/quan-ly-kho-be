@@ -5,7 +5,7 @@ export interface IRoleRepository {
   findByName(name: string): Promise<RoleEntity | null>;
   create(role: Partial<RoleEntity>): Promise<RoleEntity>;
   update(id: string, data: Partial<RoleEntity>): Promise<RoleEntity | null>;
-  softDelete(id: string, deleteBy: string): Promise<any>;
+  softDelete(id: string, deleteBy: string): Promise<void>;
   findAll(
     queryString: string,
     currentPage: number,

@@ -52,3 +52,5 @@ class MyService {
 - 10. Luôn mô tả resoonse trả ra của tất cả các api trong swagger
 - 11. Không được xóa cứng bản ghi mà hãy xóa mềm. Tức là update isDeleted = true. Và ở tất cả các lần query cần bổ sung fillter isUpdate = false
 - 12. Luôn phải check typescript trước khi done task
+- 13. Không được sai các lỗi cơ bản trong NestJs như: `A circular dependency`
+- 14. Tối ưu dùng emit để lắng nghe event code chuẩn 

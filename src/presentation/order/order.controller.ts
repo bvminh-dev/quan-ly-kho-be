@@ -11,11 +11,13 @@ import {
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -25,6 +27,7 @@ import { CreateOrderUseCase } from '../../application/order/create-order.usecase
 import { DeleteOrderUseCase } from '../../application/order/delete-order.usecase.js';
 import { AddHistoryDto } from '../../application/order/dto/add-history.dto.js';
 import { CreateOrderDto } from '../../application/order/dto/create-order.dto.js';
+import { RevertOrderDto } from '../../application/order/dto/revert-order.dto.js';
 import { UpdateOrderDto } from '../../application/order/dto/update-order.dto.js';
 import { GetOrderUseCase } from '../../application/order/get-order.usecase.js';
 import { GetOrdersUseCase } from '../../application/order/get-orders.usecase.js';
@@ -79,15 +82,60 @@ export class OrderController {
     description: 'Trả về danh sách đơn hàng',
     type: GetOrdersResponseDto,
   })
+  @ApiQuery({
+    name: 'current',
+    required: false,
+    description: 'Số trang hiện tại (mặc định: 1)',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    description: 'Số lượng bản ghi mỗi trang (mặc định: 10)',
+    type: Number,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    description:
+      'Sắp xếp theo field (ví dụ: -createdAt để giảm dần, createdAt để tăng dần)',
+    type: String,
+    example: '-createdAt',
+  })
+  @ApiQuery({
+    name: 'queryString',
+    required: false,
+    description:
+      'Điều kiện query để tìm kiếm (ví dụ: orderCode=ORD001, customer.name=John)',
+    type: String,
+    example: 'orderCode=ORD001',
+  })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch list Order with paginate')
   async findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
-    @Query() queryString: string,
+    @Query() query: Record<string, any>,
   ) {
+    const queryParams = new URLSearchParams();
+
+    Object.keys(query).forEach((key) => {
+      if (
+        key !== 'current' &&
+        key !== 'pageSize' &&
+        query[key] !== undefined &&
+        query[key] !== null
+      ) {
+        queryParams.append(key, String(query[key]));
+      }
+    });
+
+    const finalQueryString = queryParams.toString();
+
     return this.getOrdersUseCase.execute(
-      queryString as any,
+      finalQueryString,
       +currentPage || 1,
       +pageSize || 10,
     );
@@ -173,6 +221,7 @@ export class OrderController {
 
   @Patch(':id/revert')
   @ApiOperation({ summary: 'Hoàn tác đơn hàng (trả lại hàng vào kho)' })
+  @ApiBody({ type: RevertOrderDto })
   @ApiOkResponse({
     description: 'Hoàn tác đơn hàng thành công',
     type: RevertOrderResponseDto,
@@ -181,7 +230,11 @@ export class OrderController {
   @ApiNotFoundResponse({ description: 'Không tìm thấy đơn hàng' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Revert Order')
-  async revert(@Param('id') id: string, @User() user: ICurrentUser) {
-    return this.revertOrderUseCase.execute(id, user._id);
+  async revert(
+    @Param('id') id: string,
+    @Body() dto: RevertOrderDto,
+    @User() user: ICurrentUser,
+  ) {
+    return this.revertOrderUseCase.execute(id, dto, user._id);
   }
 }

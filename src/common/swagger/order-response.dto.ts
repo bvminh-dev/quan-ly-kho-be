@@ -76,6 +76,9 @@ class OrderDetailDto {
   @ApiProperty({ example: '60d0fe4f5311236168a109ca' })
   _id: string;
 
+  @ApiProperty({ example: 'cao', description: 'Loại đơn theo giá cao hoặc giá thấp' })
+  type: string;
+
   @ApiProperty({ example: 'Báo giá' })
   state: string;
 

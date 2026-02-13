@@ -28,6 +28,7 @@ export class OrderHistoryEntity {
 
 export class OrderEntity {
   _id: string;
+  type: string;
   state: string;
   exchangeRate: number;
   customer: string | { _id: string; name: string } | null;

@@ -3,6 +3,7 @@ import mongoose, { HydratedDocument } from 'mongoose';
 import {
   HistoryType,
   OrderState,
+  OrderType,
   PaymentMethod,
 } from '../../../common/enums/index.js';
 
@@ -80,6 +81,9 @@ export class OrderHistory {
 
 @Schema({ timestamps: true })
 export class Order {
+  @Prop({ required: true, enum: OrderType })
+  type: string;
+
   @Prop({ required: true, enum: OrderState, default: OrderState.BAO_GIA })
   state: string;
 

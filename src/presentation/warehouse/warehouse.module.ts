@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AddStockUseCase } from '../../application/warehouse/add-stock.usecase.js';
 import { CreateWarehouseUseCase } from '../../application/warehouse/create-warehouse.usecase.js';
 import { DeleteWarehouseUseCase } from '../../application/warehouse/delete-warehouse.usecase.js';
 import { GetWarehouseUseCase } from '../../application/warehouse/get-warehouse.usecase.js';
@@ -24,6 +25,7 @@ import { WarehouseController } from './warehouse.controller.js';
     GetWarehouseUseCase,
     UpdateWarehouseUseCase,
     DeleteWarehouseUseCase,
+    AddStockUseCase,
   ],
   exports: ['WarehouseRepository', MongooseModule],
 })

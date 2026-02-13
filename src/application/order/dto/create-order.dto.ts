@@ -4,6 +4,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsEnum,
   IsMongoId,
   IsNotEmpty,
   IsNumber,
@@ -12,6 +13,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { OrderType } from '../../../common/enums/index.js';
 
 export class CreateOrderItemDto {
   @IsNotEmpty()
@@ -86,6 +88,11 @@ export class CreateOrderProductDto {
 }
 
 export class CreateOrderDto {
+  @IsNotEmpty()
+  @IsEnum(OrderType)
+  @ApiProperty({ example: OrderType.CAO, enum: OrderType, description: 'Loại đơn theo giá cao hoặc giá thấp' })
+  type: string;
+
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ example: 1600, description: 'Tỷ giá' })

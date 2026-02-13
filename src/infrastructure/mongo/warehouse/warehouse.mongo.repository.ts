@@ -26,9 +26,14 @@ export class WarehouseMongoRepository implements IWarehouseRepository {
     return WarehouseMapper.toDomain(created) as WarehouseEntity;
   }
 
-  async update(id: string, data: Partial<WarehouseEntity>): Promise<WarehouseEntity | null> {
+  async update(
+    id: string,
+    data: Partial<WarehouseEntity>,
+  ): Promise<WarehouseEntity | null> {
     const updated = await this.warehouseModel
-      .findOneAndUpdate({ _id: id, isDeleted: false }, data as any, { new: true })
+      .findOneAndUpdate({ _id: id, isDeleted: false }, data as any, {
+        new: true,
+      })
       .lean();
     return WarehouseMapper.toDomain(updated);
   }

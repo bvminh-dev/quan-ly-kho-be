@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -168,6 +167,140 @@ export class DatabaseSeederService implements OnModuleInit {
         method: 'DELETE',
         module: 'permissions',
       },
+
+      // Auth module
+      {
+        name: 'Logout',
+        apiPath: '/api/v1/auth/logout',
+        method: 'POST',
+        module: 'auth',
+      },
+      {
+        name: 'Get Account',
+        apiPath: '/api/v1/auth/account',
+        method: 'GET',
+        module: 'auth',
+      },
+
+      // Warehouse module
+      {
+        name: 'Create Warehouse',
+        apiPath: '/api/v1/warehouses',
+        method: 'POST',
+        module: 'warehouses',
+      },
+      {
+        name: 'Get Warehouses',
+        apiPath: '/api/v1/warehouses',
+        method: 'GET',
+        module: 'warehouses',
+      },
+      {
+        name: 'Get Warehouse By Id',
+        apiPath: '/api/v1/warehouses/:id',
+        method: 'GET',
+        module: 'warehouses',
+      },
+      {
+        name: 'Update Warehouse',
+        apiPath: '/api/v1/warehouses/:id',
+        method: 'PATCH',
+        module: 'warehouses',
+      },
+      {
+        name: 'Delete Warehouse',
+        apiPath: '/api/v1/warehouses/:id',
+        method: 'DELETE',
+        module: 'warehouses',
+      },
+      {
+        name: 'Add Stock',
+        apiPath: '/api/v1/warehouses/add-stock',
+        method: 'POST',
+        module: 'warehouses',
+      },
+
+      // Order module
+      {
+        name: 'Create Order',
+        apiPath: '/api/v1/orders',
+        method: 'POST',
+        module: 'orders',
+      },
+      {
+        name: 'Get Orders',
+        apiPath: '/api/v1/orders',
+        method: 'GET',
+        module: 'orders',
+      },
+      {
+        name: 'Get Order By Id',
+        apiPath: '/api/v1/orders/:id',
+        method: 'GET',
+        module: 'orders',
+      },
+      {
+        name: 'Update Order',
+        apiPath: '/api/v1/orders/:id',
+        method: 'PATCH',
+        module: 'orders',
+      },
+      {
+        name: 'Delete Order',
+        apiPath: '/api/v1/orders/:id',
+        method: 'DELETE',
+        module: 'orders',
+      },
+      {
+        name: 'Add History',
+        apiPath: '/api/v1/orders/:id/history',
+        method: 'POST',
+        module: 'orders',
+      },
+      {
+        name: 'Confirm Order',
+        apiPath: '/api/v1/orders/:id/confirm',
+        method: 'PATCH',
+        module: 'orders',
+      },
+      {
+        name: 'Revert Order',
+        apiPath: '/api/v1/orders/:id/revert',
+        method: 'PATCH',
+        module: 'orders',
+      },
+
+      // Customer module
+      {
+        name: 'Create Customer',
+        apiPath: '/api/v1/customers',
+        method: 'POST',
+        module: 'customers',
+      },
+      {
+        name: 'Get Customers',
+        apiPath: '/api/v1/customers',
+        method: 'GET',
+        module: 'customers',
+      },
+      {
+        name: 'Get Customer By Id',
+        apiPath: '/api/v1/customers/:id',
+        method: 'GET',
+        module: 'customers',
+      },
+      {
+        name: 'Update Customer',
+        apiPath: '/api/v1/customers/:id',
+        method: 'PATCH',
+        module: 'customers',
+      },
+      {
+        name: 'Delete Customer',
+        apiPath: '/api/v1/customers/:id',
+        method: 'DELETE',
+        module: 'customers',
+      },
     ];
 
     return this.permissionModel.insertMany(
@@ -183,11 +316,33 @@ export class DatabaseSeederService implements OnModuleInit {
   private async createRoles(permissions: any[]) {
     const allPermissionIds = permissions.map((p) => p._id);
 
-    // User permissions (basic read + update own password)
+    // User permissions (basic operations for staff)
     const userPermissionNames = [
+      // Auth module
+      'Logout',
+      'Get Account',
+      // User module
       'Get Users',
       'Get User By Id',
       'Update Password',
+      // Warehouse module
+      'Create Warehouse',
+      'Get Warehouses',
+      'Get Warehouse By Id',
+      'Update Warehouse',
+      'Add Stock',
+      // Order module
+      'Create Order',
+      'Get Orders',
+      'Get Order By Id',
+      'Update Order',
+      'Add History',
+      'Confirm Order',
+      // Customer module
+      'Create Customer',
+      'Get Customers',
+      'Get Customer By Id',
+      'Update Customer',
     ];
     const userPermissionIds = permissions
       .filter((p) => userPermissionNames.includes(p.name))

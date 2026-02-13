@@ -119,3 +119,14 @@ export class DeleteWarehouseResponseDto {
   @ApiProperty({ example: null, nullable: true, type: String })
   data: string;
 }
+
+export class AddStockResponseDto {
+  @ApiProperty({ example: 200 })
+  statusCode: number;
+
+  @ApiProperty({ example: 'Add stock to Warehouse' })
+  message: string;
+
+  @ApiProperty({ type: () => WarehouseItemDto })
+  data: WarehouseItemDto;
+}

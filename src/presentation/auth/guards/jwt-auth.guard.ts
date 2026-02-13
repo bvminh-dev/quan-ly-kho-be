@@ -6,8 +6,9 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator.js';
 import { Request } from 'express';
+import { IS_ALLOW_ALL_AUTHENTICATED_KEY } from '../../../common/decorators/allow-all-authenticated.decorator.js';
+import { IS_PUBLIC_KEY } from '../../../common/decorators/public.decorator.js';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -30,7 +31,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
     if (err || !user) {
-      throw err || new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn');
+      throw (
+        err || new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn')
+      );
     }
 
     // Check if @Public route => skip permission check
@@ -39,6 +42,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       context.getClass(),
     ]);
     if (isPublic) return user;
+
+    // Check if @AllowAllAuthenticated route => skip permission check (but still require auth)
+    const isAllowAllAuthenticated = this.reflector.getAllAndOverride<boolean>(
+      IS_ALLOW_ALL_AUTHENTICATED_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (isAllowAllAuthenticated) return user;
 
     // If role is admin => allow all
     if (user.role && user.role.name === 'admin') {

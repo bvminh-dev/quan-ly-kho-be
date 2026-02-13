@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { OrderState } from '../../common/enums/index.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
@@ -23,7 +29,9 @@ export class CreateOrderUseCase {
 
     const customer = await this.customerRepository.findById(dto.customer);
     if (!customer) {
-      throw new NotFoundException(`Customer với id ${dto.customer} không tồn tại`);
+      throw new NotFoundException(
+        `Customer với id ${dto.customer} không tồn tại`,
+      );
     }
 
     let totalPrice = 0;
@@ -36,12 +44,15 @@ export class CreateOrderUseCase {
       for (const item of product.items) {
         const warehouse = await this.warehouseRepository.findById(item.id);
         if (!warehouse) {
-          throw new NotFoundException(`Warehouse với id ${item.id} không tồn tại`);
+          throw new NotFoundException(
+            `Warehouse với id ${item.id} không tồn tại`,
+          );
         }
 
         if (warehouse.amountAvailable < item.quantity) {
+          const productName = `${warehouse.inches}" ${warehouse.item} ${warehouse.quality} ${warehouse.style} ${warehouse.color}`;
           throw new BadRequestException(
-            `Warehouse ${item.id} không đủ số lượng khả dụng. Hiện có: ${warehouse.amountAvailable}, yêu cầu: ${item.quantity}`,
+            `Hàng ${productName} không đủ trong kho`,
           );
         }
 
@@ -53,11 +64,14 @@ export class CreateOrderUseCase {
       }
 
       if (product.isCalcSet) {
-        totalPrice += (product.quantitySet ?? 1) * (product.priceSet ?? 0) - (product.saleSet ?? 0);
+        totalPrice +=
+          (product.quantitySet ?? 1) * (product.priceSet ?? 0) -
+          (product.saleSet ?? 0);
       }
     }
 
     const order = await this.orderRepository.create({
+      type: dto.type,
       state: OrderState.BAO_GIA,
       exchangeRate: dto.exchangeRate,
       customer: dto.customer,
@@ -85,7 +99,11 @@ export class CreateOrderUseCase {
 
     for (const product of dto.products) {
       for (const item of product.items) {
-        await this.warehouseRepository.updateStock(item.id, item.quantity, -item.quantity);
+        await this.warehouseRepository.updateStock(
+          item.id,
+          item.quantity,
+          -item.quantity,
+        );
       }
     }
 

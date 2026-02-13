@@ -45,6 +45,7 @@
 ## Đơn hàng
 
 ### Schema `order` gồm:
+- type: string // loại đơn theo giá cao hoặc giá thấp với 1 trong các giá trị sau: cao, thấp
 - state: string // trạng thái đơn hàng gồm các giá trị sau: Báo giá, đã chốt, chỉnh sửa, hoàn tác
 - exchangeRate: number // tỷ giá
 - customer: objectId ref: customer

@@ -82,3 +82,8 @@ export enum PaymentMethod {
   THE = 'Thẻ',
   KHAC = 'Khác',
 }
+
+export enum OrderType {
+  CAO = 'cao',
+  THAP = 'thấp',
+}

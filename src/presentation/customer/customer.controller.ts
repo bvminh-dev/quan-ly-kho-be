@@ -16,6 +16,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
@@ -52,8 +53,13 @@ export class CustomerController {
 
   @Post()
   @ApiOperation({ summary: 'Tạo customer mới' })
-  @ApiCreatedResponse({ description: 'Tạo customer thành công', type: CreateCustomerResponseDto })
-  @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ hoặc tên đã tồn tại' })
+  @ApiCreatedResponse({
+    description: 'Tạo customer thành công',
+    type: CreateCustomerResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Dữ liệu không hợp lệ hoặc tên đã tồn tại',
+  })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Create a new Customer')
   async create(@Body() dto: CreateCustomerDto, @User() user: ICurrentUser) {
@@ -62,20 +68,75 @@ export class CustomerController {
 
   @Get()
   @ApiOperation({ summary: 'Lấy danh sách customer có phân trang' })
-  @ApiOkResponse({ description: 'Trả về danh sách customer', type: GetCustomersResponseDto })
+  @ApiOkResponse({
+    description: 'Trả về danh sách customer',
+    type: GetCustomersResponseDto,
+  })
+  @ApiQuery({
+    name: 'current',
+    required: false,
+    description: 'Số trang hiện tại (mặc định: 1)',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    description: 'Số lượng bản ghi mỗi trang (mặc định: 10)',
+    type: Number,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    description:
+      'Sắp xếp theo field (ví dụ: -createdAt để giảm dần, createdAt để tăng dần)',
+    type: String,
+    example: '-createdAt',
+  })
+  @ApiQuery({
+    name: 'queryString',
+    required: false,
+    description:
+      'Điều kiện query để tìm kiếm (ví dụ: name=John, email=john@example.com)',
+    type: String,
+    example: 'name=John',
+  })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch list Customer with paginate')
   async findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
-    @Query() queryString: string,
+    @Query() query: Record<string, any>,
   ) {
-    return this.getCustomersUseCase.execute(queryString as any, +currentPage || 1, +pageSize || 10);
+    const queryParams = new URLSearchParams();
+
+    Object.keys(query).forEach((key) => {
+      if (
+        key !== 'current' &&
+        key !== 'pageSize' &&
+        query[key] !== undefined &&
+        query[key] !== null
+      ) {
+        queryParams.append(key, String(query[key]));
+      }
+    });
+
+    const finalQueryString = queryParams.toString();
+
+    return this.getCustomersUseCase.execute(
+      finalQueryString,
+      +currentPage || 1,
+      +pageSize || 10,
+    );
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Lấy thông tin customer theo ID' })
-  @ApiOkResponse({ description: 'Trả về thông tin customer', type: GetCustomerResponseDto })
+  @ApiOkResponse({
+    description: 'Trả về thông tin customer',
+    type: GetCustomerResponseDto,
+  })
   @ApiNotFoundResponse({ description: 'Không tìm thấy customer' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch Customer by id')
@@ -85,7 +146,10 @@ export class CustomerController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Cập nhật thông tin customer' })
-  @ApiOkResponse({ description: 'Cập nhật customer thành công', type: UpdateCustomerResponseDto })
+  @ApiOkResponse({
+    description: 'Cập nhật customer thành công',
+    type: UpdateCustomerResponseDto,
+  })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy customer' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
@@ -102,7 +166,10 @@ export class CustomerController {
   @Roles('admin')
   @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Xóa customer (soft delete, chỉ Admin)' })
-  @ApiOkResponse({ description: 'Xóa customer thành công', type: DeleteCustomerResponseDto })
+  @ApiOkResponse({
+    description: 'Xóa customer thành công',
+    type: DeleteCustomerResponseDto,
+  })
   @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền xóa' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy customer' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })

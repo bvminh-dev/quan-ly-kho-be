@@ -16,6 +16,7 @@ import { SigninDto } from '../../application/auth/dto/signin.dto.js';
 import { LogoutUseCase } from '../../application/auth/logout.usecase.js';
 import { RefreshTokenUseCase } from '../../application/auth/refresh-token.usecase.js';
 import { SigninUseCase } from '../../application/auth/signin.usecase.js';
+import { AllowAllAuthenticated } from '../../common/decorators/allow-all-authenticated.decorator.js';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
@@ -130,6 +131,7 @@ export class AuthController {
     return 'ok';
   }
 
+  @AllowAllAuthenticated()
   @Get('account')
   @ApiOperation({ summary: 'Lấy thông tin tài khoản đang đăng nhập' })
   @ApiOkResponse({

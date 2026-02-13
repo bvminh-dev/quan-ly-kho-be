@@ -16,11 +16,14 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { AddStockUseCase } from '../../application/warehouse/add-stock.usecase.js';
 import { CreateWarehouseUseCase } from '../../application/warehouse/create-warehouse.usecase.js';
 import { DeleteWarehouseUseCase } from '../../application/warehouse/delete-warehouse.usecase.js';
+import { AddStockBodyDto } from '../../application/warehouse/dto/add-stock.dto.js';
 import { CreateWarehouseDto } from '../../application/warehouse/dto/create-warehouse.dto.js';
 import { UpdateWarehouseDto } from '../../application/warehouse/dto/update-warehouse.dto.js';
 import { GetWarehouseUseCase } from '../../application/warehouse/get-warehouse.usecase.js';
@@ -32,6 +35,7 @@ import { User } from '../../common/decorators/user.decorator.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
+  AddStockResponseDto,
   CreateWarehouseResponseDto,
   DeleteWarehouseResponseDto,
   GetWarehouseResponseDto,
@@ -48,6 +52,7 @@ export class WarehouseController {
     private readonly getWarehouseUseCase: GetWarehouseUseCase,
     private readonly updateWarehouseUseCase: UpdateWarehouseUseCase,
     private readonly deleteWarehouseUseCase: DeleteWarehouseUseCase,
+    private readonly addStockUseCase: AddStockUseCase,
   ) {}
 
   @Post()
@@ -69,15 +74,59 @@ export class WarehouseController {
     description: 'Trả về danh sách warehouse',
     type: GetWarehousesResponseDto,
   })
+  @ApiQuery({
+    name: 'current',
+    required: false,
+    description: 'Số trang hiện tại (mặc định: 1)',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'pageSize',
+    required: false,
+    description: 'Số lượng bản ghi mỗi trang (mặc định: 10)',
+    type: Number,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    description:
+      'Sắp xếp theo field (ví dụ: -createdAt để giảm dần, createdAt để tăng dần)',
+    type: String,
+    example: '-createdAt',
+  })
+  @ApiQuery({
+    name: 'queryString',
+    required: false,
+    description: 'Điều kiện query để tìm kiếm (ví dụ: name=Kho A, address=Hà Nội)',
+    type: String,
+    example: 'name=Kho A',
+  })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch list Warehouse with paginate')
   async findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
-    @Query() queryString: string,
+    @Query() query: Record<string, any>,
   ) {
+    const queryParams = new URLSearchParams();
+
+    Object.keys(query).forEach((key) => {
+      if (
+        key !== 'current' &&
+        key !== 'pageSize' &&
+        query[key] !== undefined &&
+        query[key] !== null
+      ) {
+        queryParams.append(key, String(query[key]));
+      }
+    });
+
+    const finalQueryString = queryParams.toString();
+
     return this.getWarehousesUseCase.execute(
-      queryString as any,
+      finalQueryString,
       +currentPage || 1,
       +pageSize || 10,
     );
@@ -115,6 +164,23 @@ export class WarehouseController {
     @User() user: ICurrentUser,
   ) {
     return this.updateWarehouseUseCase.execute(id, dto, user._id);
+  }
+
+  @Post('add-stock')
+  @ApiOperation({ summary: 'Bổ sung hàng hóa vào warehouse' })
+  @ApiOkResponse({
+    description: 'Bổ sung hàng hóa thành công',
+    type: AddStockResponseDto,
+  })
+  @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
+  @ApiNotFoundResponse({ description: 'Không tìm thấy warehouse' })
+  @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
+  @ResponseMessage('Add stock to Warehouse')
+  async addStock(@Body() dto: AddStockBodyDto, @User() user: ICurrentUser) {
+    return this.addStockUseCase.execute(
+      { warehouseId: dto.id, quantity: dto.quantity, note: dto.note },
+      user._id,
+    );
   }
 
   @Delete(':id')

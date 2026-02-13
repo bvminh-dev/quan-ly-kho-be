@@ -5,6 +5,7 @@ export class OrderMapper {
     if (!doc) return null;
     return new OrderEntity({
       _id: doc._id.toString(),
+      type: doc.type,
       state: doc.state,
       exchangeRate: doc.exchangeRate,
       customer:
@@ -16,30 +17,33 @@ export class OrderMapper {
       totalPrice: doc.totalPrice,
       payment: doc.payment,
       note: doc.note,
-      products: doc.products?.map((p: any) => ({
-        nameSet: p.nameSet,
-        priceSet: p.priceSet,
-        quantitySet: p.quantitySet,
-        saleSet: p.saleSet,
-        isCalcSet: p.isCalcSet,
-        items: p.items?.map((i: any) => ({
-          id: i.id?.toString?.() ?? i.id,
-          quantity: i.quantity,
-          price: i.price,
-          sale: i.sale,
-          customPrice: i.customPrice,
-          customSale: i.customSale,
+      products:
+        doc.products?.map((p: any) => ({
+          nameSet: p.nameSet,
+          priceSet: p.priceSet,
+          quantitySet: p.quantitySet,
+          saleSet: p.saleSet,
+          isCalcSet: p.isCalcSet,
+          items:
+            p.items?.map((i: any) => ({
+              id: i.id?.toString?.() ?? i.id,
+              quantity: i.quantity,
+              price: i.price,
+              sale: i.sale,
+              customPrice: i.customPrice,
+              customSale: i.customSale,
+            })) ?? [],
         })) ?? [],
-      })) ?? [],
-      history: doc.history?.map((h: any) => ({
-        type: h.type,
-        exchangeRate: h.exchangeRate,
-        moneyPaidNGN: h.moneyPaidNGN,
-        moneyPaidDolar: h.moneyPaidDolar,
-        paymentMethod: h.paymentMethod,
-        datePaid: h.datePaid,
-        note: h.note,
-      })) ?? [],
+      history:
+        doc.history?.map((h: any) => ({
+          type: h.type,
+          exchangeRate: h.exchangeRate,
+          moneyPaidNGN: h.moneyPaidNGN,
+          moneyPaidDolar: h.moneyPaidDolar,
+          paymentMethod: h.paymentMethod,
+          datePaid: h.datePaid,
+          note: h.note,
+        })) ?? [],
       createdBy: doc.createdBy ? doc.createdBy.toString() : null,
       updatedBy: doc.updatedBy ? doc.updatedBy.toString() : null,
       createdAt: doc.createdAt,
@@ -50,6 +54,8 @@ export class OrderMapper {
   }
 
   static toDomainList(docs: any[]): OrderEntity[] {
-    return docs.map((doc) => OrderMapper.toDomain(doc)).filter(Boolean) as OrderEntity[];
+    return docs
+      .map((doc) => OrderMapper.toDomain(doc))
+      .filter(Boolean) as OrderEntity[];
   }
 }

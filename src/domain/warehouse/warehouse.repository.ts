@@ -3,7 +3,10 @@ import { WarehouseEntity } from './warehouse.entity.js';
 export interface IWarehouseRepository {
   findById(id: string): Promise<WarehouseEntity | null>;
   create(warehouse: Partial<WarehouseEntity>): Promise<WarehouseEntity>;
-  update(id: string, data: Partial<WarehouseEntity>): Promise<WarehouseEntity | null>;
+  update(
+    id: string,
+    data: Partial<WarehouseEntity>,
+  ): Promise<WarehouseEntity | null>;
   softDelete(id: string, deleteBy: string): Promise<void>;
   findAll(
     queryString: string,
@@ -17,5 +20,9 @@ export interface IWarehouseRepository {
     id: string,
     amountOccupiedDelta: number,
     amountAvailableDelta: number,
+  ): Promise<WarehouseEntity | null>;
+  decreaseTotalAndOccupied(
+    id: string,
+    quantity: number,
   ): Promise<WarehouseEntity | null>;
 }

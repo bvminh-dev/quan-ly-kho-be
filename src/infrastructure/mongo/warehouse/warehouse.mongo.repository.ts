@@ -95,4 +95,23 @@ export class WarehouseMongoRepository implements IWarehouseRepository {
       .lean();
     return WarehouseMapper.toDomain(updated);
   }
+
+  async decreaseTotalAndOccupied(
+    id: string,
+    quantity: number,
+  ): Promise<WarehouseEntity | null> {
+    const updated = await this.warehouseModel
+      .findOneAndUpdate(
+        { _id: id, isDeleted: false },
+        {
+          $inc: {
+            totalAmount: -quantity,
+            amountOccupied: -quantity,
+          },
+        },
+        { new: true },
+      )
+      .lean();
+    return WarehouseMapper.toDomain(updated);
+  }
 }

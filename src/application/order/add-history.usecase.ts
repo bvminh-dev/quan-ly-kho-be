@@ -1,7 +1,8 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { HistoryType } from '../../common/enums/index.js';
+import { HistoryType, OrderState } from '../../common/enums/index.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
+import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
 import { AddHistoryDto } from './dto/add-history.dto.js';
 
 @Injectable()
@@ -13,6 +14,8 @@ export class AddHistoryUseCase {
     private readonly orderRepository: IOrderRepository,
     @Inject('CustomerRepository')
     private readonly customerRepository: ICustomerRepository,
+    @Inject('WarehouseRepository')
+    private readonly warehouseRepository: IWarehouseRepository,
   ) {}
 
   async execute(orderId: string, dto: AddHistoryDto) {
@@ -28,17 +31,43 @@ export class AddHistoryUseCase {
         ? order.customer._id
         : (order.customer as string);
 
-    if (dto.type?.toLowerCase() === HistoryType.HOAN_TIEN.toLowerCase()) {
-      const newPayment = order.payment - dto.moneyPaidNGN;
-      await this.orderRepository.update(orderId, { payment: newPayment });
+    const isRefund =
+      dto.type?.toLowerCase() === HistoryType.HOAN_TIEN.toLowerCase();
+
+    const newPayment = isRefund
+      ? order.payment - dto.moneyPaidNGN
+      : order.payment + dto.moneyPaidNGN;
+
+    if (isRefund) {
       await this.customerRepository.updatePayment(
         customerId,
         -dto.moneyPaidNGN,
       );
     } else {
-      const newPayment = order.payment + dto.moneyPaidNGN;
-      await this.orderRepository.update(orderId, { payment: newPayment });
       await this.customerRepository.updatePayment(customerId, dto.moneyPaidNGN);
+    }
+
+    const shouldMarkAsDone =
+      (order.state as OrderState) !== OrderState.DA_XONG &&
+      (order.state as OrderState) !== OrderState.HOAN_TAC &&
+      newPayment >= 0;
+
+    if (shouldMarkAsDone) {
+      for (const product of order.products) {
+        for (const item of product.items) {
+          await this.warehouseRepository.decreaseTotalAndOccupied(
+            item.id,
+            item.quantity,
+          );
+        }
+      }
+
+      await this.orderRepository.update(orderId, {
+        payment: newPayment,
+        state: OrderState.DA_XONG as string,
+      });
+    } else {
+      await this.orderRepository.update(orderId, { payment: newPayment });
     }
 
     const updatedOrder = await this.orderRepository.addHistory(orderId, {

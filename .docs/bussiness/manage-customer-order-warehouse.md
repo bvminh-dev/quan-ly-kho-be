@@ -46,7 +46,12 @@
 
 ### Schema `order` gồm:
 - type: string // loại đơn theo giá cao hoặc giá thấp với 1 trong các giá trị sau: cao, thấp
-- state: string // trạng thái đơn hàng gồm các giá trị sau: Báo giá, đã chốt, chỉnh sửa, hoàn tác
+- state: string // trạng thái đơn hàng gồm các giá trị sau: 
+  + Báo giá: đơn hàng vừa được tạo, chưa xác nhận với khách, có thể chỉnh sửa tự do
+  + Đã chốt: khách đã xác nhận đơn, chỉ cho phép chỉnh sửa thông qua nghiệp vụ chuyển sang trạng thái chỉnh sửa
+  + Chỉnh sửa: trạng thái tạm khi đang cập nhật lại sản phẩm/giá; sau khi lưu xong thì có thể chuyển lại sang đã chốt hoặc báo giá tùy nghiệp vụ
+  + Hoàn tác: đơn hàng bị hủy/hoàn tác toàn bộ, kho được cộng trả lại (xem chi tiết phần nghiệp vụ)
+  + Đã xong: đơn hàng đã thanh toán đủ, đã xuất kho xong
 - exchangeRate: number // tỷ giá
 - customer: objectId ref: customer
 - totalPrice: number // tổng giá trị đơn hàng theo đơn vị NGN
@@ -88,6 +93,12 @@
 - Khi state chuyển sang chỉnh sửa thì tính toán lại số lượng hàng hóa đã chiếm dụng rồi update lại đúng bản ghi đó trong warehouse
 - User ai cũng có quyền thêm lịch sử đơn hàng. Khi thêm lịch sử đơn hàng cần điền: moneyPaidNGN, exchangeRate, moneyPaidDolar, datePaid. Với type = hoàn tiền thì lấy số tiền payment + thêm tiền hoàn để khách nợ thêm số tiền hoàn đó.
 - User ai cũng có quyền hoàn tác đơn hàng. trước khi hoàn tác cần phải kiểm tra: payment là số âm và (-1) * payment = totalPrice thì mới cho phép hoàn tác, và bắt buộc phải điền. Khi hoàn tác thì lấy số lượng hàng cộng lại vào kho
+- Khi tiền khách hàng trả hết (không còn nợ) thì trạng thái đơn hàng cập nhật thành đã xong. Khi đó:
+  + Chiếm dụng trong kho (`amountOccupied`) trừ đi đúng tổng số lượng của đơn hàng đó
+  + Tổng số lượng trong kho (`totalAmount`) cũng trừ đi đúng tổng số lượng của đơn hàng đó
+  + Việc trừ kho này chỉ thực hiện 1 lần duy nhất tại thời điểm chuyển trạng thái từ Báo giá/Đã chốt/Chỉnh sửa sang Đã xong, không trừ lại nếu sau đó cập nhật thông tin khác không liên quan tới số lượng
+  + Điều kiện “tiền khách hàng trả hết” được hiểu là: `payment >= 0` (không còn nợ, có thể dư tiền). Trường hợp thanh toán dư thì số tiền dư giữ trong `payment` dương, nhưng vẫn được coi là đã xong và đã xuất kho
+  + Không cho phép chuyển trạng thái sang Đã xong nếu `payment` đang âm (khách còn nợ)
 
 
 ## Lưu ý

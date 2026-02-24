@@ -79,7 +79,11 @@ class OrderDetailDto {
   @ApiProperty({ example: 'cao', description: 'Loại đơn theo giá cao hoặc giá thấp' })
   type: string;
 
-  @ApiProperty({ example: 'Báo giá' })
+  @ApiProperty({
+    example: 'Báo giá',
+    description:
+      'Trạng thái đơn hàng: Báo giá | Đã chốt | Chỉnh sửa | Hoàn tác | Đã xong',
+  })
   state: string;
 
   @ApiProperty({ example: 1600 })

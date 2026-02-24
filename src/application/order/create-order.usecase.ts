@@ -75,8 +75,8 @@ export class CreateOrderUseCase {
       state: OrderState.BAO_GIA,
       exchangeRate: dto.exchangeRate,
       customer: dto.customer,
-      totalPrice,
-      payment: -totalPrice,
+      totalPrice: totalPrice * dto.exchangeRate,
+      payment: -(totalPrice * dto.exchangeRate),
       note: dto.note ?? '',
       products: dto.products.map((p) => ({
         nameSet: p.nameSet,

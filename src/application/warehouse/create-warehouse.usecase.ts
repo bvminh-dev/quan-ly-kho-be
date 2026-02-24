@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
+import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto.js';
 
 @Injectable()
@@ -9,6 +10,7 @@ export class CreateWarehouseUseCase {
   constructor(
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
+    private readonly historyWarehouseService: HistoryWarehouseService,
   ) {}
 
   async execute(dto: CreateWarehouseDto, createdBy: string) {
@@ -29,6 +31,11 @@ export class CreateWarehouseUseCase {
       sale: dto.sale ?? 0,
       createdBy,
     });
+
+    await this.historyWarehouseService.createHistoryEnterForCreateWarehouse(
+      warehouse._id,
+      createdBy,
+    );
 
     return warehouse;
   }

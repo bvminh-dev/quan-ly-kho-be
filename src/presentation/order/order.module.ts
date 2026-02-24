@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AddHistoryUseCase } from '../../application/order/add-history.usecase.js';
 import { ConfirmOrderUseCase } from '../../application/order/confirm-order.usecase.js';
@@ -15,6 +15,7 @@ import {
 } from '../../infrastructure/mongo/order/order.schema.js';
 import { CustomerModule } from '../customer/customer.module.js';
 import { WarehouseModule } from '../warehouse/warehouse.module.js';
+import { HistoryWarehouseModule } from '../history-warehouse/history-warehouse.module.js';
 import { OrderController } from './order.controller.js';
 
 @Module({
@@ -22,6 +23,7 @@ import { OrderController } from './order.controller.js';
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     CustomerModule,
     WarehouseModule,
+    forwardRef(() => HistoryWarehouseModule),
   ],
   controllers: [OrderController],
   providers: [

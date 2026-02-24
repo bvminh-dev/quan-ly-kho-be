@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
+import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 import { AddStockDto } from './dto/add-stock.dto.js';
 
 @Injectable()
@@ -9,6 +10,7 @@ export class AddStockUseCase {
   constructor(
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
+    private readonly historyWarehouseService: HistoryWarehouseService,
   ) {}
 
   async execute(dto: AddStockDto, updatedBy: string) {
@@ -35,6 +37,13 @@ export class AddStockUseCase {
         `Warehouse với id ${dto.warehouseId} không tồn tại`,
       );
     }
+
+    await this.historyWarehouseService.createHistoryEnterForAddStock(
+      dto.warehouseId,
+      dto.quantity,
+      dto.note || '',
+      updatedBy,
+    );
 
     this.logger.log(
       `Successfully added ${dto.quantity} to warehouse ${dto.warehouseId}`,

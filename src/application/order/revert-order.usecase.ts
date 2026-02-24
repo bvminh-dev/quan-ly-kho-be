@@ -8,6 +8,7 @@ import {
 import { OrderState } from '../../common/enums/index.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
+import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 import { RevertOrderDto } from './dto/revert-order.dto.js';
 
 @Injectable()
@@ -19,6 +20,7 @@ export class RevertOrderUseCase {
     private readonly orderRepository: IOrderRepository,
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
+    private readonly historyWarehouseService: HistoryWarehouseService,
   ) {}
 
   async execute(id: string, dto: RevertOrderDto, updatedBy: string) {
@@ -49,21 +51,26 @@ export class RevertOrderUseCase {
           -item.quantity,
           item.quantity,
         );
+
+        await this.historyWarehouseService.createHistoryEnterForRevertOrder(
+          item.id,
+          id,
+          item.quantity,
+          dto.note,
+          updatedBy,
+        );
       }
     }
 
     const updateData: Partial<{
       state: string;
       updatedBy: string;
-      note?: string;
+      note: string;
     }> = {
       state: OrderState.HOAN_TAC,
       updatedBy,
+      note: dto.note,
     };
-
-    if (dto.note !== undefined) {
-      updateData.note = dto.note;
-    }
 
     const updated = await this.orderRepository.update(id, updateData as any);
 

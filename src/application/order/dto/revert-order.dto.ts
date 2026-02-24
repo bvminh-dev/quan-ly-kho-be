@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class RevertOrderDto {
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  @ApiProperty({ example: 'Ghi chú hoàn tác đơn hàng', required: false, description: 'Ghi chú khi hoàn tác đơn hàng' })
-  note?: string;
+  @ApiProperty({ example: 'Ghi chú hoàn tác đơn hàng', required: true, description: 'Ghi chú khi hoàn tác đơn hàng (bắt buộc)' })
+  note: string;
 }

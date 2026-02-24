@@ -92,7 +92,7 @@
 - User trong hệ thống đều có quyền tạo đơn hàng, thông tin bắt buộc gồm: Tỷ giá, khách hàng. products phải có ít nhất 1 element. Item phải điền số lượng, đơn giá, giảm giá. Khi tạo đơn hàng, state mặc định là: Báo giá. Khi tạo thành công thì tính toán số lượng của từng item rồi update lại vào bản ghi đó trong warehouse với các giá trị: Số lượng khả dụng, số lượng chiếm dụng
 - Khi state chuyển sang chỉnh sửa thì tính toán lại số lượng hàng hóa đã chiếm dụng rồi update lại đúng bản ghi đó trong warehouse
 - User ai cũng có quyền thêm lịch sử đơn hàng. Khi thêm lịch sử đơn hàng cần điền: moneyPaidNGN, exchangeRate, moneyPaidDolar, datePaid. Với type = hoàn tiền thì lấy số tiền payment + thêm tiền hoàn để khách nợ thêm số tiền hoàn đó.
-- User ai cũng có quyền hoàn tác đơn hàng. trước khi hoàn tác cần phải kiểm tra: payment là số âm và (-1) * payment = totalPrice thì mới cho phép hoàn tác, và bắt buộc phải điền. Khi hoàn tác thì lấy số lượng hàng cộng lại vào kho
+- User ai cũng có quyền hoàn tác đơn hàng. trước khi hoàn tác cần phải kiểm tra: payment là số âm và (-1) * payment = totalPrice thì mới cho phép hoàn tác, và bắt buộc phải điền. Khi hoàn tác thì lấy số lượng hàng cộng lại vào số lượng khả dụng của hàng hóa đó trong kho, và trừ số lượng chiếm hữu đi
 - Khi tiền khách hàng trả hết (không còn nợ) thì trạng thái đơn hàng cập nhật thành đã xong. Khi đó:
   + Chiếm dụng trong kho (`amountOccupied`) trừ đi đúng tổng số lượng của đơn hàng đó
   + Tổng số lượng trong kho (`totalAmount`) cũng trừ đi đúng tổng số lượng của đơn hàng đó

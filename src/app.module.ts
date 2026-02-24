@@ -13,6 +13,7 @@ import { PermissionModule } from './presentation/permission/permission.module.js
 import { RoleModule } from './presentation/role/role.module.js';
 import { UserModule } from './presentation/user/user.module.js';
 import { WarehouseModule } from './presentation/warehouse/warehouse.module.js';
+import { HistoryWarehouseModule } from './presentation/history-warehouse/history-warehouse.module.js';
 import { DatabaseModule } from './shared/database/database.module.js';
 
 @Module({
@@ -34,6 +35,7 @@ import { DatabaseModule } from './shared/database/database.module.js';
     CustomerModule,
     WarehouseModule,
     OrderModule,
+    HistoryWarehouseModule,
     DatabaseModule,
   ],
   controllers: [AppController],

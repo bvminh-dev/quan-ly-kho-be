@@ -88,3 +88,16 @@ export enum OrderType {
   CAO = 'cao',
   THAP = 'thấp',
 }
+
+export enum HistoryEnterType {
+  TAO_MOI = 'Tạo mới',
+  NHAP_THEM_HANG = 'Nhập thêm hàng',
+  HOAN_DON = 'Hoàn đơn',
+  SUA_GIA = 'Sửa giá',
+  XOA = 'Xóa',
+}
+
+export enum HistoryExportState {
+  KHACH_TRA = 'Khách trả',
+  HOAN_DON = 'Hoàn đơn',
+}

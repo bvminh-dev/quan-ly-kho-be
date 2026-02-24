@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AddStockUseCase } from '../../application/warehouse/add-stock.usecase.js';
 import { CreateWarehouseUseCase } from '../../application/warehouse/create-warehouse.usecase.js';
@@ -8,11 +8,13 @@ import { GetWarehousesUseCase } from '../../application/warehouse/get-warehouses
 import { UpdateWarehouseUseCase } from '../../application/warehouse/update-warehouse.usecase.js';
 import { WarehouseMongoRepository } from '../../infrastructure/mongo/warehouse/warehouse.mongo.repository.js';
 import { Warehouse, WarehouseSchema } from '../../infrastructure/mongo/warehouse/warehouse.schema.js';
+import { HistoryWarehouseModule } from '../history-warehouse/history-warehouse.module.js';
 import { WarehouseController } from './warehouse.controller.js';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Warehouse.name, schema: WarehouseSchema }]),
+    forwardRef(() => HistoryWarehouseModule),
   ],
   controllers: [WarehouseController],
   providers: [

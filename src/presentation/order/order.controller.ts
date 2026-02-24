@@ -201,8 +201,12 @@ export class OrderController {
   @ApiNotFoundResponse({ description: 'Không tìm thấy đơn hàng' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Add history to Order')
-  async addHistory(@Param('id') id: string, @Body() dto: AddHistoryDto) {
-    return this.addHistoryUseCase.execute(id, dto);
+  async addHistory(
+    @Param('id') id: string,
+    @Body() dto: AddHistoryDto,
+    @User() user: ICurrentUser,
+  ) {
+    return this.addHistoryUseCase.execute(id, dto, user._id);
   }
 
   @Patch(':id/confirm')

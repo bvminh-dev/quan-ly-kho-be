@@ -1,8 +1,9 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { HistoryType, OrderState } from '../../common/enums/index.js';
+import { HistoryExportState, HistoryType, OrderState } from '../../common/enums/index.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
+import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 import { AddHistoryDto } from './dto/add-history.dto.js';
 
 @Injectable()
@@ -16,9 +17,10 @@ export class AddHistoryUseCase {
     private readonly customerRepository: ICustomerRepository,
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
+    private readonly historyWarehouseService: HistoryWarehouseService,
   ) {}
 
-  async execute(orderId: string, dto: AddHistoryDto) {
+  async execute(orderId: string, dto: AddHistoryDto, createdBy: string) {
     this.logger.log(`Adding history to order ${orderId}`);
 
     const order = await this.orderRepository.findById(orderId);
@@ -58,6 +60,16 @@ export class AddHistoryUseCase {
           await this.warehouseRepository.decreaseTotalAndOccupied(
             item.id,
             item.quantity,
+          );
+
+          await this.historyWarehouseService.createHistoryExportForOrder(
+            item.id,
+            orderId,
+            item.quantity,
+            HistoryExportState.KHACH_TRA,
+            dto.moneyPaidNGN,
+            dto.note ?? '',
+            createdBy,
           );
         }
       }

@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
+import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 
 @Injectable()
 export class DeleteWarehouseUseCase {
@@ -8,6 +9,7 @@ export class DeleteWarehouseUseCase {
   constructor(
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
+    private readonly historyWarehouseService: HistoryWarehouseService,
   ) {}
 
   async execute(id: string, deleteBy: string): Promise<void> {
@@ -17,6 +19,11 @@ export class DeleteWarehouseUseCase {
     if (!warehouse) {
       throw new NotFoundException(`Warehouse với id ${id} không tồn tại`);
     }
+
+    await this.historyWarehouseService.createHistoryEnterForDelete(
+      id,
+      deleteBy,
+    );
 
     await this.warehouseRepository.softDelete(id, deleteBy);
   }

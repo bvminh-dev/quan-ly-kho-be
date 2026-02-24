@@ -1,5 +1,8 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { OrderState } from '../../common/enums/index.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
+import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
+import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 
 @Injectable()
 export class DeleteOrderUseCase {
@@ -8,6 +11,9 @@ export class DeleteOrderUseCase {
   constructor(
     @Inject('OrderRepository')
     private readonly orderRepository: IOrderRepository,
+    @Inject('WarehouseRepository')
+    private readonly warehouseRepository: IWarehouseRepository,
+    private readonly historyWarehouseService: HistoryWarehouseService,
   ) {}
 
   async execute(id: string, deleteBy: string): Promise<void> {
@@ -16,6 +22,35 @@ export class DeleteOrderUseCase {
     const order = await this.orderRepository.findById(id);
     if (!order) {
       throw new NotFoundException(`Order với id ${id} không tồn tại`);
+    }
+
+    if ((order.state as OrderState) === OrderState.DA_XONG) {
+      throw new BadRequestException(
+        'Không thể xóa đơn hàng đã hoàn thành. Vui lòng sử dụng chức năng hoàn đơn.',
+      );
+    }
+
+    if ((order.state as OrderState) === OrderState.HOAN_TAC) {
+      await this.orderRepository.softDelete(id, deleteBy);
+      return;
+    }
+
+    for (const product of order.products) {
+      for (const item of product.items) {
+        await this.warehouseRepository.updateStock(
+          item.id,
+          -item.quantity,
+          item.quantity,
+        );
+
+        await this.historyWarehouseService.createHistoryEnterForRevertOrder(
+          item.id,
+          id,
+          item.quantity,
+          `Xóa đơn hàng ${id}`,
+          deleteBy,
+        );
+      }
     }
 
     await this.orderRepository.softDelete(id, deleteBy);

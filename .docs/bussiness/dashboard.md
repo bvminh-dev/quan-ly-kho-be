@@ -1,0 +1,201 @@
+## Báo cáo theo ngày, theo tháng cho order
+- **Mục tiêu nghiệp vụ**: 
+  - Tính tổng tiền bán được (`totalPrice`) theo ngày/tháng.
+  - Tính tổng số tiền khách đang nợ (`payment` âm) theo ngày/tháng.
+- **Dữ liệu nguồn**:
+  - Bảng `order` (tham chiếu tài liệu `manage-customer-order-warehouse.md`).
+  - Trường sử dụng chính: `state`, `totalPrice`, `payment`, `createdAt`, `customer`, `createdBy`, `isDeleted`.
+- **Thiết kế API**:
+  - **Endpoint**: `GET /dashboard/orders`
+  - **Auth & phân quyền**:
+    - Bắt buộc user đăng nhập.
+    - Check `role` và `permission` trước khi xử lý (role `admin` xem được toàn bộ, các role khác có thể bị giới hạn theo cấu hình permission).
+  - **Query params (dùng api-query-params)**:
+    - `page`: number – trang hiện tại.
+    - `limit`: number – số bản ghi muốn lấy (số ngày/tháng).
+    - `query`: string – chuỗi điều kiện filter nâng cao (ví dụ: theo trạng thái `state`, theo `customer`, theo `createdBy`...).
+    - `fromDate`, `toDate`: ISO date – khoảng thời gian lọc theo `createdAt`.
+    - `typeTime`: 'day' | 'month' – báo cáo theo ngày hoặc theo tháng.
+  - **Luồng xử lý service**:
+    - Validate và transform query bằng `class-validator`, `class-transformer`.
+    - Áp dụng filter chung: `isDeleted = false`.
+    - Áp dụng filter theo ngày/tháng: dùng `createdAt` nằm trong `[fromDate, toDate]`.
+    - Nhóm dữ liệu theo:
+      - Nếu `typeTime = 'day'`: group theo `YYYY-MM-DD`.
+      - Nếu `typeTime = 'month'`: group theo `YYYY-MM`.
+    - Tính các chỉ số cho mỗi group:
+      - `totalRevenue`: tổng `totalPrice` của các order (NGN).
+      - `totalDebt`: tổng phần `payment` âm (đang nợ).
+      - `totalOverPaid`: tổng phần `payment` dương (trả dư).
+      - `countOrder`: số lượng đơn hàng.
+      - Có thể tách theo `state` nếu cần (Báo giá/Đã chốt/Đã xong/Hoàn tác/...).
+    - Áp dụng phân trang trên danh sách group (không trên bản ghi gốc).
+  - **Response (swagger)**:
+    - Mô tả rõ output:
+      - `items`: danh sách object:
+        - `timeKey`: string – 'YYYY-MM-DD' hoặc 'YYYY-MM'.
+        - `totalRevenue`: number.
+        - `totalDebt`: number.
+        - `totalOverPaid`: number.
+        - `countOrder`: number.
+      - `meta`:
+        - `page`, `limit`, `total`, `totalPages`.
+    - Sử dụng DTO response với `@ApiProperty`.
+
+## Báo cáo theo ngày, theo tháng cho user theo order
+- **Mục tiêu nghiệp vụ**:
+  - Thống kê số lượng hàng (tổng quantity trong `products.Items`) theo `createdBy` và theo ngày/tháng.
+  - Thống kê tổng tiền bán được (`totalPrice`) theo `createdBy` và theo ngày/tháng.
+- **Dữ liệu nguồn**:
+  - Bảng `order`, chú ý:
+    - `createdBy` (user bán hàng).
+    - `products[].Items[].quantity` và `products[].Items[].price`, `exchangeRate`.
+- **Thiết kế API**:
+  - **Endpoint**: `GET /dashboard/users-orders`
+  - **Auth & phân quyền**:
+    - User đăng nhập.
+    - Check role/permission:
+      - `admin`: xem tất cả user.
+      - user thường có thể chỉ xem bản thân hoặc theo policy hệ thống (xác định thông qua permission).
+  - **Query params (dùng api-query-params)**:
+    - `page`, `limit`, `query` (filter theo user, theo trạng thái đơn `state`,...).
+    - `fromDate`, `toDate`, `typeTime` ('day' | 'month').
+    - Có thể thêm: `userId` để báo cáo cho 1 user cụ thể.
+  - **Luồng xử lý service**:
+    - Validate DTO query.
+    - Filter: `isDeleted = false`.
+    - Filter theo `createdAt` nằm trong `[fromDate, toDate]`.
+    - Áp dụng rule phân quyền theo `User` decorator (lấy user hiện tại từ `request.user`).
+    - Tính các chỉ số:
+      - Với mỗi order, tính `totalQuantity` = tổng `products[].Items[].quantity`.
+      - Nhóm theo `createdBy` và `timeKey` (ngày/tháng).
+      - Cho mỗi (user, timeKey):
+        - `totalQuantity`: tổng số lượng hàng bán.
+        - `totalRevenue`: tổng `totalPrice`.
+        - `countOrder`: số đơn.
+    - Phân trang theo group (user + timeKey).
+  - **Response (swagger)**:
+    - `items`:
+      - `userId`: string.
+      - `userName`: string (nếu join sang bảng user).
+      - `timeKey`: string.
+      - `totalQuantity`: number.
+      - `totalRevenue`: number.
+      - `countOrder`: number.
+    - `meta`: phân trang.
+
+## Báo cáo theo ngày, theo tháng cho user bán cho customer theo order
+- **Mục tiêu nghiệp vụ**:
+  - Thống kê số lượng hàng mà từng user bán cho từng customer theo ngày/tháng.
+  - Thống kê tổng tiền bán được mà từng user bán cho từng customer theo ngày/tháng.
+- **Dữ liệu nguồn**:
+  - Bảng `order`:
+    - `createdBy` (user bán).
+    - `customer` (khách hàng).
+    - `totalPrice`, `products[].Items[].quantity`, `createdAt`.
+- **Thiết kế API**:
+  - **Endpoint**: `GET /dashboard/users-customers-orders`
+  - **Auth & phân quyền**:
+    - Yêu cầu đăng nhập.
+    - Check role/permission:
+      - `admin`: xem toàn bộ dữ liệu.
+      - User thường: chỉ xem dữ liệu của chính mình hoặc theo quy định permission.
+  - **Query params (dùng api-query-params)**:
+    - `page`, `limit`, `query`.
+    - `fromDate`, `toDate`, `typeTime` ('day' | 'month').
+    - `userId?`, `customerId?` để filter sâu hơn.
+  - **Luồng xử lý service**:
+    - Validate DTO query.
+    - Filter: `isDeleted = false`.
+    - Filter theo `createdAt`.
+    - Áp dụng rule phân quyền bằng `User` decorator.
+    - Nhóm dữ liệu theo: `createdBy`, `customer`, `timeKey` (ngày/tháng).
+    - Cho mỗi group:
+      - `totalQuantity`: tổng `products[].Items[].quantity`.
+      - `totalRevenue`: tổng `totalPrice`.
+      - `countOrder`: số đơn.
+    - Có thể join sang bảng `customer` để lấy `customerName` và bảng `user` để lấy `userName`.
+    - Phân trang trên danh sách group.
+  - **Response (swagger)**:
+    - `items`:
+      - `userId`, `userName`.
+      - `customerId`, `customerName`.
+      - `timeKey`.
+      - `totalQuantity`.
+      - `totalRevenue`.
+      - `countOrder`.
+    - `meta`: phân trang.
+
+## Báo cáo theo ngày, theo tháng cho customer
+- **Mục tiêu nghiệp vụ**:
+  - Thống kê theo từng khách hàng:
+    - Khách đã trả bao nhiêu tiền theo từng ngày/tháng.
+    - Khách còn nợ bao nhiêu theo từng ngày/tháng (dựa theo `payment`, `Debt`, `history` của order).
+- **Dữ liệu nguồn**:
+  - Bảng `order`:
+    - `customer`, `payment`, `Debt`, `Paid`, `history[]`, `totalPrice`, `createdAt`.
+  - Bảng `customer`:
+    - `name`, `payment` (tổng nợ/tổng tiền thừa ở cấp customer).
+- **Thiết kế API**:
+  - **Endpoint**: `GET /dashboard/customers`
+  - **Auth & phân quyền**:
+    - Yêu cầu đăng nhập.
+    - `admin`: xem toàn bộ khách hàng.
+    - Các role khác: tùy chính sách (có thể cho xem toàn bộ hoặc giới hạn).
+  - **Query params (dùng api-query-params)**:
+    - `page`, `limit`, `query`.
+    - `fromDate`, `toDate`, `typeTime`.
+    - `customerId?` để báo cáo chi tiết cho 1 khách.
+  - **Luồng xử lý service**:
+    - Validate query DTO.
+    - Filter `isDeleted = false` cho cả `order` và `customer`.
+    - Filter `createdAt` nằm trong `[fromDate, toDate]`.
+    - Với mỗi order:
+      - Xem `history[]`:
+        - Lọc các bản ghi thanh toán trong `history` theo `datePaid` thuộc `[fromDate, toDate]`.
+        - Tính `moneyPaidNGN` theo từng ngày/tháng.
+      - Sử dụng `payment`, `Debt`, `Paid`:
+        - Theo nghiệp vụ, FE gửi `Debt`, `Paid` khi chốt đơn và thêm lịch sử thanh toán.
+        - Cần tính toán được:
+          - `totalDebtIncrement`: tổng phần nợ phát sinh trong các order (mang dấu âm).
+          - `totalPaidFromHistory`: tổng tiền khách đã thanh toán trong `history` (dùng `moneyPaidNGN` và `exchangeRate` nếu cần).
+    - Nhóm dữ liệu theo `customer` và `timeKey` (ngày/tháng) dựa trên `datePaid` (lịch sử trả tiền) và/hoặc `createdAt` (nghiệp vụ ghi nợ).
+    - Cho mỗi group:
+      - `totalPaid`: tổng số tiền khách đã trả (theo NGN).
+      - `totalDebt`: tổng nợ tương ứng (theo NGN).
+      - `countOrder`: số đơn liên quan.
+    - Có thể kết hợp thêm trường `runningDebt` để phản ánh nợ lũy kế nếu cần (tùy yêu cầu chi tiết).
+  - **Response (swagger)**:
+    - `items`:
+      - `customerId`, `customerName`.
+      - `timeKey`.
+      - `totalPaid`.
+      - `totalDebt`.
+      - `countOrder`.
+      - (optional) `runningDebt`.
+    - `meta`: phân trang.
+
+## Các bước tổng quát khi hiện thực API dashboard trong NestJS
+- **1. Thiết kế DTO & Enum**:
+  - Tạo các DTO request/response cho từng API dashboard, dùng `class-validator`, `class-transformer`, `@ApiProperty`.
+  - Tách tất cả enum (state của order, typeTime, paymentMethod, ...) sang file enum riêng.
+- **2. Thiết kế module và service**:
+  - Tạo `DashboardModule`, `DashboardService`.
+  - Inject các repository/bộ truy cập dữ liệu (order, customer, warehouse) cần thiết.
+  - Thêm `Logger` trong service để log truy vết khi build query, tính toán.
+- **3. Thiết kế controller**:
+  - Tạo `DashboardController` với các route:
+    - `GET /dashboard/orders`
+    - `GET /dashboard/users-orders`
+    - `GET /dashboard/users-customers-orders`
+    - `GET /dashboard/customers`
+  - Dùng `@User()` decorator để lấy user hiện tại, check quyền trước khi gọi service.
+  - Mô tả đầy đủ swagger cho từng API, bao gồm request, response, status code.
+- **4. Xử lý query & phân trang**:
+  - Dùng `api-query-params` để parse `page`, `limit`, `query` thành object filter/sort.
+  - Luôn bổ sung điều kiện `isDeleted = false` vào filter.
+  - Thực hiện aggregate/group ở tầng DB (aggregation pipeline nếu dùng MongoDB hoặc GROUP BY nếu dùng SQL) để tối ưu hiệu năng.
+- **5. Kiểm thử & tối ưu**:
+  - Viết test cho các trường hợp: không có dữ liệu, nhiều dữ liệu, filter theo ngày, theo tháng, theo user, theo customer.
+  - Đảm bảo TypeScript không lỗi, swagger hiển thị đúng cấu trúc.
+  - Tối ưu query, thêm index (nếu cần) cho các trường hay filter: `createdAt`, `createdBy`, `customer`, `state`, `isDeleted`.

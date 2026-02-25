@@ -1,9 +1,10 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { HistoryExportState, HistoryType, OrderState } from '../../common/enums/index.js';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { HistoryType, OrderState } from '../../common/enums/index.js';
+import { HISTORY_WAREHOUSE_EVENTS } from '../../common/constants/events.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
-import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 import { AddHistoryDto } from './dto/add-history.dto.js';
 
 @Injectable()
@@ -17,7 +18,7 @@ export class AddHistoryUseCase {
     private readonly customerRepository: ICustomerRepository,
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
-    private readonly historyWarehouseService: HistoryWarehouseService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async execute(orderId: string, dto: AddHistoryDto, createdBy: string) {
@@ -40,14 +41,7 @@ export class AddHistoryUseCase {
       ? order.payment - dto.moneyPaidNGN
       : order.payment + dto.moneyPaidNGN;
 
-    if (isRefund) {
-      await this.customerRepository.updatePayment(
-        customerId,
-        -dto.moneyPaidNGN,
-      );
-    } else {
-      await this.customerRepository.updatePayment(customerId, dto.moneyPaidNGN);
-    }
+    const newDebt = newPayment < 0 ? -newPayment : 0;
 
     const shouldMarkAsDone =
       (order.state as OrderState) !== OrderState.DA_XONG &&
@@ -61,26 +55,29 @@ export class AddHistoryUseCase {
             item.id,
             item.quantity,
           );
-
-          await this.historyWarehouseService.createHistoryExportForOrder(
-            item.id,
-            orderId,
-            item.quantity,
-            HistoryExportState.KHACH_TRA,
-            dto.moneyPaidNGN,
-            dto.note ?? '',
-            createdBy,
-          );
         }
       }
 
       await this.orderRepository.update(orderId, {
         payment: newPayment,
+        debt: newDebt,
         state: OrderState.DA_XONG as string,
       });
     } else {
-      await this.orderRepository.update(orderId, { payment: newPayment });
+      await this.orderRepository.update(orderId, {
+        payment: newPayment,
+        debt: newDebt,
+      });
     }
+
+    this.eventEmitter.emit(HISTORY_WAREHOUSE_EVENTS.ORDER_PAYMENT_ADDED, {
+      orderId,
+      isRefund,
+      moneyPaidNGN: dto.moneyPaidNGN,
+      note: dto.note ?? '',
+      createdBy,
+      shouldMarkAsDone,
+    });
 
     const updatedOrder = await this.orderRepository.addHistory(orderId, {
       type: dto.type,
@@ -91,6 +88,15 @@ export class AddHistoryUseCase {
       datePaid: dto.datePaid,
       note: dto.note ?? '',
     });
+
+    if (updatedOrder && (updatedOrder.state as OrderState) !== OrderState.BAO_GIA) {
+      const customerPayment =
+        await this.orderRepository.calculateCustomerPayment(customerId);
+
+      await this.customerRepository.update(customerId, {
+        payment: customerPayment,
+      });
+    }
 
     return updatedOrder;
   }

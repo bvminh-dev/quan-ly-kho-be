@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
 import { Model } from 'mongoose';
+import { HistoryType, OrderState } from '../../../common/enums/index.js';
 import type { OrderEntity } from '../../../domain/order/order.entity.js';
 import type { IOrderRepository } from '../../../domain/order/order.repository.js';
 import { OrderMapper } from './order.mapper.js';
@@ -31,9 +32,14 @@ export class OrderMongoRepository implements IOrderRepository {
     return OrderMapper.toDomain(doc) as OrderEntity;
   }
 
-  async update(id: string, data: Partial<OrderEntity>): Promise<OrderEntity | null> {
+  async update(
+    id: string,
+    data: Partial<OrderEntity>,
+  ): Promise<OrderEntity | null> {
     const updated = await this.orderModel
-      .findOneAndUpdate({ _id: id, isDeleted: false }, data as any, { new: true })
+      .findOneAndUpdate({ _id: id, isDeleted: false }, data as any, {
+        new: true,
+      })
       .populate('customer', '_id name payment')
       .lean();
     return OrderMapper.toDomain(updated);
@@ -90,5 +96,49 @@ export class OrderMongoRepository implements IOrderRepository {
       .populate('customer', '_id name payment')
       .lean();
     return OrderMapper.toDomain(updated);
+  }
+
+  async calculateCustomerPayment(customerId: string): Promise<number> {
+    type OrderForPayment = {
+      totalPrice?: number;
+      exchangeRate?: number;
+      history?: Array<{
+        type?: HistoryType | string;
+        moneyPaidDolar?: number;
+      }>;
+    };
+
+    const orders = (await this.orderModel
+      .find()
+      .where('customer')
+      .equals(customerId)
+      .where('isDeleted')
+      .equals(false)
+      .where('state')
+      .nin([OrderState.BAO_GIA, OrderState.HOAN_TAC])
+      .select(['totalPrice', 'exchangeRate', 'history', 'state'])
+      .lean()
+      .exec()) as OrderForPayment[];
+
+    let totalOrderUSD = 0;
+    let totalPaidUSD = 0;
+
+    for (const order of orders) {
+      if (order.exchangeRate && order.exchangeRate > 0 && order.totalPrice) {
+        totalOrderUSD += order.totalPrice / order.exchangeRate;
+      }
+
+      const historyList = Array.isArray(order.history) ? order.history : [];
+
+      for (const history of historyList) {
+        if (history.type === HistoryType.KHACH_TRA) {
+          totalPaidUSD += history.moneyPaidDolar ?? 0;
+        } else if (history.type === HistoryType.HOAN_TIEN) {
+          totalPaidUSD -= history.moneyPaidDolar ?? 0;
+        }
+      }
+    }
+
+    return totalPaidUSD - totalOrderUSD;
   }
 }

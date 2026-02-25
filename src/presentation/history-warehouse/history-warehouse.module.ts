@@ -21,6 +21,7 @@ import {
   HistoryExportSchema,
 } from '../../infrastructure/mongo/history-warehouse/history-export.schema.js';
 import { HistoryWarehouseService } from '../../application/history-warehouse/history-warehouse.service.js';
+import { HistoryExportEventListener } from '../../application/history-warehouse/history-export-event.listener.js';
 import { HistoryWarehouseController } from './history-warehouse.controller.js';
 import { OrderModule } from '../order/order.module.js';
 import { WarehouseModule } from '../warehouse/warehouse.module.js';
@@ -55,6 +56,7 @@ import { WarehouseModule } from '../warehouse/warehouse.module.js';
     UpdateHistoryExportUseCase,
     DeleteHistoryExportUseCase,
     HistoryWarehouseService,
+    HistoryExportEventListener,
   ],
   exports: [
     'HistoryEnterRepository',

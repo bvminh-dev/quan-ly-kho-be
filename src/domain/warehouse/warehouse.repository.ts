@@ -2,6 +2,13 @@ import { WarehouseEntity } from './warehouse.entity.js';
 
 export interface IWarehouseRepository {
   findById(id: string): Promise<WarehouseEntity | null>;
+  findByAttributes(
+    inches: number,
+    item: string,
+    quality: string,
+    style: string,
+    color: string,
+  ): Promise<WarehouseEntity | null>;
   create(warehouse: Partial<WarehouseEntity>): Promise<WarehouseEntity>;
   update(
     id: string,

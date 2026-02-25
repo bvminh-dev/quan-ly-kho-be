@@ -98,6 +98,10 @@ export enum HistoryEnterType {
 }
 
 export enum HistoryExportState {
+  BAO_GIA = 'Báo giá',
+  DA_CHOT = 'Đã chốt',
+  CHINH_SUA = 'Chỉnh sửa',
   KHACH_TRA = 'Khách trả',
   HOAN_DON = 'Hoàn đơn',
+  DA_XONG = 'Đã xong',
 }

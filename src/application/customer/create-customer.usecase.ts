@@ -21,7 +21,7 @@ export class CreateCustomerUseCase {
 
     const customer = await this.customerRepository.create({
       name: dto.name,
-      payment: dto.payment ?? 0,
+      payment: 0,
       note: dto.note ?? '',
       createdBy,
     });

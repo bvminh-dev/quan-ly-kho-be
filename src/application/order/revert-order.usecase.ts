@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderState } from '../../common/enums/index.js';
+import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
 import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
@@ -20,6 +21,8 @@ export class RevertOrderUseCase {
     private readonly orderRepository: IOrderRepository,
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
+    @Inject('CustomerRepository')
+    private readonly customerRepository: ICustomerRepository,
     private readonly historyWarehouseService: HistoryWarehouseService,
   ) {}
 
@@ -62,17 +65,35 @@ export class RevertOrderUseCase {
       }
     }
 
+    const customerId =
+      typeof order.customer === 'object' && order.customer !== null
+        ? order.customer._id
+        : (order.customer as string);
+
     const updateData: Partial<{
       state: string;
       updatedBy: string;
       note: string;
+      payment: number;
+      debt: number;
+      paid: number;
     }> = {
       state: OrderState.HOAN_TAC,
       updatedBy,
       note: dto.note,
+      payment: 0,
+      debt: 0,
+      paid: 0,
     };
 
     const updated = await this.orderRepository.update(id, updateData as any);
+
+    const customerPayment =
+      await this.orderRepository.calculateCustomerPayment(customerId);
+
+    await this.customerRepository.update(customerId, {
+      payment: customerPayment,
+    });
 
     return updated;
   }

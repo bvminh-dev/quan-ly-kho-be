@@ -85,7 +85,7 @@ export class CreateHistoryExportDto {
 
   @IsNotEmpty()
   @IsEnum(HistoryExportState)
-  @ApiProperty({ example: HistoryExportState.KHACH_TRA, enum: HistoryExportState, required: true, description: 'Trạng thái đơn hàng: Khách trả | hoàn đơn' })
+  @ApiProperty({ example: HistoryExportState.KHACH_TRA, enum: HistoryExportState, required: true, description: 'Trạng thái đơn: Báo giá | Khách trả | Hoàn đơn | Đã xong' })
   stateOrder: string;
 
   @IsNotEmpty()

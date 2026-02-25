@@ -14,4 +14,5 @@ export interface IOrderRepository {
     meta: { current: number; pageSize: number; pages: number; total: number };
   }>;
   addHistory(id: string, history: any): Promise<OrderEntity | null>;
+  calculateCustomerPayment(customerId: string): Promise<number>;
 }

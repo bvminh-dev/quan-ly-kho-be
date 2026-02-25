@@ -98,6 +98,18 @@ class OrderDetailDto {
   @ApiProperty({ example: -500 })
   payment: number;
 
+  @ApiProperty({
+    example: 500000,
+    description: 'Số tiền khách nợ cần trả vào hoá đơn này',
+  })
+  debt: number;
+
+  @ApiProperty({
+    example: 100000,
+    description: 'Số tiền khách trả dư, được trừ ở hoá đơn này',
+  })
+  paid: number;
+
   @ApiProperty({ example: 'Ghi chú' })
   note: string;
 

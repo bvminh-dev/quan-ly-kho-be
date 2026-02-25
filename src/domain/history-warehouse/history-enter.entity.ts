@@ -1,19 +1,23 @@
 export class HistoryEnterMetadata {
   totalAmount?: number;
+  amountOccupied?: number;
+  amountAvailable?: number;
   priceHigh?: number;
   priceLow?: number;
   sale?: number;
   quantity?: number;
   quantityRevert?: number;
-  orderId?: string | {
-    _id?: string;
-    type?: string;
-    state?: string;
-    totalPrice?: number;
-    payment?: number;
-    customer?: any;
-    note?: string;
-  };
+  orderId?:
+    | string
+    | {
+        _id?: string;
+        type?: string;
+        state?: string;
+        totalPrice?: number;
+        payment?: number;
+        customer?: any;
+        note?: string;
+      };
   priceHighNew?: number;
   priceHighOld?: number;
   priceLowNew?: number;
@@ -24,20 +28,22 @@ export class HistoryEnterMetadata {
 
 export class HistoryEnterEntity {
   _id: string;
-  warehouseId: string | {
-    _id?: string;
-    item?: string;
-    inches?: number;
-    quality?: string;
-    style?: string;
-    color?: string;
-    priceHigh?: number;
-    priceLow?: number;
-    sale?: number;
-    totalAmount?: number;
-    amountOccupied?: number;
-    amountAvailable?: number;
-  };
+  warehouseId:
+    | string
+    | {
+        _id?: string;
+        item?: string;
+        inches?: number;
+        quality?: string;
+        style?: string;
+        color?: string;
+        priceHigh?: number;
+        priceLow?: number;
+        sale?: number;
+        totalAmount?: number;
+        amountOccupied?: number;
+        amountAvailable?: number;
+      };
   item: string;
   inches: number;
   quality: string;

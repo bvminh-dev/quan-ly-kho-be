@@ -69,3 +69,19 @@ export class Warehouse {
 }
 
 export const WarehouseSchema = SchemaFactory.createForClass(Warehouse);
+
+WarehouseSchema.index(
+  {
+    inches: 1,
+    item: 1,
+    quality: 1,
+    style: 1,
+    color: 1,
+  },
+  {
+    unique: true,
+    partialFilterExpression: {
+      isDeleted: false,
+    },
+  },
+);

@@ -69,6 +69,26 @@ export class UpdateOrderDto {
   customer?: string;
 
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @ApiProperty({
+    example: 500000,
+    required: false,
+    description: 'Số tiền khách nợ cần trả vào hoá đơn này',
+  })
+  debt?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @ApiProperty({
+    example: 100000,
+    required: false,
+    description: 'Số tiền khách trả dư, được trừ ở hoá đơn này',
+  })
+  paid?: number;
+
+  @IsOptional()
   @IsString()
   @ApiProperty({ example: 'Ghi chú đơn hàng', required: false })
   note?: string;

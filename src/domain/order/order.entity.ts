@@ -34,6 +34,8 @@ export class OrderEntity {
   customer: string | { _id: string; name: string } | null;
   totalPrice: number;
   payment: number;
+  debt: number;
+  paid: number;
   note: string;
   products: OrderProductEntity[];
   history: OrderHistoryEntity[];

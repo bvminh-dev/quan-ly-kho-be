@@ -45,8 +45,8 @@
 - priceOrder: number // giá bán của đơn hàng lúc đó
 - saleOrder: number // giá sale của đơn hàng lúc đó
 - quantityOrder: number // tổng số lượng bán của đơn hàng lúc đó
-- stateOrder: string // là một trong các giá trị sau: Khách trả | hoàn đơn
-- paymentOrder: number // Số tiền khách vừa trả (giá trị dương), số tiền vừa hoàn đơn (giá trị âm)
+- stateOrder: string // là một trong các giá trị sau: Báo giá | Đã chốt | Chỉnh sửa | Khách trả | Hoàn đơn | Đã xong
+- paymentOrder: number // Số tiền khách vừa trả (giá trị dương), số tiền vừa hoàn đơn (giá trị âm) theo đơn giá NGN
 - note?: string // ghi chú
 
 ## 2. Nghiệp vụ
@@ -58,7 +58,7 @@
 - Với từng trường hợp thì metadata lấy tương ứng
 
 ### 2.2 Nghiệp vụ xuất kho
-- Khi đơn hàng được tạo, ghi nhận từng 
+Vì thế khi lên đơn, nếu đơn hàng đang ở trạng thái báo giá sau đó chuyển sang trạng thái chỉnh sửa mà khách chưa từng trả tiền thì trạng thái vẫn ở Báo giá. Trạng thái chỉnh sửa chỉ xuất hiện sau trạng thái đã chốt: Báo giá -> Đã chốt -> Chỉnh sửa  -> Đã xong hoặc hoàn tác. Do đó tôi muốn ghi nhận ở trạng thái đã chốt và trạng thái chỉnh sửa,
 
 ### 2.3 Nghiệp vụ chung
 - Tất cả đều phải lắng nghe event qua emit để insert vào DB

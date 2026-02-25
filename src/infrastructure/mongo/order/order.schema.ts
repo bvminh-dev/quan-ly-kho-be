@@ -103,6 +103,12 @@ export class Order {
   @Prop({ default: 0 })
   payment: number;
 
+  @Prop({ default: 0 })
+  debt: number;
+
+  @Prop({ default: 0 })
+  paid: number;
+
   @Prop()
   note: string;
 

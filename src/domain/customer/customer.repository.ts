@@ -14,5 +14,4 @@ export interface ICustomerRepository {
     items: CustomerEntity[];
     meta: { current: number; pageSize: number; pages: number; total: number };
   }>;
-  updatePayment(id: string, amount: number): Promise<CustomerEntity | null>;
 }

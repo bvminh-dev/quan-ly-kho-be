@@ -5,7 +5,9 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OrderState } from '../../common/enums/index.js';
+import { HISTORY_WAREHOUSE_EVENTS } from '../../common/constants/events.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
@@ -22,6 +24,7 @@ export class CreateOrderUseCase {
     private readonly customerRepository: ICustomerRepository,
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async execute(dto: CreateOrderDto, createdBy: string) {
@@ -70,13 +73,21 @@ export class CreateOrderUseCase {
       }
     }
 
+    const totalPriceNGN = totalPrice * dto.exchangeRate;
+
+    const initialPayment = -totalPriceNGN;
+    const debt = dto.debt ?? 0;
+    const paid = dto.paid ?? 0;
+
     const order = await this.orderRepository.create({
       type: dto.type,
       state: OrderState.BAO_GIA,
       exchangeRate: dto.exchangeRate,
       customer: dto.customer,
-      totalPrice: totalPrice * dto.exchangeRate,
-      payment: -(totalPrice * dto.exchangeRate),
+      totalPrice: totalPriceNGN,
+      payment: initialPayment,
+      debt,
+      paid,
       note: dto.note ?? '',
       products: dto.products.map((p) => ({
         nameSet: p.nameSet,
@@ -106,6 +117,11 @@ export class CreateOrderUseCase {
         );
       }
     }
+
+    this.eventEmitter.emit(HISTORY_WAREHOUSE_EVENTS.ORDER_CREATED, {
+      orderId: order._id,
+      createdBy,
+    });
 
     return order;
   }

@@ -1,4 +1,9 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
 import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 import { CreateWarehouseDto } from './dto/create-warehouse.dto.js';
@@ -15,6 +20,22 @@ export class CreateWarehouseUseCase {
 
   async execute(dto: CreateWarehouseDto, createdBy: string) {
     this.logger.log(`Creating warehouse item: ${dto.item} ${dto.inches}"`);
+
+    const existingWarehouse =
+      await this.warehouseRepository.findByAttributes(
+        dto.inches,
+        dto.item,
+        dto.quality,
+        dto.style,
+        dto.color,
+      );
+
+    if (existingWarehouse) {
+      this.logger.warn(
+        `Warehouse item already exists: ${dto.item} ${dto.inches}" ${dto.quality} ${dto.style} ${dto.color}`,
+      );
+      throw new BadRequestException('Hàng đã tồn tại trong hệ thống');
+    }
 
     const warehouse = await this.warehouseRepository.create({
       inches: dto.inches,

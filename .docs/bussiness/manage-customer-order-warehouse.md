@@ -4,7 +4,7 @@
 
 ### Schema `customer` gồm:
 - name: string, unique // tên khách
-- payment: number // tổng tiền của khách có thể nợ hoặc chuyển thừa tiền. Với giá trị âm nghĩa là khách nợ, giá trị dương nghĩa là khách đang trả tiền thừa
+- payment: number // tổng tiền của khách có thể nợ hoặc chuyển thừa tiền. Với giá trị âm nghĩa là khách nợ, giá trị dương nghĩa là khách đang trả tiền thừa (đơn giá USD)
 - note: string
 - createdBy: objectId, ref: user
 - updatedBy: objectId, ref: user
@@ -16,6 +16,7 @@
 ### Nghiệp vụ:
 - Khi tạo customer cần kiểm tra customer có trùng tên trong hệ thống với isDeleted = false không. Bất kỳ user nào trong hệ thống đều có quyền tạo customer
 - Chỉ user role = admin mới có quyền xóa `customer`
+- Như vậy khi tạo đơn hàng (trạng thái chỉ cần chuyển sang đã chốt thì ghi nhận khách nợ vào). Khi khách hàng trả thì tính toán lại số tiền khách nợ, khi hoàn đơn thì xoá khoản nợ của đơn hàng đó đi
 
 ## Kho hàng
 ### Schema `warehouse` gồm
@@ -56,6 +57,8 @@
 - customer: objectId ref: customer
 - totalPrice: number // tổng giá trị đơn hàng theo đơn vị NGN
 - payment: number // số tiền khách trả thừa, trả thiếu, với giá trị âm là khách nợ, giá trị dương là khách trả thừa theo đơn vị NGN
+- Debt: number // số tiền khách nợ cần trả vào hoá đơn này
+- Paid: number // số tiền khách trả dư, được trừ ở hoá đơn này
 - note: string // ghi chú
 - products: {
   + nameSet?: string // tên set
@@ -99,6 +102,8 @@
   + Việc trừ kho này chỉ thực hiện 1 lần duy nhất tại thời điểm chuyển trạng thái từ Báo giá/Đã chốt/Chỉnh sửa sang Đã xong, không trừ lại nếu sau đó cập nhật thông tin khác không liên quan tới số lượng
   + Điều kiện “tiền khách hàng trả hết” được hiểu là: `payment >= 0` (không còn nợ, có thể dư tiền). Trường hợp thanh toán dư thì số tiền dư giữ trong `payment` dương, nhưng vẫn được coi là đã xong và đã xuất kho
   + Không cho phép chuyển trạng thái sang Đã xong nếu `payment` đang âm (khách còn nợ)
+- Cách tính totalPrice =  số lượng item (* số lượng set) * dơn giá (tuỳ theo item trong set hay ngoài set) * tỷ giá 
+- Khi chốt đơn cũng không được tự động ghi nhận debt, Lưu ý quan trọng Debt, Paid nhận từ FE
 
 
 ## Lưu ý

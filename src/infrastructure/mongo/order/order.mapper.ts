@@ -16,6 +16,8 @@ export class OrderMapper {
             : null,
       totalPrice: doc.totalPrice,
       payment: doc.payment,
+      debt: doc.debt,
+      paid: doc.paid,
       note: doc.note,
       products:
         doc.products?.map((p: any) => ({

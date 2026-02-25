@@ -177,7 +177,11 @@ export class HistoryWarehouseService {
       style: warehouse.style,
       color: warehouse.color,
       type: HistoryEnterType.XOA,
-      metadata: {},
+      metadata: {
+        totalAmount: warehouse.totalAmount,
+        amountOccupied: warehouse.amountOccupied,
+        amountAvailable: warehouse.amountAvailable,
+      },
       note: 'Xóa nguyên liệu',
       createdBy,
     });
@@ -207,9 +211,10 @@ export class HistoryWarehouseService {
       return;
     }
 
+    const warehouseIdStr = String(warehouseId);
     const orderItem = order.products
       .flatMap((p) => p.items)
-      .find((item) => item.id === warehouseId);
+      .find((item) => String(item.id) === warehouseIdStr);
 
     if (!orderItem) {
       this.logger.warn(
@@ -238,5 +243,132 @@ export class HistoryWarehouseService {
       note: note || '',
       createdBy,
     });
+  }
+
+  async createHistoryExportForOrderCreated(
+    orderId: string,
+    createdBy: string,
+  ): Promise<void> {
+    const order = await this.orderRepository.findById(orderId);
+    if (!order) {
+      this.logger.warn(`Order ${orderId} not found for history-export created`);
+      return;
+    }
+    for (const product of order.products) {
+      for (const item of product.items) {
+        await this.createHistoryExportForOrder(
+          String(item.id),
+          orderId,
+          item.quantity,
+          HistoryExportState.BAO_GIA,
+          0,
+          '',
+          createdBy,
+        );
+      }
+    }
+  }
+
+  async createHistoryExportForOrderConfirmed(
+    orderId: string,
+    updatedBy: string,
+  ): Promise<void> {
+    const order = await this.orderRepository.findById(orderId);
+    if (!order) {
+      this.logger.warn(`Order ${orderId} not found for history-export confirmed`);
+      return;
+    }
+    for (const product of order.products) {
+      for (const item of product.items) {
+        await this.createHistoryExportForOrder(
+          String(item.id),
+          orderId,
+          item.quantity,
+          HistoryExportState.DA_CHOT,
+          0,
+          '',
+          updatedBy,
+        );
+      }
+    }
+  }
+
+  async createHistoryExportForOrderUpdated(
+    orderId: string,
+    updatedBy: string,
+  ): Promise<void> {
+    const order = await this.orderRepository.findById(orderId);
+    if (!order) {
+      this.logger.warn(`Order ${orderId} not found for history-export updated`);
+      return;
+    }
+    for (const product of order.products) {
+      for (const item of product.items) {
+        await this.createHistoryExportForOrder(
+          String(item.id),
+          orderId,
+          item.quantity,
+          HistoryExportState.CHINH_SUA,
+          0,
+          '',
+          updatedBy,
+        );
+      }
+    }
+  }
+
+  async createHistoryExportForOrderPayment(
+    orderId: string,
+    stateOrder: HistoryExportState,
+    paymentOrder: number,
+    note: string,
+    createdBy: string,
+  ): Promise<void> {
+    const order = await this.orderRepository.findById(orderId);
+    if (!order) {
+      this.logger.warn(
+        `Order ${orderId} not found for history-export payment`,
+      );
+      return;
+    }
+    for (const product of order.products) {
+      for (const item of product.items) {
+        await this.createHistoryExportForOrder(
+          String(item.id),
+          orderId,
+          item.quantity,
+          stateOrder,
+          paymentOrder,
+          note,
+          createdBy,
+        );
+      }
+    }
+  }
+
+  async createHistoryExportForOrderCompleted(
+    orderId: string,
+    createdBy: string,
+  ): Promise<void> {
+    const order = await this.orderRepository.findById(orderId);
+    if (!order) {
+      this.logger.warn(
+        `Order ${orderId} not found for history-export completed`,
+      );
+      return;
+    }
+    for (const product of order.products) {
+      for (const item of product.items) {
+        await this.createHistoryExportForOrder(
+          String(item.id),
+          orderId,
+          item.quantity,
+          HistoryExportState.DA_XONG,
+          0,
+          '',
+          createdBy,
+        );
+      }
+    }
   }
 }

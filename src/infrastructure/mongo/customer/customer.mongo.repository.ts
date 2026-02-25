@@ -77,15 +77,4 @@ export class CustomerMongoRepository implements ICustomerRepository {
       },
     };
   }
-
-  async updatePayment(id: string, amount: number): Promise<CustomerEntity | null> {
-    const updated = await this.customerModel
-      .findOneAndUpdate(
-        { _id: id, isDeleted: false },
-        { $inc: { payment: amount } },
-        { new: true },
-      )
-      .lean();
-    return CustomerMapper.toDomain(updated);
-  }
 }

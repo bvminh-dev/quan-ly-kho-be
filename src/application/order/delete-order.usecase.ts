@@ -1,5 +1,6 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { OrderState } from '../../common/enums/index.js';
+import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
 import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
@@ -13,6 +14,8 @@ export class DeleteOrderUseCase {
     private readonly orderRepository: IOrderRepository,
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
+    @Inject('CustomerRepository')
+    private readonly customerRepository: ICustomerRepository,
     private readonly historyWarehouseService: HistoryWarehouseService,
   ) {}
 
@@ -30,29 +33,40 @@ export class DeleteOrderUseCase {
       );
     }
 
-    if ((order.state as OrderState) === OrderState.HOAN_TAC) {
-      await this.orderRepository.softDelete(id, deleteBy);
-      return;
-    }
+    if ((order.state as OrderState) !== OrderState.HOAN_TAC) {
+      for (const product of order.products) {
+        for (const item of product.items) {
+          await this.warehouseRepository.updateStock(
+            item.id,
+            -item.quantity,
+            item.quantity,
+          );
 
-    for (const product of order.products) {
-      for (const item of product.items) {
-        await this.warehouseRepository.updateStock(
-          item.id,
-          -item.quantity,
-          item.quantity,
-        );
-
-        await this.historyWarehouseService.createHistoryEnterForRevertOrder(
-          item.id,
-          id,
-          item.quantity,
-          `Xóa đơn hàng ${id}`,
-          deleteBy,
-        );
+          await this.historyWarehouseService.createHistoryEnterForRevertOrder(
+            item.id,
+            id,
+            item.quantity,
+            `Xóa đơn hàng ${id}`,
+            deleteBy,
+          );
+        }
       }
     }
 
     await this.orderRepository.softDelete(id, deleteBy);
+
+    if ((order.state as OrderState) !== OrderState.BAO_GIA) {
+      const customerId =
+        typeof order.customer === 'object' && order.customer !== null
+          ? order.customer._id
+          : (order.customer as string);
+
+      const customerPayment =
+        await this.orderRepository.calculateCustomerPayment(customerId);
+
+      await this.customerRepository.update(customerId, {
+        payment: customerPayment,
+      });
+    }
   }
 }

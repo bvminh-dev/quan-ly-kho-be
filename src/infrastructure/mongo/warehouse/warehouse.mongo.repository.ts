@@ -21,6 +21,27 @@ export class WarehouseMongoRepository implements IWarehouseRepository {
     return WarehouseMapper.toDomain(doc);
   }
 
+  async findByAttributes(
+    inches: number,
+    item: string,
+    quality: string,
+    style: string,
+    color: string,
+  ): Promise<WarehouseEntity | null> {
+    const doc = await this.warehouseModel
+      .findOne({
+        inches,
+        item,
+        quality,
+        style,
+        color,
+        isDeleted: false,
+      })
+      .lean();
+
+    return WarehouseMapper.toDomain(doc);
+  }
+
   async create(warehouse: Partial<WarehouseEntity>): Promise<WarehouseEntity> {
     const created = await this.warehouseModel.create(warehouse as any);
     return WarehouseMapper.toDomain(created) as WarehouseEntity;

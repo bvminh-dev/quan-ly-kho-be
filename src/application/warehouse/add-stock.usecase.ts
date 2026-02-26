@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
+import { roundToTwo } from '../../common/utils/number.util.js';
 import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 import { AddStockDto } from './dto/add-stock.dto.js';
 
@@ -27,8 +28,8 @@ export class AddStockUseCase {
     }
 
     const updated = await this.warehouseRepository.update(dto.warehouseId, {
-      totalAmount: warehouse.totalAmount + dto.quantity,
-      amountAvailable: warehouse.amountAvailable + dto.quantity,
+      totalAmount: roundToTwo(warehouse.totalAmount + dto.quantity),
+      amountAvailable: roundToTwo(warehouse.amountAvailable + dto.quantity),
       updatedBy,
     });
 
@@ -40,7 +41,7 @@ export class AddStockUseCase {
 
     await this.historyWarehouseService.createHistoryEnterForAddStock(
       dto.warehouseId,
-      dto.quantity,
+      roundToTwo(dto.quantity),
       dto.note || '',
       updatedBy,
     );

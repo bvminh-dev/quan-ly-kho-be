@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
 import { Model } from 'mongoose';
 import { HistoryType, OrderState } from '../../../common/enums/index.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 import type { OrderEntity } from '../../../domain/order/order.entity.js';
 import type { IOrderRepository } from '../../../domain/order/order.repository.js';
 import { OrderMapper } from './order.mapper.js';
@@ -125,20 +126,26 @@ export class OrderMongoRepository implements IOrderRepository {
 
     for (const order of orders) {
       if (order.exchangeRate && order.exchangeRate > 0 && order.totalPrice) {
-        totalOrderUSD += order.totalPrice / order.exchangeRate;
+        totalOrderUSD = roundToTwo(
+          totalOrderUSD + order.totalPrice / order.exchangeRate,
+        );
       }
 
       const historyList = Array.isArray(order.history) ? order.history : [];
 
       for (const history of historyList) {
         if (history.type === HistoryType.KHACH_TRA) {
-          totalPaidUSD += history.moneyPaidDolar ?? 0;
+          totalPaidUSD = roundToTwo(
+            totalPaidUSD + (history.moneyPaidDolar ?? 0),
+          );
         } else if (history.type === HistoryType.HOAN_TIEN) {
-          totalPaidUSD -= history.moneyPaidDolar ?? 0;
+          totalPaidUSD = roundToTwo(
+            totalPaidUSD - (history.moneyPaidDolar ?? 0),
+          );
         }
       }
     }
 
-    return totalPaidUSD - totalOrderUSD;
+    return roundToTwo(totalPaidUSD - totalOrderUSD);
   }
 }

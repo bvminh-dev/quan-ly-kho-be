@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
@@ -14,6 +14,7 @@ import {
 } from 'class-validator';
 import { OrderType } from '../../../common/enums/index.js';
 import { CreateOrderItemDto } from './create-order.dto.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class UpdateOrderProductDto {
   @IsOptional()
@@ -25,18 +26,24 @@ export class UpdateOrderProductDto {
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 500, required: false })
+  @Type(() => Number)
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   priceSet?: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 1, required: false })
+  @Type(() => Number)
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   quantitySet?: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 0, required: false })
+  @Type(() => Number)
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   saleSet?: number;
 
   @IsOptional()
@@ -61,6 +68,8 @@ export class UpdateOrderDto {
   @IsOptional()
   @IsNumber()
   @ApiProperty({ example: 1600, required: false })
+  @Type(() => Number)
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   exchangeRate?: number;
 
   @IsOptional()
@@ -76,6 +85,7 @@ export class UpdateOrderDto {
     required: false,
     description: 'Số tiền khách nợ cần trả vào hoá đơn này',
   })
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   debt?: number;
 
   @IsOptional()
@@ -86,6 +96,7 @@ export class UpdateOrderDto {
     required: false,
     description: 'Số tiền khách trả dư, được trừ ở hoá đơn này',
   })
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   paid?: number;
 
   @IsOptional()

@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
+import { roundToTwo } from '../../common/utils/number.util.js';
 import { HistoryWarehouseService } from '../history-warehouse/history-warehouse.service.js';
 import { UpdateWarehouseDto } from './dto/update-warehouse.dto.js';
 
@@ -23,6 +24,18 @@ export class UpdateWarehouseUseCase {
 
     const updated = await this.warehouseRepository.update(id, {
       ...dto,
+      ...(dto.totalAmount !== undefined && {
+        totalAmount: roundToTwo(dto.totalAmount),
+      }),
+      ...(dto.amountOccupied !== undefined && {
+        amountOccupied: roundToTwo(dto.amountOccupied),
+      }),
+      ...(dto.amountAvailable !== undefined && {
+        amountAvailable: roundToTwo(dto.amountAvailable),
+      }),
+      ...(dto.priceHigh !== undefined && { priceHigh: roundToTwo(dto.priceHigh) }),
+      ...(dto.priceLow !== undefined && { priceLow: roundToTwo(dto.priceLow) }),
+      ...(dto.sale !== undefined && { sale: roundToTwo(dto.sale) }),
       updatedBy,
     });
 
@@ -38,12 +51,12 @@ export class UpdateWarehouseUseCase {
     if (hasPriceChange) {
       await this.historyWarehouseService.createHistoryEnterForUpdatePrice(
         id,
-        oldWarehouse.priceHigh,
-        dto.priceHigh ?? oldWarehouse.priceHigh,
-        oldWarehouse.priceLow,
-        dto.priceLow ?? oldWarehouse.priceLow,
-        oldWarehouse.sale,
-        dto.sale ?? oldWarehouse.sale,
+        roundToTwo(oldWarehouse.priceHigh),
+        roundToTwo(dto.priceHigh ?? oldWarehouse.priceHigh),
+        roundToTwo(oldWarehouse.priceLow),
+        roundToTwo(dto.priceLow ?? oldWarehouse.priceLow),
+        roundToTwo(oldWarehouse.sale),
+        roundToTwo(dto.sale ?? oldWarehouse.sale),
         updatedBy,
       );
     }

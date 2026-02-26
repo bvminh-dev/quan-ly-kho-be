@@ -1,4 +1,5 @@
 import { OrderEntity } from '../../../domain/order/order.entity.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class OrderMapper {
   static toDomain(doc: any): OrderEntity | null {
@@ -7,31 +8,31 @@ export class OrderMapper {
       _id: doc._id.toString(),
       type: doc.type,
       state: doc.state,
-      exchangeRate: doc.exchangeRate,
+      exchangeRate: roundToTwo(doc.exchangeRate),
       customer:
         doc.customer && typeof doc.customer === 'object' && doc.customer.name
           ? { _id: doc.customer._id.toString(), name: doc.customer.name }
           : doc.customer
             ? doc.customer.toString()
             : null,
-      totalPrice: doc.totalPrice,
-      payment: doc.payment,
-      debt: doc.debt,
-      paid: doc.paid,
+      totalPrice: roundToTwo(doc.totalPrice),
+      payment: roundToTwo(doc.payment),
+      debt: roundToTwo(doc.debt),
+      paid: roundToTwo(doc.paid),
       note: doc.note,
       products:
         doc.products?.map((p: any) => ({
           nameSet: p.nameSet,
-          priceSet: p.priceSet,
-          quantitySet: p.quantitySet,
-          saleSet: p.saleSet,
+          priceSet: p.priceSet != null ? roundToTwo(p.priceSet) : undefined,
+          quantitySet: p.quantitySet != null ? roundToTwo(p.quantitySet) : undefined,
+          saleSet: p.saleSet != null ? roundToTwo(p.saleSet) : undefined,
           isCalcSet: p.isCalcSet,
           items:
             p.items?.map((i: any) => ({
               id: i.id?.toString?.() ?? i.id,
-              quantity: i.quantity,
-              price: i.price,
-              sale: i.sale,
+              quantity: roundToTwo(i.quantity),
+              price: roundToTwo(i.price),
+              sale: roundToTwo(i.sale),
               customPrice: i.customPrice,
               customSale: i.customSale,
             })) ?? [],
@@ -39,9 +40,9 @@ export class OrderMapper {
       history:
         doc.history?.map((h: any) => ({
           type: h.type,
-          exchangeRate: h.exchangeRate,
-          moneyPaidNGN: h.moneyPaidNGN,
-          moneyPaidDolar: h.moneyPaidDolar,
+          exchangeRate: roundToTwo(h.exchangeRate),
+          moneyPaidNGN: roundToTwo(h.moneyPaidNGN),
+          moneyPaidDolar: roundToTwo(h.moneyPaidDolar),
           paymentMethod: h.paymentMethod,
           datePaid: h.datePaid,
           note: h.note,

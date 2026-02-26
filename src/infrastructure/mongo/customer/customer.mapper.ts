@@ -1,4 +1,5 @@
 import { CustomerEntity } from '../../../domain/customer/customer.entity.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class CustomerMapper {
   static toDomain(doc: any): CustomerEntity | null {
@@ -6,7 +7,7 @@ export class CustomerMapper {
     return new CustomerEntity({
       _id: doc._id.toString(),
       name: doc.name,
-      payment: doc.payment,
+      payment: roundToTwo(doc.payment),
       note: doc.note,
       createdBy: doc.createdBy ? doc.createdBy.toString() : null,
       updatedBy: doc.updatedBy ? doc.updatedBy.toString() : null,

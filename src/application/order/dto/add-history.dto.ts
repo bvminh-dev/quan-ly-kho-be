@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -7,6 +8,7 @@ import {
   IsString,
 } from 'class-validator';
 import { HistoryType, PaymentMethod } from '../../../common/enums/index.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class AddHistoryDto {
   @IsNotEmpty()
@@ -17,16 +19,19 @@ export class AddHistoryDto {
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ example: 1600, description: 'Tỷ giá' })
+  @Transform(({ value }) => roundToTwo(value))
   exchangeRate: number;
 
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ example: 50000, description: 'Tiền theo đơn vị NGN' })
+  @Transform(({ value }) => roundToTwo(value))
   moneyPaidNGN: number;
 
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ example: 31.25, description: 'Tiền theo đơn vị Dolar' })
+  @Transform(({ value }) => roundToTwo(value))
   moneyPaidDolar: number;
 
   @IsNotEmpty()

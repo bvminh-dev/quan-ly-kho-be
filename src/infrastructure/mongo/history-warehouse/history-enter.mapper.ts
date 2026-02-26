@@ -1,4 +1,5 @@
 import { HistoryEnterEntity } from '../../../domain/history-warehouse/history-enter.entity.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class HistoryEnterMapper {
   static toDomain(doc: any): HistoryEnterEntity | null {
@@ -10,13 +11,40 @@ export class HistoryEnterMapper {
         _id: metadata.orderId._id?.toString(),
         type: metadata.orderId.type,
         state: metadata.orderId.state,
-        totalPrice: metadata.orderId.totalPrice,
-        payment: metadata.orderId.payment,
+        totalPrice:
+          metadata.orderId.totalPrice != null
+            ? roundToTwo(metadata.orderId.totalPrice)
+            : undefined,
+        payment:
+          metadata.orderId.payment != null
+            ? roundToTwo(metadata.orderId.payment)
+            : undefined,
         customer: metadata.orderId.customer,
         note: metadata.orderId.note,
       };
     } else if (metadata.orderId) {
       metadata.orderId = metadata.orderId.toString();
+    }
+    const numKeys = [
+      'totalAmount',
+      'amountOccupied',
+      'amountAvailable',
+      'priceHigh',
+      'priceLow',
+      'sale',
+      'quantity',
+      'quantityRevert',
+      'priceHighNew',
+      'priceHighOld',
+      'priceLowNew',
+      'priceLowOld',
+      'saleNew',
+      'saleOld',
+    ];
+    for (const key of numKeys) {
+      if (metadata[key] != null && typeof metadata[key] === 'number') {
+        metadata[key] = roundToTwo(metadata[key]);
+      }
     }
 
     const warehouseId =
@@ -28,12 +56,12 @@ export class HistoryEnterMapper {
             quality: doc.warehouseId.quality,
             style: doc.warehouseId.style,
             color: doc.warehouseId.color,
-            priceHigh: doc.warehouseId.priceHigh,
-            priceLow: doc.warehouseId.priceLow,
-            sale: doc.warehouseId.sale,
-            totalAmount: doc.warehouseId.totalAmount,
-            amountOccupied: doc.warehouseId.amountOccupied,
-            amountAvailable: doc.warehouseId.amountAvailable,
+            priceHigh: roundToTwo(doc.warehouseId.priceHigh),
+            priceLow: roundToTwo(doc.warehouseId.priceLow),
+            sale: roundToTwo(doc.warehouseId.sale),
+            totalAmount: roundToTwo(doc.warehouseId.totalAmount),
+            amountOccupied: roundToTwo(doc.warehouseId.amountOccupied),
+            amountAvailable: roundToTwo(doc.warehouseId.amountAvailable),
           }
         : doc.warehouseId?.toString() || doc.warehouseId;
 

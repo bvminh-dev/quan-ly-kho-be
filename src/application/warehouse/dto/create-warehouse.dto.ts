@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
 import {
   WarehouseInches,
@@ -8,6 +9,7 @@ import {
   WarehouseColor,
   UnitOfCalculation,
 } from '../../../common/enums/index.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class CreateWarehouseDto {
   @IsNotEmpty()
@@ -39,6 +41,7 @@ export class CreateWarehouseDto {
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 100, description: 'Tổng số lượng' })
+  @Transform(({ value }) => roundToTwo(value))
   totalAmount: number;
 
   @IsNotEmpty()
@@ -50,17 +53,20 @@ export class CreateWarehouseDto {
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 500, required: false, description: 'Giá cao' })
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   priceHigh?: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 300, required: false, description: 'Giá thấp' })
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   priceLow?: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 0, required: false, description: 'Giảm giá' })
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   sale?: number;
 }

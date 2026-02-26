@@ -1,4 +1,5 @@
 import { HistoryExportEntity } from '../../../domain/history-warehouse/history-export.entity.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class HistoryExportMapper {
   static toDomain(doc: any): HistoryExportEntity | null {
@@ -13,12 +14,12 @@ export class HistoryExportMapper {
             quality: doc.warehouseId.quality,
             style: doc.warehouseId.style,
             color: doc.warehouseId.color,
-            priceHigh: doc.warehouseId.priceHigh,
-            priceLow: doc.warehouseId.priceLow,
-            sale: doc.warehouseId.sale,
-            totalAmount: doc.warehouseId.totalAmount,
-            amountOccupied: doc.warehouseId.amountOccupied,
-            amountAvailable: doc.warehouseId.amountAvailable,
+            priceHigh: roundToTwo(doc.warehouseId.priceHigh),
+            priceLow: roundToTwo(doc.warehouseId.priceLow),
+            sale: roundToTwo(doc.warehouseId.sale),
+            totalAmount: roundToTwo(doc.warehouseId.totalAmount),
+            amountOccupied: roundToTwo(doc.warehouseId.amountOccupied),
+            amountAvailable: roundToTwo(doc.warehouseId.amountAvailable),
           }
         : doc.warehouseId?.toString() || doc.warehouseId;
 
@@ -28,8 +29,8 @@ export class HistoryExportMapper {
             _id: doc.orderId._id?.toString(),
             type: doc.orderId.type,
             state: doc.orderId.state,
-            totalPrice: doc.orderId.totalPrice,
-            payment: doc.orderId.payment,
+            totalPrice: roundToTwo(doc.orderId.totalPrice),
+            payment: roundToTwo(doc.orderId.payment),
             customer: doc.orderId.customer,
             note: doc.orderId.note,
             products: doc.orderId.products,
@@ -44,16 +45,16 @@ export class HistoryExportMapper {
       quality: doc.quality,
       style: doc.style,
       color: doc.color,
-      priceHigh: doc.priceHigh,
-      priceLow: doc.priceLow,
-      sale: doc.sale,
+      priceHigh: roundToTwo(doc.priceHigh),
+      priceLow: roundToTwo(doc.priceLow),
+      sale: roundToTwo(doc.sale),
       orderId,
       type: doc.type,
-      priceOrder: doc.priceOrder,
-      saleOrder: doc.saleOrder,
-      quantityOrder: doc.quantityOrder,
+      priceOrder: roundToTwo(doc.priceOrder),
+      saleOrder: roundToTwo(doc.saleOrder),
+      quantityOrder: roundToTwo(doc.quantityOrder),
       stateOrder: doc.stateOrder,
-      paymentOrder: doc.paymentOrder,
+      paymentOrder: roundToTwo(doc.paymentOrder),
       note: doc.note,
       createdBy: doc.createdBy ? doc.createdBy.toString() : null,
       updatedBy: doc.updatedBy ? doc.updatedBy.toString() : null,

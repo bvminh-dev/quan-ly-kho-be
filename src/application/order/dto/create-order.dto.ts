@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
@@ -14,6 +14,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { OrderType } from '../../../common/enums/index.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class CreateOrderItemDto {
   @IsNotEmpty()
@@ -25,18 +26,24 @@ export class CreateOrderItemDto {
   @IsNumber()
   @Min(1)
   @ApiProperty({ example: 5, description: 'Số lượng' })
+  @Type(() => Number)
+  @Transform(({ value }) => roundToTwo(value))
   quantity: number;
 
   @IsNotEmpty()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 100, description: 'Đơn giá' })
+  @Type(() => Number)
+  @Transform(({ value }) => roundToTwo(value))
   price: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 0, required: false, description: 'Giảm giá' })
+  @Type(() => Number)
+  @Transform(({ value }) => roundToTwo(value))
   sale?: number;
 
   @IsOptional()
@@ -60,18 +67,24 @@ export class CreateOrderProductDto {
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 500, required: false, description: 'Giá set' })
+  @Type(() => Number)
+  @Transform(({ value }) => roundToTwo(value))
   priceSet?: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 1, required: false, description: 'Số lượng set' })
+  @Type(() => Number)
+  @Transform(({ value }) => roundToTwo(value))
   quantitySet?: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 0, required: false, description: 'Giảm giá set' })
+  @Type(() => Number)
+  @Transform(({ value }) => roundToTwo(value))
   saleSet?: number;
 
   @IsOptional()
@@ -96,6 +109,8 @@ export class CreateOrderDto {
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ example: 1600, description: 'Tỷ giá' })
+  @Type(() => Number)
+  @Transform(({ value }) => roundToTwo(value))
   exchangeRate: number;
 
   @IsNotEmpty()
@@ -111,6 +126,7 @@ export class CreateOrderDto {
     required: false,
     description: 'Số tiền khách nợ cần trả vào hoá đơn này',
   })
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   debt?: number;
 
   @IsOptional()
@@ -121,6 +137,7 @@ export class CreateOrderDto {
     required: false,
     description: 'Số tiền khách trả dư, được trừ ở hoá đơn này',
   })
+  @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   paid?: number;
 
   @IsOptional()

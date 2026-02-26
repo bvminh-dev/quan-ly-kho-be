@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -8,6 +9,7 @@ import {
   Min,
 } from 'class-validator';
 import { HistoryExportState, OrderType } from '../../../common/enums/index.js';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class CreateHistoryExportDto {
   @IsNotEmpty()
@@ -43,18 +45,21 @@ export class CreateHistoryExportDto {
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 500, required: true, description: 'Giá cao từ warehouse' })
+  @Transform(({ value }) => roundToTwo(value))
   priceHigh: number;
 
   @IsNotEmpty()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 300, required: true, description: 'Giá thấp từ warehouse' })
+  @Transform(({ value }) => roundToTwo(value))
   priceLow: number;
 
   @IsNotEmpty()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 0, required: true, description: 'Giảm giá từ warehouse' })
+  @Transform(({ value }) => roundToTwo(value))
   sale: number;
 
   @IsNotEmpty()
@@ -70,17 +75,20 @@ export class CreateHistoryExportDto {
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ example: 500, required: true, description: 'Giá bán của đơn hàng lúc đó' })
+  @Transform(({ value }) => roundToTwo(value))
   priceOrder: number;
 
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ example: 0, required: true, description: 'Giá sale của đơn hàng lúc đó' })
+  @Transform(({ value }) => roundToTwo(value))
   saleOrder: number;
 
   @IsNotEmpty()
   @IsNumber()
   @Min(0)
   @ApiProperty({ example: 10, required: true, description: 'Tổng số lượng bán của đơn hàng lúc đó' })
+  @Transform(({ value }) => roundToTwo(value))
   quantityOrder: number;
 
   @IsNotEmpty()
@@ -91,6 +99,7 @@ export class CreateHistoryExportDto {
   @IsNotEmpty()
   @IsNumber()
   @ApiProperty({ example: 5000, required: true, description: 'Số tiền khách vừa trả (giá trị dương), số tiền vừa hoàn đơn (giá trị âm)' })
+  @Transform(({ value }) => roundToTwo(value))
   paymentOrder: number;
 
   @IsOptional()

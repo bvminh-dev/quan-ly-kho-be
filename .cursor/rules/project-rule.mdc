@@ -55,3 +55,4 @@ class MyService {
 - 13. Không được sai các lỗi cơ bản trong NestJs như: `A circular dependency`
 - 14. Tối ưu dùng emit để lắng nghe event code chuẩn 
 - 15. Các giá trị enum, hardcore cần tách ra 1 file riêng
+- 16. Tất cả các số phải được làm tròn 2 chứ số sau dấu phẩy

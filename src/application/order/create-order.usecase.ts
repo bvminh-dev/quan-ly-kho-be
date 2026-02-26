@@ -11,6 +11,7 @@ import { HISTORY_WAREHOUSE_EVENTS } from '../../common/constants/events.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
+import { roundToTwo } from '../../common/utils/number.util.js';
 import { CreateOrderDto } from './dto/create-order.dto.js';
 
 @Injectable()
@@ -62,27 +63,31 @@ export class CreateOrderUseCase {
         if (product.isCalcSet) {
           // skip
         } else {
-          totalPrice += item.quantity * item.price - (item.sale ?? 0);
+          totalPrice = roundToTwo(
+            totalPrice + item.quantity * item.price - (item.sale ?? 0),
+          );
         }
       }
 
       if (product.isCalcSet) {
-        totalPrice +=
-          (product.quantitySet ?? 1) * (product.priceSet ?? 0) -
-          (product.saleSet ?? 0);
+        totalPrice = roundToTwo(
+          totalPrice +
+            (product.quantitySet ?? 1) * (product.priceSet ?? 0) -
+            (product.saleSet ?? 0),
+        );
       }
     }
 
-    const totalPriceNGN = totalPrice * dto.exchangeRate;
+    const totalPriceNGN = roundToTwo(totalPrice * dto.exchangeRate);
 
-    const initialPayment = -totalPriceNGN;
-    const debt = dto.debt ?? 0;
-    const paid = dto.paid ?? 0;
+    const initialPayment = roundToTwo(-totalPriceNGN);
+    const debt = roundToTwo(dto.debt ?? 0);
+    const paid = roundToTwo(dto.paid ?? 0);
 
     const order = await this.orderRepository.create({
       type: dto.type,
       state: OrderState.BAO_GIA,
-      exchangeRate: dto.exchangeRate,
+      exchangeRate: roundToTwo(dto.exchangeRate),
       customer: dto.customer,
       totalPrice: totalPriceNGN,
       payment: initialPayment,
@@ -91,15 +96,15 @@ export class CreateOrderUseCase {
       note: dto.note ?? '',
       products: dto.products.map((p) => ({
         nameSet: p.nameSet,
-        priceSet: p.priceSet,
-        quantitySet: p.quantitySet,
-        saleSet: p.saleSet,
+        priceSet: p.priceSet != null ? roundToTwo(p.priceSet) : undefined,
+        quantitySet: p.quantitySet != null ? roundToTwo(p.quantitySet) : undefined,
+        saleSet: p.saleSet != null ? roundToTwo(p.saleSet) : undefined,
         isCalcSet: p.isCalcSet ?? false,
         items: p.items.map((i) => ({
           id: i.id,
-          quantity: i.quantity,
-          price: i.price,
-          sale: i.sale ?? 0,
+          quantity: roundToTwo(i.quantity),
+          price: roundToTwo(i.price),
+          sale: roundToTwo(i.sale ?? 0),
           customPrice: i.customPrice ?? false,
           customSale: i.customSale ?? false,
         })),

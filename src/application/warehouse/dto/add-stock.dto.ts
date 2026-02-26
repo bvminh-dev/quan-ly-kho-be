@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
@@ -6,6 +7,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
+import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class AddStockDto {
   @IsNotEmpty()
@@ -20,6 +22,7 @@ export class AddStockDto {
   @IsNumber()
   @Min(0.01)
   @ApiProperty({ example: 50, description: 'Số lượng hàng hóa cần thêm' })
+  @Transform(({ value }) => roundToTwo(value))
   quantity: number;
 
   @IsOptional()
@@ -45,6 +48,7 @@ export class AddStockBodyDto {
   @IsNumber()
   @Min(0.01)
   @ApiProperty({ example: 50, description: 'Số lượng hàng hóa cần thêm' })
+  @Transform(({ value }) => roundToTwo(value))
   quantity: number;
 
   @IsOptional()

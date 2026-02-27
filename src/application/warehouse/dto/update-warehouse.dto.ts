@@ -19,22 +19,38 @@ export class UpdateWarehouseDto {
 
   @IsOptional()
   @IsEnum(WarehouseItem)
-  @ApiProperty({ example: WarehouseItem.CLOSURE, enum: WarehouseItem, required: false })
+  @ApiProperty({
+    example: WarehouseItem.CLOSURE,
+    enum: WarehouseItem,
+    required: false,
+  })
   item?: string;
 
   @IsOptional()
   @IsEnum(WarehouseQuality)
-  @ApiProperty({ example: WarehouseQuality.SDD, enum: WarehouseQuality, required: false })
+  @ApiProperty({
+    example: WarehouseQuality.SDD,
+    enum: WarehouseQuality,
+    required: false,
+  })
   quality?: string;
 
   @IsOptional()
   @IsEnum(WarehouseStyle)
-  @ApiProperty({ example: WarehouseStyle.BONESTRAIGHT, enum: WarehouseStyle, required: false })
+  @ApiProperty({
+    example: WarehouseStyle.BONESTRAIGHT,
+    enum: WarehouseStyle,
+    required: false,
+  })
   style?: string;
 
   @IsOptional()
   @IsEnum(WarehouseColor)
-  @ApiProperty({ example: WarehouseColor.NATURAL, enum: WarehouseColor, required: false })
+  @ApiProperty({
+    example: WarehouseColor.NATURAL,
+    enum: WarehouseColor,
+    required: false,
+  })
   color?: string;
 
   @IsOptional()
@@ -47,20 +63,32 @@ export class UpdateWarehouseDto {
   @IsOptional()
   @IsNumber()
   @Min(0)
-  @ApiProperty({ example: 0, required: false, description: 'Số lượng chiếm dụng' })
+  @ApiProperty({
+    example: 0,
+    required: false,
+    description: 'Số lượng chiếm dụng',
+  })
   @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   amountOccupied?: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
-  @ApiProperty({ example: 100, required: false, description: 'Số lượng khả dụng' })
+  @ApiProperty({
+    example: 100,
+    required: false,
+    description: 'Số lượng khả dụng',
+  })
   @Transform(({ value }) => (value != null ? roundToTwo(value) : undefined))
   amountAvailable?: number;
 
   @IsOptional()
   @IsEnum(UnitOfCalculation)
-  @ApiProperty({ example: UnitOfCalculation.KG, enum: UnitOfCalculation, required: false })
+  @ApiProperty({
+    example: UnitOfCalculation.KG,
+    enum: UnitOfCalculation,
+    required: false,
+  })
   unitOfCalculation?: string;
 
   @IsOptional()

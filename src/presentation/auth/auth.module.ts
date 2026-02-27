@@ -14,34 +14,36 @@ import { LogoutUseCase } from '../../application/auth/logout.usecase.js';
 import { JwtTokenProvider } from '../../infrastructure/jwt/jwt-token.provider.js';
 
 @Module({
-    imports: [
-        UserModule,
-        RoleModule,
-        PassportModule,
-        JwtModule.registerAsync({
-            imports: [ConfigModule],
-            useFactory: async (configService: ConfigService) => ({
-                secret: configService.get<string>('ACCESS_TOKEN_SECRET_KEY'),
-                signOptions: {
-                    expiresIn: configService.get<string>('ACCESS_TOKEN_EXPIRE_TIME') as any,
-                },
-            }),
-            inject: [ConfigService],
-        }),
-    ],
-    controllers: [AuthController],
-    providers: [
-        LocalStrategy,
-        JwtStrategy,
-        ValidateUserUseCase,
-        SigninUseCase,
-        RefreshTokenUseCase,
-        LogoutUseCase,
-        {
-            provide: 'TokenProvider',
-            useClass: JwtTokenProvider,
+  imports: [
+    UserModule,
+    RoleModule,
+    PassportModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('ACCESS_TOKEN_SECRET_KEY'),
+        signOptions: {
+          expiresIn: configService.get<string>(
+            'ACCESS_TOKEN_EXPIRE_TIME',
+          ) as any,
         },
-    ],
-    exports: [JwtStrategy, PassportModule],
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [
+    LocalStrategy,
+    JwtStrategy,
+    ValidateUserUseCase,
+    SigninUseCase,
+    RefreshTokenUseCase,
+    LogoutUseCase,
+    {
+      provide: 'TokenProvider',
+      useClass: JwtTokenProvider,
+    },
+  ],
+  exports: [JwtStrategy, PassportModule],
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -99,7 +99,8 @@ export class WarehouseController {
   @ApiQuery({
     name: 'queryString',
     required: false,
-    description: 'Điều kiện query để tìm kiếm (ví dụ: name=Kho A, address=Hà Nội)',
+    description:
+      'Điều kiện query để tìm kiếm (ví dụ: name=Kho A, address=Hà Nội)',
     type: String,
     example: 'name=Kho A',
   })

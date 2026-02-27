@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Role, RoleSchema } from '../../infrastructure/mongo/role/role.schema.js';
+import {
+  Role,
+  RoleSchema,
+} from '../../infrastructure/mongo/role/role.schema.js';
 import { RoleMongoRepository } from '../../infrastructure/mongo/role/role.mongo.repository.js';
 import { CreateRoleUseCase } from '../../application/role/create-role.usecase.js';
 import { GetRolesUseCase } from '../../application/role/get-roles.usecase.js';
@@ -25,9 +28,6 @@ import { RoleController } from './role.controller.js';
     UpdateRoleUseCase,
     DeleteRoleUseCase,
   ],
-  exports: [
-    'RoleRepository',
-    MongooseModule,
-  ],
+  exports: ['RoleRepository', MongooseModule],
 })
 export class RoleModule {}

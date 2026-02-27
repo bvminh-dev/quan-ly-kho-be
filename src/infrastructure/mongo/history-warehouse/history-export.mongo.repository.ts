@@ -5,7 +5,10 @@ import { Model } from 'mongoose';
 import type { HistoryExportEntity } from '../../../domain/history-warehouse/history-export.entity.js';
 import type { IHistoryExportRepository } from '../../../domain/history-warehouse/history-export.repository.js';
 import { HistoryExportMapper } from './history-export.mapper.js';
-import { HistoryExport, HistoryExportDocument } from './history-export.schema.js';
+import {
+  HistoryExport,
+  HistoryExportDocument,
+} from './history-export.schema.js';
 
 @Injectable()
 export class HistoryExportMongoRepository implements IHistoryExportRepository {
@@ -17,8 +20,14 @@ export class HistoryExportMongoRepository implements IHistoryExportRepository {
   async findById(id: string): Promise<HistoryExportEntity | null> {
     const doc = await this.historyExportModel
       .findOne({ _id: id, isDeleted: false })
-      .populate('warehouseId', 'item inches quality style color priceHigh priceLow sale totalAmount amountOccupied amountAvailable')
-      .populate('orderId', 'type state totalPrice payment customer note products')
+      .populate(
+        'warehouseId',
+        'item inches quality style color priceHigh priceLow sale totalAmount amountOccupied amountAvailable',
+      )
+      .populate(
+        'orderId',
+        'type state totalPrice payment customer note products',
+      )
       .lean();
     return HistoryExportMapper.toDomain(doc);
   }

@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { IUserRepository } from '../../domain/user/user.repository.js';
 import { UpdatePasswordDto } from './dto/update-password.dto.js';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';

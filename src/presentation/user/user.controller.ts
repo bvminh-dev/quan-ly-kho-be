@@ -105,7 +105,8 @@ export class UserController {
   @ApiQuery({
     name: 'queryString',
     required: false,
-    description: 'Điều kiện query để tìm kiếm (ví dụ: name=John, email=john@example.com)',
+    description:
+      'Điều kiện query để tìm kiếm (ví dụ: name=John, email=john@example.com)',
     type: String,
     example: 'name=John',
   })

@@ -12,6 +12,10 @@ export class GetHistoryExportsUseCase {
 
   async execute(queryString: string, currentPage: number, pageSize: number) {
     this.logger.log(`Fetching history exports with pagination`);
-    return this.historyExportRepository.findAll(queryString, currentPage, pageSize);
+    return this.historyExportRepository.findAll(
+      queryString,
+      currentPage,
+      pageSize,
+    );
   }
 }

@@ -22,9 +22,7 @@ export class RoleMongoRepository implements IRoleRepository {
   }
 
   async findByName(name: string): Promise<RoleEntity | null> {
-    const doc = await this.roleModel
-      .findOne({ name, isDeleted: false })
-      .lean();
+    const doc = await this.roleModel.findOne({ name, isDeleted: false }).lean();
     return RoleMapper.toDomain(doc);
   }
 

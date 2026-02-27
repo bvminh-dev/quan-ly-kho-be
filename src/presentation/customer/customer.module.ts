@@ -6,12 +6,17 @@ import { GetCustomerUseCase } from '../../application/customer/get-customer.usec
 import { GetCustomersUseCase } from '../../application/customer/get-customers.usecase.js';
 import { UpdateCustomerUseCase } from '../../application/customer/update-customer.usecase.js';
 import { CustomerMongoRepository } from '../../infrastructure/mongo/customer/customer.mongo.repository.js';
-import { Customer, CustomerSchema } from '../../infrastructure/mongo/customer/customer.schema.js';
+import {
+  Customer,
+  CustomerSchema,
+} from '../../infrastructure/mongo/customer/customer.schema.js';
 import { CustomerController } from './customer.controller.js';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Customer.name, schema: CustomerSchema }]),
+    MongooseModule.forFeature([
+      { name: Customer.name, schema: CustomerSchema },
+    ]),
   ],
   controllers: [CustomerController],
   providers: [

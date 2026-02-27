@@ -33,7 +33,9 @@ export class UpdateWarehouseUseCase {
       ...(dto.amountAvailable !== undefined && {
         amountAvailable: roundToTwo(dto.amountAvailable),
       }),
-      ...(dto.priceHigh !== undefined && { priceHigh: roundToTwo(dto.priceHigh) }),
+      ...(dto.priceHigh !== undefined && {
+        priceHigh: roundToTwo(dto.priceHigh),
+      }),
       ...(dto.priceLow !== undefined && { priceLow: roundToTwo(dto.priceLow) }),
       ...(dto.sale !== undefined && { sale: roundToTwo(dto.sale) }),
       updatedBy,
@@ -44,7 +46,8 @@ export class UpdateWarehouseUseCase {
     }
 
     const hasPriceChange =
-      (dto.priceHigh !== undefined && dto.priceHigh !== oldWarehouse.priceHigh) ||
+      (dto.priceHigh !== undefined &&
+        dto.priceHigh !== oldWarehouse.priceHigh) ||
       (dto.priceLow !== undefined && dto.priceLow !== oldWarehouse.priceLow) ||
       (dto.sale !== undefined && dto.sale !== oldWarehouse.sale);
 

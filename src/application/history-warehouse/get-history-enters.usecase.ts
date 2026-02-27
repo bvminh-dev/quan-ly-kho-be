@@ -12,6 +12,10 @@ export class GetHistoryEntersUseCase {
 
   async execute(queryString: string, currentPage: number, pageSize: number) {
     this.logger.log(`Fetching history enters with pagination`);
-    return this.historyEnterRepository.findAll(queryString, currentPage, pageSize);
+    return this.historyEnterRepository.findAll(
+      queryString,
+      currentPage,
+      pageSize,
+    );
   }
 }

@@ -17,7 +17,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('ACCESS_TOKEN_SECRET_KEY') || 'default-secret',
+      secretOrKey:
+        configService.get<string>('ACCESS_TOKEN_SECRET_KEY') ||
+        'default-secret',
     });
   }
 
@@ -26,8 +28,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) return null;
 
     // Get role with populated permissions
-    const roleId =
-      typeof user.role === 'object' ? user.role?._id : user.role;
+    const roleId = typeof user.role === 'object' ? user.role?._id : user.role;
     const role = roleId
       ? await this.roleRepository.findByIdWithPopulate(roleId)
       : null;

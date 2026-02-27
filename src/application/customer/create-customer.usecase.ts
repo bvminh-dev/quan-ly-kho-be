@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import { CreateCustomerDto } from './dto/create-customer.dto.js';
 
@@ -16,7 +21,9 @@ export class CreateCustomerUseCase {
 
     const existing = await this.customerRepository.findByName(dto.name);
     if (existing) {
-      throw new BadRequestException(`Customer "${dto.name}" đã tồn tại trong hệ thống`);
+      throw new BadRequestException(
+        `Customer "${dto.name}" đã tồn tại trong hệ thống`,
+      );
     }
 
     const customer = await this.customerRepository.create({

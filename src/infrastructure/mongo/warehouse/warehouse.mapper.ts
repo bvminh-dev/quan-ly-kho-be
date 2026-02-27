@@ -28,6 +28,8 @@ export class WarehouseMapper {
   }
 
   static toDomainList(docs: any[]): WarehouseEntity[] {
-    return docs.map((doc) => WarehouseMapper.toDomain(doc)).filter(Boolean) as WarehouseEntity[];
+    return docs
+      .map((doc) => WarehouseMapper.toDomain(doc))
+      .filter(Boolean) as WarehouseEntity[];
   }
 }

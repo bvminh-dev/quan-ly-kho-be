@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { OrderState } from '../../common/enums/index.js';
+import { roundToTwo } from '../../common/utils/number.util.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
@@ -49,16 +50,19 @@ export class RevertOrderUseCase {
 
     for (const product of order.products) {
       for (const item of product.items) {
+        const quantitySet = product.quantitySet ?? 1;
+        const quantityRevert = roundToTwo(quantitySet * item.quantity);
+
         await this.warehouseRepository.updateStock(
           item.id,
-          -item.quantity,
-          item.quantity,
+          -quantityRevert,
+          quantityRevert,
         );
 
         await this.historyWarehouseService.createHistoryEnterForRevertOrder(
           item.id,
           id,
-          item.quantity,
+          quantityRevert,
           dto.note,
           updatedBy,
         );

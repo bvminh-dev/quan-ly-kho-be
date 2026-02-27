@@ -60,10 +60,7 @@ export class PermissionController {
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Create a new Permission')
-  async create(
-    @Body() dto: CreatePermissionDto,
-    @User() user: ICurrentUser,
-  ) {
+  async create(@Body() dto: CreatePermissionDto, @User() user: ICurrentUser) {
     return this.createPermissionUseCase.execute(dto, user._id);
   }
 

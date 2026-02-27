@@ -43,10 +43,13 @@ export class UpdateOrderUseCase {
     if (dto.products) {
       for (const product of existingOrder.products) {
         for (const item of product.items) {
+          const quantitySet = product.quantitySet ?? 1;
+          const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
+
           await this.warehouseRepository.updateStock(
             item.id,
-            -item.quantity,
-            item.quantity,
+            -occupiedQuantity,
+            occupiedQuantity,
           );
         }
       }
@@ -60,9 +63,12 @@ export class UpdateOrderUseCase {
               `Warehouse với id ${item.id} không tồn tại`,
             );
           }
-          if (warehouse.amountAvailable < item.quantity) {
+          const quantitySet = product.quantitySet ?? 1;
+          const requiredQuantity = roundToTwo(quantitySet * item.quantity);
+
+          if (warehouse.amountAvailable < requiredQuantity) {
             throw new BadRequestException(
-              `Warehouse ${item.id} không đủ số lượng khả dụng. Hiện có: ${warehouse.amountAvailable}, yêu cầu: ${item.quantity}`,
+              `Warehouse ${item.id} không đủ số lượng khả dụng. Hiện có: ${warehouse.amountAvailable}, yêu cầu: ${requiredQuantity}`,
             );
           }
 
@@ -84,10 +90,13 @@ export class UpdateOrderUseCase {
 
       for (const product of dto.products) {
         for (const item of product.items) {
+          const quantitySet = product.quantitySet ?? 1;
+          const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
+
           await this.warehouseRepository.updateStock(
             item.id,
-            item.quantity,
-            -item.quantity,
+            occupiedQuantity,
+            -occupiedQuantity,
           );
         }
       }
@@ -129,7 +138,8 @@ export class UpdateOrderUseCase {
         products: dto.products.map((p) => ({
           nameSet: p.nameSet,
           priceSet: p.priceSet != null ? roundToTwo(p.priceSet) : undefined,
-          quantitySet: p.quantitySet != null ? roundToTwo(p.quantitySet) : undefined,
+          quantitySet:
+            p.quantitySet != null ? roundToTwo(p.quantitySet) : undefined,
           saleSet: p.saleSet != null ? roundToTwo(p.saleSet) : undefined,
           isCalcSet: p.isCalcSet ?? false,
           items: p.items.map((i) => ({

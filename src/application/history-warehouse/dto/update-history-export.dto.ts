@@ -1,12 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import {
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-  Min,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { HistoryExportState, OrderType } from '../../../common/enums/index.js';
 import { roundToTwo } from '../../../common/utils/number.util.js';
 
@@ -92,7 +86,12 @@ export class UpdateHistoryExportDto {
 
   @IsOptional()
   @IsEnum(HistoryExportState)
-  @ApiProperty({ example: HistoryExportState.KHACH_TRA, enum: HistoryExportState, required: false, description: 'Trạng thái đơn: Báo giá | Khách trả | Hoàn đơn | Đã xong' })
+  @ApiProperty({
+    example: HistoryExportState.KHACH_TRA,
+    enum: HistoryExportState,
+    required: false,
+    description: 'Trạng thái đơn: Báo giá | Khách trả | Hoàn đơn | Đã xong',
+  })
   stateOrder?: string;
 
   @IsOptional()

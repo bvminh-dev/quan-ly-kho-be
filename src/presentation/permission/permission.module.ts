@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Permission, PermissionSchema } from '../../infrastructure/mongo/permission/permission.schema.js';
+import {
+  Permission,
+  PermissionSchema,
+} from '../../infrastructure/mongo/permission/permission.schema.js';
 import { PermissionMongoRepository } from '../../infrastructure/mongo/permission/permission.mongo.repository.js';
 import { CreatePermissionUseCase } from '../../application/permission/create-permission.usecase.js';
 import { GetPermissionsUseCase } from '../../application/permission/get-permissions.usecase.js';
@@ -11,7 +14,9 @@ import { PermissionController } from './permission.controller.js';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Permission.name, schema: PermissionSchema }]),
+    MongooseModule.forFeature([
+      { name: Permission.name, schema: PermissionSchema },
+    ]),
   ],
   controllers: [PermissionController],
   providers: [
@@ -25,9 +30,6 @@ import { PermissionController } from './permission.controller.js';
     UpdatePermissionUseCase,
     DeletePermissionUseCase,
   ],
-  exports: [
-    'PermissionRepository',
-    MongooseModule,
-  ],
+  exports: ['PermissionRepository', MongooseModule],
 })
 export class PermissionModule {}

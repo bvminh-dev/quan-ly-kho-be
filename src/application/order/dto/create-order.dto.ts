@@ -19,7 +19,10 @@ import { roundToTwo } from '../../../common/utils/number.util.js';
 export class CreateOrderItemDto {
   @IsNotEmpty()
   @IsMongoId()
-  @ApiProperty({ example: '60d0fe4f5311236168a109ca', description: 'ID warehouse' })
+  @ApiProperty({
+    example: '60d0fe4f5311236168a109ca',
+    description: 'ID warehouse',
+  })
   id: string;
 
   @IsNotEmpty()
@@ -103,7 +106,11 @@ export class CreateOrderProductDto {
 export class CreateOrderDto {
   @IsNotEmpty()
   @IsEnum(OrderType)
-  @ApiProperty({ example: OrderType.CAO, enum: OrderType, description: 'Loại đơn theo giá cao hoặc giá thấp' })
+  @ApiProperty({
+    example: OrderType.CAO,
+    enum: OrderType,
+    description: 'Loại đơn theo giá cao hoặc giá thấp',
+  })
   type: string;
 
   @IsNotEmpty()
@@ -115,7 +122,10 @@ export class CreateOrderDto {
 
   @IsNotEmpty()
   @IsMongoId()
-  @ApiProperty({ example: '60d0fe4f5311236168a109ca', description: 'ID khách hàng' })
+  @ApiProperty({
+    example: '60d0fe4f5311236168a109ca',
+    description: 'ID khách hàng',
+  })
   customer: string;
 
   @IsOptional()

@@ -9,6 +9,10 @@ export class GetPermissionsUseCase {
   ) {}
 
   async execute(queryString: string, currentPage: number, pageSize: number) {
-    return this.permissionRepository.findAll(queryString, currentPage, pageSize);
+    return this.permissionRepository.findAll(
+      queryString,
+      currentPage,
+      pageSize,
+    );
   }
 }

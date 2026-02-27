@@ -7,13 +7,18 @@ import { GetWarehouseUseCase } from '../../application/warehouse/get-warehouse.u
 import { GetWarehousesUseCase } from '../../application/warehouse/get-warehouses.usecase.js';
 import { UpdateWarehouseUseCase } from '../../application/warehouse/update-warehouse.usecase.js';
 import { WarehouseMongoRepository } from '../../infrastructure/mongo/warehouse/warehouse.mongo.repository.js';
-import { Warehouse, WarehouseSchema } from '../../infrastructure/mongo/warehouse/warehouse.schema.js';
+import {
+  Warehouse,
+  WarehouseSchema,
+} from '../../infrastructure/mongo/warehouse/warehouse.schema.js';
 import { HistoryWarehouseModule } from '../history-warehouse/history-warehouse.module.js';
 import { WarehouseController } from './warehouse.controller.js';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Warehouse.name, schema: WarehouseSchema }]),
+    MongooseModule.forFeature([
+      { name: Warehouse.name, schema: WarehouseSchema },
+    ]),
     forwardRef(() => HistoryWarehouseModule),
   ],
   controllers: [WarehouseController],

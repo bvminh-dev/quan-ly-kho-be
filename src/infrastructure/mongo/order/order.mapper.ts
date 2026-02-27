@@ -24,7 +24,8 @@ export class OrderMapper {
         doc.products?.map((p: any) => ({
           nameSet: p.nameSet,
           priceSet: p.priceSet != null ? roundToTwo(p.priceSet) : undefined,
-          quantitySet: p.quantitySet != null ? roundToTwo(p.quantitySet) : undefined,
+          quantitySet:
+            p.quantitySet != null ? roundToTwo(p.quantitySet) : undefined,
           saleSet: p.saleSet != null ? roundToTwo(p.saleSet) : undefined,
           isCalcSet: p.isCalcSet,
           items:

@@ -62,7 +62,12 @@ export class UpdateOrderProductDto {
 export class UpdateOrderDto {
   @IsOptional()
   @IsEnum(OrderType)
-  @ApiProperty({ example: OrderType.CAO, enum: OrderType, required: false, description: 'Loại đơn theo giá cao hoặc giá thấp' })
+  @ApiProperty({
+    example: OrderType.CAO,
+    enum: OrderType,
+    required: false,
+    description: 'Loại đơn theo giá cao hoặc giá thấp',
+  })
   type?: string;
 
   @IsOptional()

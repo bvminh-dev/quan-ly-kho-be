@@ -21,6 +21,8 @@ export class PermissionMapper {
   }
 
   static toDomainList(docs: any[]): PermissionEntity[] {
-    return docs.map((doc) => PermissionMapper.toDomain(doc)).filter(Boolean) as PermissionEntity[];
+    return docs
+      .map((doc) => PermissionMapper.toDomain(doc))
+      .filter(Boolean) as PermissionEntity[];
   }
 }

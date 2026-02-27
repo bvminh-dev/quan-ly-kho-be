@@ -5,9 +5,7 @@ const FACTOR = 10 ** DECIMAL_PLACES;
  * Làm tròn số đến 2 chữ số thập phân.
  * null/undefined trả về 0.
  */
-export function roundToTwo(
-  value: number | null | undefined,
-): number {
+export function roundToTwo(value: number | null | undefined): number {
   if (value === null || value === undefined) {
     return 0;
   }

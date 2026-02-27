@@ -10,7 +10,10 @@ export interface IRoleRepository {
     queryString: string,
     currentPage: number,
     pageSize: number,
-  ): Promise<{ items: RoleEntity[]; meta: { current: number; pageSize: number; pages: number; total: number } }>;
+  ): Promise<{
+    items: RoleEntity[];
+    meta: { current: number; pageSize: number; pages: number; total: number };
+  }>;
   count(): Promise<number>;
   findByIdWithPopulate(id: string): Promise<RoleEntity | null>;
 }

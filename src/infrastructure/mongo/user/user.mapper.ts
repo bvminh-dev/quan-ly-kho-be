@@ -26,6 +26,8 @@ export class UserMapper {
   }
 
   static toDomainList(docs: any[]): UserEntity[] {
-    return docs.map((doc) => UserMapper.toDomain(doc)).filter(Boolean) as UserEntity[];
+    return docs
+      .map((doc) => UserMapper.toDomain(doc))
+      .filter(Boolean) as UserEntity[];
   }
 }

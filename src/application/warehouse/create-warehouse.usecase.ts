@@ -22,14 +22,13 @@ export class CreateWarehouseUseCase {
   async execute(dto: CreateWarehouseDto, createdBy: string) {
     this.logger.log(`Creating warehouse item: ${dto.item} ${dto.inches}"`);
 
-    const existingWarehouse =
-      await this.warehouseRepository.findByAttributes(
-        dto.inches,
-        dto.item,
-        dto.quality,
-        dto.style,
-        dto.color,
-      );
+    const existingWarehouse = await this.warehouseRepository.findByAttributes(
+      dto.inches,
+      dto.item,
+      dto.quality,
+      dto.style,
+      dto.color,
+    );
 
     if (existingWarehouse) {
       this.logger.warn(

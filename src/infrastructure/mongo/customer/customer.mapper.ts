@@ -19,6 +19,8 @@ export class CustomerMapper {
   }
 
   static toDomainList(docs: any[]): CustomerEntity[] {
-    return docs.map((doc) => CustomerMapper.toDomain(doc)).filter(Boolean) as CustomerEntity[];
+    return docs
+      .map((doc) => CustomerMapper.toDomain(doc))
+      .filter(Boolean) as CustomerEntity[];
   }
 }

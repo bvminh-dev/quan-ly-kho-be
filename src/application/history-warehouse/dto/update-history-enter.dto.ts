@@ -96,7 +96,11 @@ export class UpdateHistoryEnterDto {
 
   @IsOptional()
   @IsEnum(HistoryEnterType)
-  @ApiProperty({ example: HistoryEnterType.TAO_MOI, enum: HistoryEnterType, required: false })
+  @ApiProperty({
+    example: HistoryEnterType.TAO_MOI,
+    enum: HistoryEnterType,
+    required: false,
+  })
   type?: string;
 
   @IsOptional()

@@ -53,7 +53,10 @@ export class CreateOrderUseCase {
           );
         }
 
-        if (warehouse.amountAvailable < item.quantity) {
+        const quantitySet = product.quantitySet ?? 1;
+        const requiredQuantity = roundToTwo(quantitySet * item.quantity);
+
+        if (warehouse.amountAvailable < requiredQuantity) {
           const productName = `${warehouse.inches}" ${warehouse.item} ${warehouse.quality} ${warehouse.style} ${warehouse.color}`;
           throw new BadRequestException(
             `Hàng ${productName} không đủ trong kho`,
@@ -97,7 +100,8 @@ export class CreateOrderUseCase {
       products: dto.products.map((p) => ({
         nameSet: p.nameSet,
         priceSet: p.priceSet != null ? roundToTwo(p.priceSet) : undefined,
-        quantitySet: p.quantitySet != null ? roundToTwo(p.quantitySet) : undefined,
+        quantitySet:
+          p.quantitySet != null ? roundToTwo(p.quantitySet) : undefined,
         saleSet: p.saleSet != null ? roundToTwo(p.saleSet) : undefined,
         isCalcSet: p.isCalcSet ?? false,
         items: p.items.map((i) => ({
@@ -115,10 +119,13 @@ export class CreateOrderUseCase {
 
     for (const product of dto.products) {
       for (const item of product.items) {
+        const quantitySet = product.quantitySet ?? 1;
+        const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
+
         await this.warehouseRepository.updateStock(
           item.id,
-          item.quantity,
-          -item.quantity,
+          occupiedQuantity,
+          -occupiedQuantity,
         );
       }
     }

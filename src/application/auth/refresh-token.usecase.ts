@@ -20,26 +20,30 @@ export class RefreshTokenUseCase {
     try {
       decoded = await this.tokenProvider.verifyRefreshToken(refreshToken);
     } catch {
-      throw new BadRequestException('Refresh token không hợp lệ hoặc đã hết hạn');
+      throw new BadRequestException(
+        'Refresh token không hợp lệ hoặc đã hết hạn',
+      );
     }
 
     // Find user by refresh token
     const user = await this.userRepository.findByRefreshToken(refreshToken);
     if (!user) {
-      throw new BadRequestException('Refresh token không tồn tại trong hệ thống');
+      throw new BadRequestException(
+        'Refresh token không tồn tại trong hệ thống',
+      );
     }
 
     // Generate new tokens
     const payload = { sub: user._id, name: user.name, email: user.email };
     const newAccessToken = await this.tokenProvider.createAccessToken(payload);
-    const newRefreshToken = await this.tokenProvider.createRefreshToken(payload);
+    const newRefreshToken =
+      await this.tokenProvider.createRefreshToken(payload);
 
     // Update refresh token in DB
     await this.userRepository.updateRefreshToken(user._id, newRefreshToken);
 
     // Get role with permissions
-    const roleId =
-      typeof user.role === 'object' ? user.role?._id : user.role;
+    const roleId = typeof user.role === 'object' ? user.role?._id : user.role;
     const role = roleId
       ? await this.roleRepository.findByIdWithPopulate(roleId)
       : null;

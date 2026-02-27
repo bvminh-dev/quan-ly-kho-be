@@ -54,9 +54,12 @@ export class AddHistoryUseCase {
     if (shouldMarkAsDone) {
       for (const product of order.products) {
         for (const item of product.items) {
+          const quantitySet = product.quantitySet ?? 1;
+          const totalQuantity = roundToTwo(quantitySet * item.quantity);
+
           await this.warehouseRepository.decreaseTotalAndOccupied(
             item.id,
-            item.quantity,
+            totalQuantity,
           );
         }
       }
@@ -92,7 +95,10 @@ export class AddHistoryUseCase {
       note: dto.note ?? '',
     });
 
-    if (updatedOrder && (updatedOrder.state as OrderState) !== OrderState.BAO_GIA) {
+    if (
+      updatedOrder &&
+      (updatedOrder.state as OrderState) !== OrderState.BAO_GIA
+    ) {
       const customerPayment =
         await this.orderRepository.calculateCustomerPayment(customerId);
 

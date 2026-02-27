@@ -33,9 +33,14 @@ export class CustomerMongoRepository implements ICustomerRepository {
     return CustomerMapper.toDomain(created) as CustomerEntity;
   }
 
-  async update(id: string, data: Partial<CustomerEntity>): Promise<CustomerEntity | null> {
+  async update(
+    id: string,
+    data: Partial<CustomerEntity>,
+  ): Promise<CustomerEntity | null> {
     const updated = await this.customerModel
-      .findOneAndUpdate({ _id: id, isDeleted: false }, data as any, { new: true })
+      .findOneAndUpdate({ _id: id, isDeleted: false }, data as any, {
+        new: true,
+      })
       .lean();
     return CustomerMapper.toDomain(updated);
   }

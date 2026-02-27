@@ -4,7 +4,10 @@ export interface ICustomerRepository {
   findById(id: string): Promise<CustomerEntity | null>;
   findByName(name: string): Promise<CustomerEntity | null>;
   create(customer: Partial<CustomerEntity>): Promise<CustomerEntity>;
-  update(id: string, data: Partial<CustomerEntity>): Promise<CustomerEntity | null>;
+  update(
+    id: string,
+    data: Partial<CustomerEntity>,
+  ): Promise<CustomerEntity | null>;
   softDelete(id: string, deleteBy: string): Promise<void>;
   findAll(
     queryString: string,

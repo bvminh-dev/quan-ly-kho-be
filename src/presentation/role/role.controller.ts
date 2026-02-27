@@ -57,7 +57,9 @@ export class RoleController {
     description: 'Tạo role thành công',
     type: CreateRoleResponseDto,
   })
-  @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ hoặc role đã tồn tại' })
+  @ApiBadRequestResponse({
+    description: 'Dữ liệu không hợp lệ hoặc role đã tồn tại',
+  })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Create a new Role')
   async create(@Body() dto: CreateRoleDto, @User() user: ICurrentUser) {
@@ -162,7 +164,9 @@ export class RoleController {
   @Delete(':id')
   @Roles('admin')
   @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'Xóa role (soft delete, chỉ Admin, không được xóa admin role)' })
+  @ApiOperation({
+    summary: 'Xóa role (soft delete, chỉ Admin, không được xóa admin role)',
+  })
   @ApiOkResponse({
     description: 'Xóa role thành công',
     type: DeleteRoleResponseDto,

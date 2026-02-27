@@ -48,7 +48,12 @@ export class OrderMapper {
           datePaid: h.datePaid,
           note: h.note,
         })) ?? [],
-      createdBy: doc.createdBy ? doc.createdBy.toString() : null,
+      createdBy:
+        doc.createdBy && typeof doc.createdBy === 'object' && doc.createdBy.name
+          ? { _id: doc.createdBy._id.toString(), name: doc.createdBy.name }
+          : doc.createdBy
+            ? doc.createdBy.toString()
+            : null,
       updatedBy: doc.updatedBy ? doc.updatedBy.toString() : null,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,

@@ -39,7 +39,7 @@ export class OrderEntity {
   note: string;
   products: OrderProductEntity[];
   history: OrderHistoryEntity[];
-  createdBy: string | null;
+  createdBy: string | { _id: string; name: string } | null;
   updatedBy: string | null;
   createdAt: Date;
   updatedAt: Date;

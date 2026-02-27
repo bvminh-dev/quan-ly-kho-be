@@ -72,6 +72,14 @@ class OrderCustomerRefDto {
   name: string;
 }
 
+class OrderCreatorRefDto {
+  @ApiProperty({ example: '60d0fe4f5311236168a109cc' })
+  _id: string;
+
+  @ApiProperty({ example: 'Nguyễn Văn B' })
+  name: string;
+}
+
 class OrderDetailDto {
   @ApiProperty({ example: '60d0fe4f5311236168a109ca' })
   _id: string;
@@ -122,8 +130,12 @@ class OrderDetailDto {
   @ApiProperty({ type: () => [OrderHistorySwaggerDto] })
   history: OrderHistorySwaggerDto[];
 
-  @ApiProperty({ example: '60d0fe4f5311236168a109cc' })
-  createdBy: string;
+  @ApiProperty({
+    type: () => OrderCreatorRefDto,
+    description: 'Thông tin người tạo đơn hàng',
+    nullable: true,
+  })
+  createdBy: OrderCreatorRefDto | string | null;
 
   @ApiProperty({ example: '60d0fe4f5311236168a109cc' })
   updatedBy: string;

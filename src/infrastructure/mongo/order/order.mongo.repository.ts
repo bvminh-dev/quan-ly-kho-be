@@ -20,6 +20,7 @@ export class OrderMongoRepository implements IOrderRepository {
     const doc = await this.orderModel
       .findOne({ _id: id, isDeleted: false })
       .populate('customer', '_id name payment')
+      .populate('createdBy', '_id name')
       .lean();
     return OrderMapper.toDomain(doc);
   }
@@ -29,6 +30,7 @@ export class OrderMongoRepository implements IOrderRepository {
     const doc = await this.orderModel
       .findById(created._id)
       .populate('customer', '_id name payment')
+      .populate('createdBy', '_id name')
       .lean();
     return OrderMapper.toDomain(doc) as OrderEntity;
   }
@@ -42,6 +44,7 @@ export class OrderMongoRepository implements IOrderRepository {
         new: true,
       })
       .populate('customer', '_id name payment')
+      .populate('createdBy', '_id name')
       .lean();
     return OrderMapper.toDomain(updated);
   }
@@ -72,6 +75,7 @@ export class OrderMongoRepository implements IOrderRepository {
       .sort(sort as any)
       .populate([
         { path: 'customer', select: '_id name payment' },
+        { path: 'createdBy', select: '_id name' },
         ...(Array.isArray(population) ? population : []),
       ])
       .lean();
@@ -95,6 +99,7 @@ export class OrderMongoRepository implements IOrderRepository {
         { new: true },
       )
       .populate('customer', '_id name payment')
+      .populate('createdBy', '_id name')
       .lean();
     return OrderMapper.toDomain(updated);
   }

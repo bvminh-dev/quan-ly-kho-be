@@ -5,7 +5,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { OrderState } from '../../common/enums/index.js';
+import { HistoryType, OrderState } from '../../common/enums/index.js';
 import { roundToTwo } from '../../common/utils/number.util.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
@@ -39,33 +39,35 @@ export class RevertOrderUseCase {
       throw new BadRequestException('Đơn hàng đã được hoàn tác rồi');
     }
 
-    const isPaymentNegative = order.payment < 0;
-    const isPaymentEqualTotalPrice = -1 * order.payment === order.totalPrice;
-
-    if (!isPaymentNegative || !isPaymentEqualTotalPrice) {
-      throw new BadRequestException(
-        'Chỉ có thể hoàn tác khi payment là số âm và |payment| = totalPrice (khách chưa trả tiền)',
-      );
+    if (order.payment * -1 < order.totalPrice) {
+      throw new BadRequestException('Phải trả lại khách đủ tiền mới hoàn tác');
     }
 
-    for (const product of order.products) {
-      for (const item of product.items) {
-        const quantitySet = product.quantitySet ?? 1;
-        const quantityRevert = roundToTwo(quantitySet * item.quantity);
+    const hasPaymentHistory = order.history.some(
+      (h) =>
+        (h.type?.toLowerCase() ?? '') === HistoryType.KHACH_TRA.toLowerCase(),
+    );
 
-        await this.warehouseRepository.updateStock(
-          item.id,
-          -quantityRevert,
-          quantityRevert,
-        );
+    if (hasPaymentHistory) {
+      for (const product of order.products) {
+        for (const item of product.items) {
+          const quantitySet = product.quantitySet ?? 1;
+          const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
 
-        await this.historyWarehouseService.createHistoryEnterForRevertOrder(
-          item.id,
-          id,
-          quantityRevert,
-          dto.note,
-          updatedBy,
-        );
+          await this.warehouseRepository.updateStock(
+            item.id,
+            -occupiedQuantity,
+            occupiedQuantity,
+          );
+
+          await this.historyWarehouseService.createHistoryEnterForRevertOrder(
+            item.id,
+            id,
+            occupiedQuantity,
+            dto.note ?? '',
+            updatedBy,
+          );
+        }
       }
     }
 
@@ -78,16 +80,10 @@ export class RevertOrderUseCase {
       state: string;
       updatedBy: string;
       note: string;
-      payment: number;
-      debt: number;
-      paid: number;
     }> = {
       state: OrderState.HOAN_TAC,
       updatedBy,
       note: dto.note,
-      payment: 0,
-      debt: 0,
-      paid: 0,
     };
 
     const updated = await this.orderRepository.update(id, updateData as any);

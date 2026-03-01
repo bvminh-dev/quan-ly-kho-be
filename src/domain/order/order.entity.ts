@@ -5,6 +5,7 @@ export class OrderItemEntity {
   sale: number;
   customPrice: boolean;
   customSale: boolean;
+  unitOfCalculation: string;
 }
 
 export class OrderProductEntity {

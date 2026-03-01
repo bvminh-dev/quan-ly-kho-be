@@ -70,6 +70,7 @@ export enum OrderState {
   CHINH_SUA = 'chỉnh sửa',
   HOAN_TAC = 'hoàn tác',
   DA_XONG = 'đã xong',
+  DA_GIAO = 'đã giao',
 }
 
 export enum HistoryType {

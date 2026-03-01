@@ -25,8 +25,10 @@ import { AddHistoryUseCase } from '../../application/order/add-history.usecase.j
 import { ConfirmOrderUseCase } from '../../application/order/confirm-order.usecase.js';
 import { CreateOrderUseCase } from '../../application/order/create-order.usecase.js';
 import { DeleteOrderUseCase } from '../../application/order/delete-order.usecase.js';
+import { DeliverOrderUseCase } from '../../application/order/deliver-order.usecase.js';
 import { AddHistoryDto } from '../../application/order/dto/add-history.dto.js';
 import { CreateOrderDto } from '../../application/order/dto/create-order.dto.js';
+import { DeliverOrderDto } from '../../application/order/dto/deliver-order.dto.js';
 import { RevertOrderDto } from '../../application/order/dto/revert-order.dto.js';
 import { UpdateOrderDto } from '../../application/order/dto/update-order.dto.js';
 import { GetOrderUseCase } from '../../application/order/get-order.usecase.js';
@@ -43,6 +45,7 @@ import {
   ConfirmOrderResponseDto,
   CreateOrderResponseDto,
   DeleteOrderResponseDto,
+  DeliverOrderResponseDto,
   GetOrderResponseDto,
   GetOrdersResponseDto,
   RevertOrderResponseDto,
@@ -61,6 +64,7 @@ export class OrderController {
     private readonly addHistoryUseCase: AddHistoryUseCase,
     private readonly confirmOrderUseCase: ConfirmOrderUseCase,
     private readonly revertOrderUseCase: RevertOrderUseCase,
+    private readonly deliverOrderUseCase: DeliverOrderUseCase,
   ) {}
 
   @Post()
@@ -118,6 +122,7 @@ export class OrderController {
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
   ) {
     const queryParams = new URLSearchParams();
 
@@ -138,6 +143,7 @@ export class OrderController {
       finalQueryString,
       +currentPage || 1,
       +pageSize || 10,
+      user,
     );
   }
 
@@ -240,5 +246,30 @@ export class OrderController {
     @User() user: ICurrentUser,
   ) {
     return this.revertOrderUseCase.execute(id, dto, user._id);
+  }
+
+  @Patch(':id/deliver')
+  @ApiOperation({
+    summary:
+      'Chuyển đơn hàng sang trạng thái Đã giao (chỉ khi payment >= 0, sẽ trừ kho)',
+  })
+  @ApiBody({ type: DeliverOrderDto })
+  @ApiOkResponse({
+    description: 'Chuyển đơn hàng sang Đã giao thành công',
+    type: DeliverOrderResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description:
+      'Không thể chuyển đơn hàng sang Đã giao (khách còn nợ hoặc trạng thái không hợp lệ)',
+  })
+  @ApiNotFoundResponse({ description: 'Không tìm thấy đơn hàng' })
+  @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
+  @ResponseMessage('Deliver Order')
+  async deliver(
+    @Param('id') id: string,
+    @Body() dto: DeliverOrderDto,
+    @User() user: ICurrentUser,
+  ) {
+    return this.deliverOrderUseCase.execute(id, user._id, dto?.note);
   }
 }

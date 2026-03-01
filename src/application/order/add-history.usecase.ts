@@ -1,4 +1,10 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { HistoryType, OrderState } from '../../common/enums/index.js';
 import { HISTORY_WAREHOUSE_EVENTS } from '../../common/constants/events.js';
@@ -30,6 +36,15 @@ export class AddHistoryUseCase {
       throw new NotFoundException(`Order với id ${orderId} không tồn tại`);
     }
 
+    const currentState = order.state as OrderState;
+
+    // Chỉ ghi nhận thanh toán khi đơn hàng đang ở trạng thái "Đã chốt"
+    if (currentState !== OrderState.DA_CHOT) {
+      throw new BadRequestException(
+        `Chỉ có thể ghi nhận thanh toán khi đơn hàng đang ở trạng thái "Đã chốt". Trạng thái hiện tại: "${currentState}"`,
+      );
+    }
+
     const customerId =
       typeof order.customer === 'object' && order.customer !== null
         ? order.customer._id
@@ -46,35 +61,37 @@ export class AddHistoryUseCase {
 
     const newDebt = roundToTwo(newPayment < 0 ? -newPayment : 0);
 
-    const shouldMarkAsDone =
-      (order.state as OrderState) !== OrderState.DA_XONG &&
-      (order.state as OrderState) !== OrderState.HOAN_TAC &&
-      newPayment >= 0;
+    // Khi nhận được một phần tiền thanh toán (không phải hoàn tiền), hàng trong kho được tính là đã chiếm dụng
+    // Cập nhật amountOccupied và giảm amountAvailable
+    if (!isRefund && dto.moneyPaidNGN > 0) {
+      // Kiểm tra xem đã chiếm dụng chưa (dựa vào history trước đó)
+      const hasPreviousPayment = order.history.some(
+        (h) => h.type === HistoryType.KHACH_TRA,
+      );
 
-    if (shouldMarkAsDone) {
-      for (const product of order.products) {
-        for (const item of product.items) {
-          const quantitySet = product.quantitySet ?? 1;
-          const totalQuantity = roundToTwo(quantitySet * item.quantity);
+      // Chỉ chiếm dụng lần đầu tiên khi nhận tiền
+      if (!hasPreviousPayment) {
+        for (const product of order.products) {
+          for (const item of product.items) {
+            const quantitySet = product.quantitySet ?? 1;
+            const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
 
-          await this.warehouseRepository.decreaseTotalAndOccupied(
-            item.id,
-            totalQuantity,
-          );
+            await this.warehouseRepository.updateStock(
+              item.id,
+              occupiedQuantity,
+              -occupiedQuantity,
+            );
+          }
         }
       }
-
-      await this.orderRepository.update(orderId, {
-        payment: newPayment,
-        debt: newDebt,
-        state: OrderState.DA_XONG as string,
-      });
-    } else {
-      await this.orderRepository.update(orderId, {
-        payment: newPayment,
-        debt: newDebt,
-      });
     }
+
+    // Không tự động chuyển sang Đã xong/Đã giao khi thanh toán
+    // Chỉ cập nhật payment và debt
+    await this.orderRepository.update(orderId, {
+      payment: newPayment,
+      debt: newDebt,
+    });
 
     this.eventEmitter.emit(HISTORY_WAREHOUSE_EVENTS.ORDER_PAYMENT_ADDED, {
       orderId,
@@ -82,7 +99,6 @@ export class AddHistoryUseCase {
       moneyPaidNGN: dto.moneyPaidNGN,
       note: dto.note ?? '',
       createdBy,
-      shouldMarkAsDone,
     });
 
     const updatedOrder = await this.orderRepository.addHistory(orderId, {

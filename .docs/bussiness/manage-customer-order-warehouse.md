@@ -53,6 +53,7 @@
   + Chỉnh sửa: trạng thái tạm khi đang cập nhật lại sản phẩm/giá; sau khi lưu xong thì có thể chuyển lại sang đã chốt hoặc báo giá tùy nghiệp vụ
   + Hoàn tác: đơn hàng bị hủy/hoàn tác toàn bộ, kho được cộng trả lại (xem chi tiết phần nghiệp vụ)
   + Đã xong: đơn hàng đã thanh toán đủ, đã xuất kho xong
+  + Đã giao: đơn hàng đã giao cho khách hàng (tương đương với Đã xong)
 - exchangeRate: number // tỷ giá
 - customer: objectId ref: customer
 - totalPrice: number // tổng giá trị đơn hàng theo đơn vị NGN
@@ -73,6 +74,7 @@
     * sale: number // giảm giá
     * customPrice: bool // giá có khác với giá của bản ghi được set trong kho không, default = false
     * customSale: number // giảm giá có khác với giảm giá của bản ghi được set trong kho không, default - false
+    * unitOfCalculation: string // đơn vị tính, là 1 trong các giá trị: Kg hoặc Pcs
   }[]
 }[]
 - history: {
@@ -96,14 +98,21 @@
 - Khi state chuyển sang chỉnh sửa thì tính toán lại số lượng hàng hóa đã chiếm dụng rồi update lại đúng bản ghi đó trong warehouse
 - User ai cũng có quyền thêm lịch sử đơn hàng. Khi thêm lịch sử đơn hàng cần điền: moneyPaidNGN, exchangeRate, moneyPaidDolar, datePaid. Với type = hoàn tiền thì lấy số tiền payment + thêm tiền hoàn để khách nợ thêm số tiền hoàn đó.
 - User ai cũng có quyền hoàn tác đơn hàng. trước khi hoàn tác cần phải kiểm tra: payment là số âm và (-1) * payment = totalPrice thì mới cho phép hoàn tác, và bắt buộc phải điền. Khi hoàn tác thì lấy số lượng hàng cộng lại vào số lượng khả dụng của hàng hóa đó trong kho, và trừ số lượng chiếm hữu đi
-- Khi tiền khách hàng trả hết (không còn nợ) thì trạng thái đơn hàng cập nhật thành đã xong. Khi đó:
-  + Chiếm dụng trong kho (`amountOccupied`) trừ đi đúng tổng số lượng của đơn hàng đó
-  + Tổng số lượng trong kho (`totalAmount`) cũng trừ đi đúng tổng số lượng của đơn hàng đó
-  + Việc trừ kho này chỉ thực hiện 1 lần duy nhất tại thời điểm chuyển trạng thái từ Báo giá/Đã chốt/Chỉnh sửa sang Đã xong, không trừ lại nếu sau đó cập nhật thông tin khác không liên quan tới số lượng
-  + Điều kiện “tiền khách hàng trả hết” được hiểu là: `payment >= 0` (không còn nợ, có thể dư tiền). Trường hợp thanh toán dư thì số tiền dư giữ trong `payment` dương, nhưng vẫn được coi là đã xong và đã xuất kho
-  + Không cho phép chuyển trạng thái sang Đã xong nếu `payment` đang âm (khách còn nợ)
+- Khi ở trạng thái báo giá, chốt đơn thì hàng trong kho không được trừ. Hàng trong kho chuyển sang chiếm dụng khi hàng chỉ cần nhận được 1 ít tiền. Khi tiền nhận được bằng 0 thì mới cho phép hoàn đơn. Khi hoàn đơn, hàng chiếm dụng bị trừ đi và hàng trong kho cộng bằng số hàng chiếm dụng đó. Khi hàng chuyển sang trạng thái đã giao thì mới trừ ở chiếm dụng.
 - Cách tính totalPrice =  số lượng item (* số lượng set) * dơn giá (tuỳ theo item trong set hay ngoài set) * tỷ giá 
 - Khi chốt đơn cũng không được tự động ghi nhận debt, Lưu ý quan trọng Debt, Paid nhận từ FE
+- Danh sách đơn hàng hiển thị như sau:
+  + Với role admin thì show hết tất cả đơn hàng trong hệ thống
+  + Với role khác admin thì chỉ lấy được đơn hàng của current user đang call api (lọc theo createdBy)
+- Quy trình chuyển trạng thái đơn hàng:
+  + Flow chính: Báo giá -> Đã chốt -> Chỉnh sửa -> Đã chốt -> Đã giao
+  + Flow hoàn tác: Báo giá -> Đã chốt -> Chỉnh sửa -> Hoàn tác
+  + Lưu ý: Trạng thái "Đã giao" tương đương với "Đã xong", khi chuyển sang "Đã giao" thì áp dụng các nghiệp vụ giống như "Đã xong"
+- Quản lý kho hàng theo trạng thái đơn hàng:
+  + Khi đơn hàng ở trạng thái "Báo giá" hoặc "Đã chốt": không trừ số lượng trong kho (`totalAmount`), chỉ cập nhật số lượng chiếm dụng (`amountOccupied`) và số lượng khả dụng (`amountAviable`)
+  + Đơn hàng chỉ ghi nhận thanh toán khi đang ở trạng thái "Đã chốt"
+  + Khi nhận được một phần tiền thanh toán (có lịch sử thanh toán), hàng trong kho được tính là đã chiếm dụng (cập nhật `amountOccupied` và giảm `amountAviable`)
+  + Chỉ khi chuyển sang trạng thái "Đã giao" (hoặc "Đã xong") mới trừ số lượng trong kho (`totalAmount` và `amountOccupied`)
 
 
 ## Lưu ý

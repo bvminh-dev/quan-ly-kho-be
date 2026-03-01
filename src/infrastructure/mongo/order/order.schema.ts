@@ -5,6 +5,7 @@ import {
   OrderState,
   OrderType,
   PaymentMethod,
+  UnitOfCalculation,
 } from '../../../common/enums/index.js';
 
 export type OrderDocument = HydratedDocument<Order>;
@@ -32,6 +33,9 @@ export class OrderItem {
 
   @Prop({ default: false })
   customSale: boolean;
+
+  @Prop({ required: true, enum: UnitOfCalculation })
+  unitOfCalculation: string;
 }
 
 @Schema({ _id: false })

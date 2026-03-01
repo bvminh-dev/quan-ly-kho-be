@@ -111,24 +111,15 @@ export class CreateOrderUseCase {
           sale: roundToTwo(i.sale ?? 0),
           customPrice: i.customPrice ?? false,
           customSale: i.customSale ?? false,
+          unitOfCalculation: i.unitOfCalculation,
         })),
       })),
       history: [],
       createdBy,
     });
 
-    for (const product of dto.products) {
-      for (const item of product.items) {
-        const quantitySet = product.quantitySet ?? 1;
-        const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
-
-        await this.warehouseRepository.updateStock(
-          item.id,
-          occupiedQuantity,
-          -occupiedQuantity,
-        );
-      }
-    }
+    // Khi ở trạng thái "Báo giá", hàng trong kho không được trừ và không chiếm dụng
+    // Hàng chỉ chiếm dụng khi nhận được tiền thanh toán
 
     this.eventEmitter.emit(HISTORY_WAREHOUSE_EVENTS.ORDER_CREATED, {
       orderId: order._id,

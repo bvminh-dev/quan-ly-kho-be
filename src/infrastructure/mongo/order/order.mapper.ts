@@ -1,5 +1,5 @@
-import { OrderEntity } from '../../../domain/order/order.entity.js';
 import { roundToTwo } from '../../../common/utils/number.util.js';
+import { OrderEntity } from '../../../domain/order/order.entity.js';
 
 export class OrderMapper {
   static toDomain(doc: any): OrderEntity | null {
@@ -36,6 +36,7 @@ export class OrderMapper {
               sale: roundToTwo(i.sale),
               customPrice: i.customPrice,
               customSale: i.customSale,
+              unitOfCalculation: i.unitOfCalculation,
             })) ?? [],
         })) ?? [],
       history:

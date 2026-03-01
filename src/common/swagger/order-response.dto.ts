@@ -19,6 +19,9 @@ class OrderItemSwaggerDto {
 
   @ApiProperty({ example: false })
   customSale: boolean;
+
+  @ApiProperty({ example: 'Kg', description: 'Đơn vị tính: Kg hoặc Pcs' })
+  unitOfCalculation: string;
 }
 
 class OrderProductSwaggerDto {
@@ -93,7 +96,7 @@ class OrderDetailDto {
   @ApiProperty({
     example: 'Báo giá',
     description:
-      'Trạng thái đơn hàng: Báo giá | Đã chốt | Chỉnh sửa | Hoàn tác | Đã xong',
+      'Trạng thái đơn hàng: Báo giá | Đã chốt | Chỉnh sửa | Hoàn tác | Đã xong | Đã giao',
   })
   state: string;
 
@@ -240,6 +243,17 @@ export class RevertOrderResponseDto {
   statusCode: number;
 
   @ApiProperty({ example: 'Revert Order' })
+  message: string;
+
+  @ApiProperty({ type: () => OrderDetailDto })
+  data: OrderDetailDto;
+}
+
+export class DeliverOrderResponseDto {
+  @ApiProperty({ example: 200 })
+  statusCode: number;
+
+  @ApiProperty({ example: 'Deliver Order' })
   message: string;
 
   @ApiProperty({ type: () => OrderDetailDto })

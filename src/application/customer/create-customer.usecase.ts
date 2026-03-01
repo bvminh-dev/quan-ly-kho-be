@@ -22,13 +22,13 @@ export class CreateCustomerUseCase {
     const existing = await this.customerRepository.findByName(dto.name);
     if (existing) {
       throw new BadRequestException(
-        `Customer "${dto.name}" đã tồn tại trong hệ thống`,
+        `Đã có khách hàng ${dto.name} trong hệ thống`,
       );
     }
 
     const customer = await this.customerRepository.create({
       name: dto.name,
-      payment: 0,
+      payment: dto.payment ?? 0,
       note: dto.note ?? '',
       createdBy,
     });

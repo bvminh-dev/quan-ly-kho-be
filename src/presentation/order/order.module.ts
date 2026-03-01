@@ -4,6 +4,7 @@ import { AddHistoryUseCase } from '../../application/order/add-history.usecase.j
 import { ConfirmOrderUseCase } from '../../application/order/confirm-order.usecase.js';
 import { CreateOrderUseCase } from '../../application/order/create-order.usecase.js';
 import { DeleteOrderUseCase } from '../../application/order/delete-order.usecase.js';
+import { DeliverOrderUseCase } from '../../application/order/deliver-order.usecase.js';
 import { GetOrderUseCase } from '../../application/order/get-order.usecase.js';
 import { GetOrdersUseCase } from '../../application/order/get-orders.usecase.js';
 import { RevertOrderUseCase } from '../../application/order/revert-order.usecase.js';
@@ -39,6 +40,7 @@ import { OrderController } from './order.controller.js';
     AddHistoryUseCase,
     ConfirmOrderUseCase,
     RevertOrderUseCase,
+    DeliverOrderUseCase,
   ],
   exports: ['OrderRepository'],
 })

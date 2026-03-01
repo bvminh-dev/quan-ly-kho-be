@@ -13,7 +13,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { OrderType } from '../../../common/enums/index.js';
+import { OrderType, UnitOfCalculation } from '../../../common/enums/index.js';
 import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class CreateOrderItemDto {
@@ -58,6 +58,15 @@ export class CreateOrderItemDto {
   @IsBoolean()
   @ApiProperty({ example: false, required: false })
   customSale?: boolean;
+
+  @IsNotEmpty()
+  @IsEnum(UnitOfCalculation)
+  @ApiProperty({
+    example: UnitOfCalculation.KG,
+    enum: UnitOfCalculation,
+    description: 'Đơn vị tính: Kg hoặc Pcs',
+  })
+  unitOfCalculation: string;
 }
 
 export class CreateOrderProductDto {

@@ -41,16 +41,24 @@ export class UpdateOrderUseCase {
     }
 
     if (dto.products) {
-      for (const product of existingOrder.products) {
-        for (const item of product.items) {
-          const quantitySet = product.quantitySet ?? 1;
-          const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
+      // Kiểm tra xem đơn hàng đã có chiếm dụng hàng chưa (đã nhận tiền)
+      const hasPaymentHistory = existingOrder.history.some(
+        (h) => h.type === 'khách trả',
+      );
 
-          await this.warehouseRepository.updateStock(
-            item.id,
-            -occupiedQuantity,
-            occupiedQuantity,
-          );
+      // Chỉ trả lại hàng cũ nếu đã có chiếm dụng
+      if (hasPaymentHistory) {
+        for (const product of existingOrder.products) {
+          for (const item of product.items) {
+            const quantitySet = product.quantitySet ?? 1;
+            const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
+
+            await this.warehouseRepository.updateStock(
+              item.id,
+              -occupiedQuantity,
+              occupiedQuantity,
+            );
+          }
         }
       }
 
@@ -88,16 +96,19 @@ export class UpdateOrderUseCase {
         }
       }
 
-      for (const product of dto.products) {
-        for (const item of product.items) {
-          const quantitySet = product.quantitySet ?? 1;
-          const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
+      // Chỉ chiếm dụng hàng mới nếu đã có chiếm dụng trước đó (đã nhận tiền)
+      if (hasPaymentHistory) {
+        for (const product of dto.products) {
+          for (const item of product.items) {
+            const quantitySet = product.quantitySet ?? 1;
+            const occupiedQuantity = roundToTwo(quantitySet * item.quantity);
 
-          await this.warehouseRepository.updateStock(
-            item.id,
-            occupiedQuantity,
-            -occupiedQuantity,
-          );
+            await this.warehouseRepository.updateStock(
+              item.id,
+              occupiedQuantity,
+              -occupiedQuantity,
+            );
+          }
         }
       }
 
@@ -149,6 +160,7 @@ export class UpdateOrderUseCase {
             sale: roundToTwo(i.sale ?? 0),
             customPrice: i.customPrice ?? false,
             customSale: i.customSale ?? false,
+            unitOfCalculation: i.unitOfCalculation,
           })),
         })),
         updatedBy,

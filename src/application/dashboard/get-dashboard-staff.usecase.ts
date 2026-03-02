@@ -8,6 +8,7 @@ import { DashboardQueryDto } from './dto/dashboard-query.dto.js';
 interface StaffAgg {
   staffId: string;
   staffName: string;
+  totalOrders: number;
   totalOrdersKg: number;
   totalOrdersPcs: number;
   customerSet: Set<string>;
@@ -50,6 +51,7 @@ export class GetDashboardStaffUseCase {
         staffMap.set(staffId, {
           staffId,
           staffName,
+          totalOrders: 0,
           totalOrdersKg: 0,
           totalOrdersPcs: 0,
           customerSet: new Set<string>(),
@@ -61,6 +63,7 @@ export class GetDashboardStaffUseCase {
       }
 
       const s = staffMap.get(staffId)!;
+      s.totalOrders += 1;
 
       const customerId =
         typeof order.customer === 'object' && order.customer
@@ -97,6 +100,7 @@ export class GetDashboardStaffUseCase {
     return Array.from(staffMap.values()).map((s) => ({
       staffId: s.staffId,
       staffName: s.staffName,
+      totalOrders: s.totalOrders,
       totalOrdersKg: roundToTwo(s.totalOrdersKg),
       totalOrdersPcs: roundToTwo(s.totalOrdersPcs),
       totalCustomers: s.customerSet.size,

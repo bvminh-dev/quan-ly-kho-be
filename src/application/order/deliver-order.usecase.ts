@@ -6,12 +6,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { OrderState } from '../../common/enums/index.js';
 import { HISTORY_WAREHOUSE_EVENTS } from '../../common/constants/events.js';
+import { OrderState } from '../../common/enums/index.js';
+import { roundToTwo } from '../../common/utils/number.util.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { IWarehouseRepository } from '../../domain/warehouse/warehouse.repository.js';
-import { roundToTwo } from '../../common/utils/number.util.js';
 
 @Injectable()
 export class DeliverOrderUseCase {
@@ -48,12 +48,12 @@ export class DeliverOrderUseCase {
       );
     }
 
-    // Kiểm tra payment phải >= 0 (không còn nợ)
-    if (order.payment < 0) {
-      throw new BadRequestException(
-        'Không thể chuyển đơn hàng sang "Đã giao" khi khách hàng còn nợ',
-      );
-    }
+    // Không cần kiểm tra khách có nợ hay không vẫn phải chuyển trạng thái dã giao
+    // if (order.payment < 0) {
+    //   throw new BadRequestException(
+    //     'Không thể chuyển đơn hàng sang "Đã giao" khi khách hàng còn nợ',
+    //   );
+    // }
 
     // Trừ số lượng trong kho (totalAmount và amountOccupied) khi chuyển sang Đã giao
     // Chỉ thực hiện một lần duy nhất tại thời điểm chuyển trạng thái

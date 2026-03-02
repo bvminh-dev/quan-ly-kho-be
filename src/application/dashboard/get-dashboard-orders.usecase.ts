@@ -22,6 +22,7 @@ export class GetDashboardOrdersUseCase {
     const { startDate, endDate } = getDateRange(query.period, query.date);
     const orders = await this.orderRepo.findForDashboard(startDate, endDate);
 
+    let totalOrders = 0;
     let totalOrdersKg = 0;
     let totalOrdersPcs = 0;
     let totalValueNGN = 0;
@@ -30,6 +31,7 @@ export class GetDashboardOrdersUseCase {
     let totalCollectedUSD = 0;
 
     for (const order of orders) {
+      totalOrders += 1;
       totalValueNGN += order.totalPrice;
       if (order.exchangeRate > 0) {
         totalValueUSD += order.totalPrice / order.exchangeRate;
@@ -57,6 +59,7 @@ export class GetDashboardOrdersUseCase {
     }
 
     return {
+      totalOrders,
       totalOrdersKg: roundToTwo(totalOrdersKg),
       totalOrdersPcs: roundToTwo(totalOrdersPcs),
       totalValueNGN: roundToTwo(totalValueNGN),

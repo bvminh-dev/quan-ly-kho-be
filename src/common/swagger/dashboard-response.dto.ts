@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 class DashboardOrdersDataDto {
+  @ApiProperty({ example: 25, description: 'Tổng số đơn hàng' })
+  totalOrders: number;
+
   @ApiProperty({ example: 150.5, description: 'Tổng số lượng (Kg)' })
   totalOrdersKg: number;
 
@@ -38,6 +41,9 @@ class DashboardCustomerItemDto {
   @ApiProperty({ example: 'Nguyễn Văn A' })
   customerName: string;
 
+  @ApiProperty({ example: 10, description: 'Tổng số đơn hàng' })
+  totalOrders: number;
+
   @ApiProperty({ example: 100.5, description: 'Tổng số lượng (Kg)' })
   totalOrdersKg: number;
 
@@ -74,6 +80,9 @@ class DashboardStaffItemDto {
 
   @ApiProperty({ example: 'Nguyễn Văn B' })
   staffName: string;
+
+  @ApiProperty({ example: 8, description: 'Tổng số đơn hàng' })
+  totalOrders: number;
 
   @ApiProperty({ example: 80.5, description: 'Tổng số lượng (Kg)' })
   totalOrdersKg: number;

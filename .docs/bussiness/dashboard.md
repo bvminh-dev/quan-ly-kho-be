@@ -81,6 +81,7 @@ Tổng nợ USD = (totalPrice / exchangeRate) - tổng thu về USD
 
 ```json
 {
+  "totalOrders": 25,
   "totalOrdersKg": 150.5,
   "totalOrdersPcs": 30,
   "totalValueNGN": 50000000,
@@ -100,6 +101,7 @@ Tổng nợ USD = (totalPrice / exchangeRate) - tổng thu về USD
 {
   "customerId": "...",
   "customerName": "Nguyễn Văn A",
+  "totalOrders": 10,
   "totalOrdersKg": 100.5,
   "totalOrdersPcs": 20,
   "totalPaidNGN": 30000000,
@@ -119,6 +121,7 @@ Tổng nợ USD = (totalPrice / exchangeRate) - tổng thu về USD
 {
   "staffId": "...",
   "staffName": "Nguyễn Văn B",
+  "totalOrders": 8,
   "totalOrdersKg": 80.5,
   "totalOrdersPcs": 10,
   "totalCustomers": 15,

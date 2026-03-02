@@ -8,6 +8,7 @@ import { DashboardQueryDto } from './dto/dashboard-query.dto.js';
 interface CustomerAgg {
   customerId: string;
   customerName: string;
+  totalOrders: number;
   totalOrdersKg: number;
   totalOrdersPcs: number;
   totalPaidNGN: number;
@@ -49,6 +50,7 @@ export class GetDashboardCustomersUseCase {
         customerMap.set(customerId, {
           customerId,
           customerName,
+          totalOrders: 0,
           totalOrdersKg: 0,
           totalOrdersPcs: 0,
           totalPaidNGN: 0,
@@ -59,6 +61,7 @@ export class GetDashboardCustomersUseCase {
       }
 
       const c = customerMap.get(customerId)!;
+      c.totalOrders += 1;
       c.totalValueNGN += order.totalPrice;
       if (order.exchangeRate > 0) {
         c.totalValueUSD += order.totalPrice / order.exchangeRate;
@@ -88,6 +91,7 @@ export class GetDashboardCustomersUseCase {
     return Array.from(customerMap.values()).map((c) => ({
       customerId: c.customerId,
       customerName: c.customerName,
+      totalOrders: c.totalOrders,
       totalOrdersKg: roundToTwo(c.totalOrdersKg),
       totalOrdersPcs: roundToTwo(c.totalOrdersPcs),
       totalPaidNGN: roundToTwo(c.totalPaidNGN),

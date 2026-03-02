@@ -26,7 +26,7 @@ export class AddHistoryUseCase {
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   async execute(orderId: string, dto: AddHistoryDto, createdBy: string) {
     this.logger.log(`Adding history to order ${orderId}`);
@@ -69,6 +69,28 @@ export class AddHistoryUseCase {
 
       // Chỉ chiếm dụng lần đầu tiên khi nhận tiền
       if (!hasPreviousPayment) {
+        // Kiểm tra số lượng hàng trong kho trước khi chiếm dụng
+        for (const product of order.products) {
+          for (const item of product.items) {
+            const warehouse = await this.warehouseRepository.findById(item.id);
+            if (!warehouse) {
+              throw new NotFoundException(
+                `Warehouse với id ${item.id} không tồn tại`,
+              );
+            }
+
+            const quantitySet = product.quantitySet ?? 1;
+            const requiredQuantity = roundToTwo(quantitySet * item.quantity);
+
+            if (warehouse.amountAvailable < requiredQuantity) {
+              throw new BadRequestException(
+                'Hàng trong kho không đủ để thanh toán',
+              );
+            }
+          }
+        }
+
+        // Sau khi kiểm tra đủ hàng, mới chiếm dụng
         for (const product of order.products) {
           for (const item of product.items) {
             const quantitySet = product.quantitySet ?? 1;

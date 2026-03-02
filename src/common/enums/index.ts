@@ -98,6 +98,12 @@ export enum HistoryEnterType {
   XOA = 'Xóa',
 }
 
+export enum DashboardPeriod {
+  DAY = 'day',
+  MONTH = 'month',
+  YEAR = 'year',
+}
+
 export enum HistoryExportState {
   BAO_GIA = 'Báo giá',
   DA_CHOT = 'Đã chốt',

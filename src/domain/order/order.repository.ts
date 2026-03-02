@@ -15,4 +15,5 @@ export interface IOrderRepository {
   }>;
   addHistory(id: string, history: any): Promise<OrderEntity | null>;
   calculateCustomerPayment(customerId: string): Promise<number>;
+  findForDashboard(startDate: Date, endDate: Date): Promise<OrderEntity[]>;
 }

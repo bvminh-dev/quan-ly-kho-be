@@ -60,253 +60,396 @@ export class DatabaseSeederService implements OnModuleInit {
 
   private async createPermissions() {
     const initPermissions = [
+      // Auth module
+      {
+        name: 'Đăng xuất',
+        apiPath: '/api/v1/auth/logout',
+        method: 'POST',
+        module: 'auth',
+        description: 'Đăng xuất khỏi hệ thống',
+      },
+      {
+        name: 'Xem thông tin tài khoản',
+        apiPath: '/api/v1/auth/account',
+        method: 'GET',
+        module: 'auth',
+        description: 'Xem thông tin tài khoản đang đăng nhập',
+      },
+
       // User module
       {
-        name: 'Create User',
+        name: 'Tạo người dùng',
         apiPath: '/api/v1/users',
         method: 'POST',
         module: 'users',
+        description: 'Tạo tài khoản người dùng mới trong hệ thống',
       },
       {
-        name: 'Get Users',
+        name: 'Xem danh sách người dùng',
         apiPath: '/api/v1/users',
         method: 'GET',
         module: 'users',
+        description: 'Xem danh sách tất cả người dùng có phân trang',
       },
       {
-        name: 'Get User By Id',
+        name: 'Xem chi tiết người dùng',
         apiPath: '/api/v1/users/:id',
         method: 'GET',
         module: 'users',
+        description: 'Xem thông tin chi tiết của một người dùng theo ID',
       },
       {
-        name: 'Update User',
+        name: 'Cập nhật người dùng',
         apiPath: '/api/v1/users/:id',
         method: 'PATCH',
         module: 'users',
+        description: 'Chỉnh sửa thông tin người dùng (tên, email, role...)',
       },
       {
-        name: 'Delete User',
+        name: 'Xóa người dùng',
         apiPath: '/api/v1/users/:id',
         method: 'DELETE',
         module: 'users',
+        description: 'Xóa tài khoản người dùng (chỉ Admin)',
       },
       {
-        name: 'Update Password',
+        name: 'Đổi mật khẩu',
         apiPath: '/api/v1/users/password/update',
         method: 'PATCH',
         module: 'users',
+        description: 'Người dùng tự đổi mật khẩu của mình',
       },
       {
-        name: 'Reset Password',
+        name: 'Reset mật khẩu',
         apiPath: '/api/v1/users/password/reset',
         method: 'PATCH',
         module: 'users',
+        description: 'Admin đặt lại mật khẩu cho người dùng khác',
       },
 
       // Role module
       {
-        name: 'Create Role',
+        name: 'Tạo vai trò',
         apiPath: '/api/v1/roles',
         method: 'POST',
         module: 'roles',
+        description: 'Tạo vai trò mới với danh sách quyền tương ứng',
       },
       {
-        name: 'Get Roles',
+        name: 'Xem danh sách vai trò',
         apiPath: '/api/v1/roles',
         method: 'GET',
         module: 'roles',
+        description: 'Xem danh sách tất cả vai trò có phân trang',
       },
       {
-        name: 'Get Role By Id',
+        name: 'Xem chi tiết vai trò',
         apiPath: '/api/v1/roles/:id',
         method: 'GET',
         module: 'roles',
+        description: 'Xem thông tin chi tiết của một vai trò theo ID',
       },
       {
-        name: 'Update Role',
+        name: 'Cập nhật vai trò',
         apiPath: '/api/v1/roles/:id',
         method: 'PATCH',
         module: 'roles',
+        description: 'Chỉnh sửa tên, mô tả hoặc quyền của vai trò',
       },
       {
-        name: 'Delete Role',
+        name: 'Xóa vai trò',
         apiPath: '/api/v1/roles/:id',
         method: 'DELETE',
         module: 'roles',
+        description: 'Xóa vai trò khỏi hệ thống (chỉ Admin)',
       },
 
       // Permission module
       {
-        name: 'Create Permission',
+        name: 'Tạo quyền',
         apiPath: '/api/v1/permissions',
         method: 'POST',
         module: 'permissions',
+        description: 'Tạo quyền truy cập mới cho hệ thống',
       },
       {
-        name: 'Get Permissions',
+        name: 'Xem danh sách quyền',
         apiPath: '/api/v1/permissions',
         method: 'GET',
         module: 'permissions',
+        description: 'Xem danh sách tất cả quyền có phân trang',
       },
       {
-        name: 'Get Permission By Id',
+        name: 'Xem chi tiết quyền',
         apiPath: '/api/v1/permissions/:id',
         method: 'GET',
         module: 'permissions',
+        description: 'Xem thông tin chi tiết của một quyền theo ID',
       },
       {
-        name: 'Update Permission',
+        name: 'Cập nhật quyền',
         apiPath: '/api/v1/permissions/:id',
         method: 'PATCH',
         module: 'permissions',
+        description: 'Chỉnh sửa thông tin quyền truy cập',
       },
       {
-        name: 'Delete Permission',
+        name: 'Xóa quyền',
         apiPath: '/api/v1/permissions/:id',
         method: 'DELETE',
         module: 'permissions',
-      },
-
-      // Auth module
-      {
-        name: 'Logout',
-        apiPath: '/api/v1/auth/logout',
-        method: 'POST',
-        module: 'auth',
-      },
-      {
-        name: 'Get Account',
-        apiPath: '/api/v1/auth/account',
-        method: 'GET',
-        module: 'auth',
+        description: 'Xóa quyền truy cập khỏi hệ thống (chỉ Admin)',
       },
 
       // Warehouse module
       {
-        name: 'Create Warehouse',
+        name: 'Tạo kho hàng',
         apiPath: '/api/v1/warehouses',
         method: 'POST',
         module: 'warehouses',
+        description: 'Tạo mặt hàng mới trong kho',
       },
       {
-        name: 'Get Warehouses',
+        name: 'Xem danh sách kho hàng',
         apiPath: '/api/v1/warehouses',
         method: 'GET',
         module: 'warehouses',
+        description: 'Xem danh sách tất cả mặt hàng trong kho có phân trang',
       },
       {
-        name: 'Get Warehouse By Id',
+        name: 'Xem chi tiết kho hàng',
         apiPath: '/api/v1/warehouses/:id',
         method: 'GET',
         module: 'warehouses',
+        description: 'Xem thông tin chi tiết của mặt hàng trong kho theo ID',
       },
       {
-        name: 'Update Warehouse',
+        name: 'Cập nhật kho hàng',
         apiPath: '/api/v1/warehouses/:id',
         method: 'PATCH',
         module: 'warehouses',
+        description: 'Chỉnh sửa thông tin mặt hàng trong kho (chỉ Admin)',
       },
       {
-        name: 'Delete Warehouse',
+        name: 'Xóa kho hàng',
         apiPath: '/api/v1/warehouses/:id',
         method: 'DELETE',
         module: 'warehouses',
+        description: 'Xóa mặt hàng khỏi kho (chỉ Admin)',
       },
       {
-        name: 'Add Stock',
+        name: 'Nhập thêm hàng vào kho',
         apiPath: '/api/v1/warehouses/add-stock',
         method: 'POST',
         module: 'warehouses',
+        description: 'Bổ sung số lượng hàng cho mặt hàng đã có trong kho',
       },
 
       // Order module
       {
-        name: 'Create Order',
+        name: 'Tạo đơn hàng',
         apiPath: '/api/v1/orders',
         method: 'POST',
         module: 'orders',
+        description: 'Tạo đơn hàng mới (trạng thái mặc định: Báo giá)',
       },
       {
-        name: 'Get Orders',
+        name: 'Xem danh sách đơn hàng',
         apiPath: '/api/v1/orders',
         method: 'GET',
         module: 'orders',
+        description: 'Xem danh sách tất cả đơn hàng có phân trang',
       },
       {
-        name: 'Get Order By Id',
+        name: 'Xem chi tiết đơn hàng',
         apiPath: '/api/v1/orders/:id',
         method: 'GET',
         module: 'orders',
+        description: 'Xem thông tin chi tiết của đơn hàng theo ID',
       },
       {
-        name: 'Update Order',
+        name: 'Cập nhật đơn hàng',
         apiPath: '/api/v1/orders/:id',
         method: 'PATCH',
         module: 'orders',
+        description: 'Chỉnh sửa thông tin đơn hàng (sản phẩm, ghi chú...)',
       },
       {
-        name: 'Delete Order',
+        name: 'Xóa đơn hàng',
         apiPath: '/api/v1/orders/:id',
         method: 'DELETE',
         module: 'orders',
+        description: 'Xóa đơn hàng khỏi hệ thống (chỉ Admin)',
       },
       {
-        name: 'Add History',
+        name: 'Thêm lịch sử thanh toán',
         apiPath: '/api/v1/orders/:id/history',
         method: 'POST',
         module: 'orders',
+        description: 'Ghi nhận khách trả tiền hoặc hoàn tiền cho đơn hàng',
       },
       {
-        name: 'Confirm Order',
+        name: 'Chốt đơn hàng',
         apiPath: '/api/v1/orders/:id/confirm',
         method: 'PATCH',
         module: 'orders',
+        description: 'Chuyển đơn hàng sang trạng thái Đã chốt',
       },
       {
-        name: 'Revert Order',
+        name: 'Hoàn tác đơn hàng',
         apiPath: '/api/v1/orders/:id/revert',
         method: 'PATCH',
         module: 'orders',
+        description: 'Hoàn tác đơn hàng, trả lại hàng vào kho',
+      },
+      {
+        name: 'Giao đơn hàng',
+        apiPath: '/api/v1/orders/:id/deliver',
+        method: 'PATCH',
+        module: 'orders',
+        description:
+          'Chuyển đơn hàng sang trạng thái Đã giao (yêu cầu thanh toán đủ)',
       },
 
       // Customer module
       {
-        name: 'Create Customer',
+        name: 'Tạo khách hàng',
         apiPath: '/api/v1/customers',
         method: 'POST',
         module: 'customers',
+        description: 'Thêm khách hàng mới vào hệ thống',
       },
       {
-        name: 'Get Customers',
+        name: 'Xem danh sách khách hàng',
         apiPath: '/api/v1/customers',
         method: 'GET',
         module: 'customers',
+        description: 'Xem danh sách tất cả khách hàng có phân trang',
       },
       {
-        name: 'Get Customer By Id',
+        name: 'Xem chi tiết khách hàng',
         apiPath: '/api/v1/customers/:id',
         method: 'GET',
         module: 'customers',
+        description: 'Xem thông tin chi tiết của khách hàng theo ID',
       },
       {
-        name: 'Update Customer',
+        name: 'Cập nhật khách hàng',
         apiPath: '/api/v1/customers/:id',
         method: 'PATCH',
         module: 'customers',
+        description: 'Chỉnh sửa thông tin khách hàng (tên, ghi chú...)',
       },
       {
-        name: 'Delete Customer',
+        name: 'Xóa khách hàng',
         apiPath: '/api/v1/customers/:id',
         method: 'DELETE',
         module: 'customers',
+        description: 'Xóa khách hàng khỏi hệ thống (chỉ Admin)',
+      },
+
+      // History Warehouse module - Nhập kho
+      {
+        name: 'Tạo lịch sử nhập kho',
+        apiPath: '/api/v1/history-warehouse/enter',
+        method: 'POST',
+        module: 'history-warehouse',
+        description: 'Tạo bản ghi lịch sử nhập kho mới (chỉ Admin)',
+      },
+      {
+        name: 'Xem danh sách lịch sử nhập kho',
+        apiPath: '/api/v1/history-warehouse/enter',
+        method: 'GET',
+        module: 'history-warehouse',
+        description: 'Xem danh sách tất cả lịch sử nhập kho có phân trang',
+      },
+      {
+        name: 'Xem chi tiết lịch sử nhập kho',
+        apiPath: '/api/v1/history-warehouse/enter/:id',
+        method: 'GET',
+        module: 'history-warehouse',
+        description: 'Xem thông tin chi tiết của lịch sử nhập kho theo ID',
+      },
+      {
+        name: 'Cập nhật lịch sử nhập kho',
+        apiPath: '/api/v1/history-warehouse/enter/:id',
+        method: 'PATCH',
+        module: 'history-warehouse',
+        description: 'Chỉnh sửa thông tin lịch sử nhập kho (chỉ Admin)',
+      },
+      {
+        name: 'Xóa lịch sử nhập kho',
+        apiPath: '/api/v1/history-warehouse/enter/:id',
+        method: 'DELETE',
+        module: 'history-warehouse',
+        description: 'Xóa bản ghi lịch sử nhập kho (chỉ Admin)',
+      },
+
+      // History Warehouse module - Xuất kho
+      {
+        name: 'Tạo lịch sử xuất kho',
+        apiPath: '/api/v1/history-warehouse/export',
+        method: 'POST',
+        module: 'history-warehouse',
+        description: 'Tạo bản ghi lịch sử xuất kho mới (chỉ Admin)',
+      },
+      {
+        name: 'Xem danh sách lịch sử xuất kho',
+        apiPath: '/api/v1/history-warehouse/export',
+        method: 'GET',
+        module: 'history-warehouse',
+        description: 'Xem danh sách tất cả lịch sử xuất kho có phân trang',
+      },
+      {
+        name: 'Xem chi tiết lịch sử xuất kho',
+        apiPath: '/api/v1/history-warehouse/export/:id',
+        method: 'GET',
+        module: 'history-warehouse',
+        description: 'Xem thông tin chi tiết của lịch sử xuất kho theo ID',
+      },
+      {
+        name: 'Cập nhật lịch sử xuất kho',
+        apiPath: '/api/v1/history-warehouse/export/:id',
+        method: 'PATCH',
+        module: 'history-warehouse',
+        description: 'Chỉnh sửa thông tin lịch sử xuất kho (chỉ Admin)',
+      },
+      {
+        name: 'Xóa lịch sử xuất kho',
+        apiPath: '/api/v1/history-warehouse/export/:id',
+        method: 'DELETE',
+        module: 'history-warehouse',
+        description: 'Xóa bản ghi lịch sử xuất kho (chỉ Admin)',
+      },
+
+      // Dashboard module
+      {
+        name: 'Báo cáo đơn hàng',
+        apiPath: '/api/v1/dashboard/orders',
+        method: 'GET',
+        module: 'dashboard',
+        description: 'Xem báo cáo tổng hợp đơn hàng theo kỳ (ngày/tháng/năm)',
+      },
+      {
+        name: 'Báo cáo khách hàng',
+        apiPath: '/api/v1/dashboard/customers',
+        method: 'GET',
+        module: 'dashboard',
+        description: 'Xem báo cáo tổng hợp theo từng khách hàng trong kỳ',
+      },
+      {
+        name: 'Báo cáo nhân viên',
+        apiPath: '/api/v1/dashboard/staff',
+        method: 'GET',
+        module: 'dashboard',
+        description:
+          'Xem báo cáo tổng hợp theo từng nhân viên bán hàng trong kỳ',
       },
     ];
 
     return this.permissionModel.insertMany(
       initPermissions.map((p) => ({
         ...p,
-        description: `Permission to ${p.name.toLowerCase()}`,
         isActive: true,
         isDeleted: false,
       })),
@@ -316,33 +459,42 @@ export class DatabaseSeederService implements OnModuleInit {
   private async createRoles(permissions: any[]) {
     const allPermissionIds = permissions.map((p) => p._id);
 
-    // User permissions (basic operations for staff)
     const userPermissionNames = [
-      // Auth module
-      'Logout',
-      'Get Account',
-      // User module
-      'Get Users',
-      'Get User By Id',
-      'Update Password',
-      // Warehouse module
-      'Create Warehouse',
-      'Get Warehouses',
-      'Get Warehouse By Id',
-      'Update Warehouse',
-      'Add Stock',
-      // Order module
-      'Create Order',
-      'Get Orders',
-      'Get Order By Id',
-      'Update Order',
-      'Add History',
-      'Confirm Order',
-      // Customer module
-      'Create Customer',
-      'Get Customers',
-      'Get Customer By Id',
-      'Update Customer',
+      // Auth
+      'Đăng xuất',
+      'Xem thông tin tài khoản',
+      // User (chỉ xem + đổi mật khẩu)
+      'Xem danh sách người dùng',
+      'Xem chi tiết người dùng',
+      'Đổi mật khẩu',
+      // Warehouse (tạo, xem, sửa, nhập hàng)
+      'Tạo kho hàng',
+      'Xem danh sách kho hàng',
+      'Xem chi tiết kho hàng',
+      'Cập nhật kho hàng',
+      'Nhập thêm hàng vào kho',
+      // Order (tạo, xem, sửa, thanh toán, chốt, giao)
+      'Tạo đơn hàng',
+      'Xem danh sách đơn hàng',
+      'Xem chi tiết đơn hàng',
+      'Cập nhật đơn hàng',
+      'Thêm lịch sử thanh toán',
+      'Chốt đơn hàng',
+      'Giao đơn hàng',
+      // Customer (tạo, xem, sửa)
+      'Tạo khách hàng',
+      'Xem danh sách khách hàng',
+      'Xem chi tiết khách hàng',
+      'Cập nhật khách hàng',
+      // History Warehouse (chỉ xem)
+      'Xem danh sách lịch sử nhập kho',
+      'Xem chi tiết lịch sử nhập kho',
+      'Xem danh sách lịch sử xuất kho',
+      'Xem chi tiết lịch sử xuất kho',
+      // Dashboard (xem báo cáo)
+      'Báo cáo đơn hàng',
+      'Báo cáo khách hàng',
+      'Báo cáo nhân viên',
     ];
     const userPermissionIds = permissions
       .filter((p) => userPermissionNames.includes(p.name))
@@ -350,7 +502,7 @@ export class DatabaseSeederService implements OnModuleInit {
 
     const adminRole = await this.roleModel.create({
       name: 'admin',
-      description: 'Full access to all system features',
+      description: 'Toàn quyền truy cập tất cả chức năng trong hệ thống',
       permissions: allPermissionIds,
       isActive: true,
       isDeleted: false,
@@ -358,7 +510,8 @@ export class DatabaseSeederService implements OnModuleInit {
 
     const userRole = await this.roleModel.create({
       name: 'user',
-      description: 'Basic user access',
+      description:
+        'Nhân viên bán hàng: quản lý đơn hàng, khách hàng, kho hàng và xem báo cáo',
       permissions: userPermissionIds,
       isActive: true,
       isDeleted: false,

@@ -104,6 +104,22 @@ export class OrderMongoRepository implements IOrderRepository {
     return OrderMapper.toDomain(updated);
   }
 
+  async findForDashboard(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<OrderEntity[]> {
+    const docs = await this.orderModel
+      .find({
+        isDeleted: false,
+        state: { $nin: [OrderState.BAO_GIA, OrderState.HOAN_TAC] },
+        createdAt: { $gte: startDate, $lte: endDate },
+      })
+      .populate('customer', '_id name')
+      .populate('createdBy', '_id name')
+      .lean();
+    return OrderMapper.toDomainList(docs);
+  }
+
   async calculateCustomerPayment(customerId: string): Promise<number> {
     type OrderForPayment = {
       totalPrice?: number;

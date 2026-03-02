@@ -11,6 +11,7 @@ import { PermissionModule } from './presentation/permission/permission.module.js
 import { RoleModule } from './presentation/role/role.module.js';
 import { UserModule } from './presentation/user/user.module.js';
 import { WarehouseModule } from './presentation/warehouse/warehouse.module.js';
+import { DashboardModule } from './presentation/dashboard/dashboard.module.js';
 import { HistoryWarehouseModule } from './presentation/history-warehouse/history-warehouse.module.js';
 import { DatabaseModule } from './shared/database/database.module.js';
 
@@ -35,6 +36,7 @@ import { DatabaseModule } from './shared/database/database.module.js';
     WarehouseModule,
     OrderModule,
     HistoryWarehouseModule,
+    DashboardModule,
     DatabaseModule,
   ],
   controllers: [AppController],

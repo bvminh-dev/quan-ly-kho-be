@@ -59,8 +59,6 @@ export class AddHistoryUseCase {
         : order.payment + dto.moneyPaidNGN,
     );
 
-    const newDebt = roundToTwo(newPayment < 0 ? -newPayment : 0);
-
     // Khi nhận được một phần tiền thanh toán (không phải hoàn tiền), hàng trong kho được tính là đã chiếm dụng
     // Cập nhật amountOccupied và giảm amountAvailable
     if (!isRefund && dto.moneyPaidNGN > 0) {
@@ -86,11 +84,9 @@ export class AddHistoryUseCase {
       }
     }
 
-    // Không tự động chuyển sang Đã xong/Đã giao khi thanh toán
-    // Chỉ cập nhật payment và debt
+    // Chỉ cập nhật payment
     await this.orderRepository.update(orderId, {
       payment: newPayment,
-      debt: newDebt,
     });
 
     this.eventEmitter.emit(HISTORY_WAREHOUSE_EVENTS.ORDER_PAYMENT_ADDED, {

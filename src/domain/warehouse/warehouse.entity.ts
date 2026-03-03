@@ -1,5 +1,10 @@
 export class WarehouseEntity {
   _id: string;
+  inchId: string | null;
+  itemId: string | null;
+  qualityId: string | null;
+  styleId: string | null;
+  colorId: string | null;
   inches: number;
   item: string;
   quality: string;

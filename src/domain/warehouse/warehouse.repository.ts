@@ -3,12 +3,18 @@ import { WarehouseEntity } from './warehouse.entity.js';
 export interface IWarehouseRepository {
   findById(id: string): Promise<WarehouseEntity | null>;
   findByAttributes(
-    inches: number,
-    item: string,
-    quality: string,
-    style: string,
-    color: string,
+    inchId: string,
+    itemId: string,
+    qualityId: string,
+    styleId: string,
+    colorId: string,
   ): Promise<WarehouseEntity | null>;
+  updateByCatalogId(
+    field: 'inchId' | 'itemId' | 'qualityId' | 'styleId' | 'colorId',
+    catalogId: string,
+    nameField: 'inches' | 'item' | 'quality' | 'style' | 'color',
+    newValue: string | number,
+  ): Promise<void>;
   create(warehouse: Partial<WarehouseEntity>): Promise<WarehouseEntity>;
   update(
     id: string,

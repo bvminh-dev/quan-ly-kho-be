@@ -1,31 +1,39 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
-import {
-  WarehouseInches,
-  WarehouseItem,
-  WarehouseQuality,
-  WarehouseStyle,
-  WarehouseColor,
-  UnitOfCalculation,
-} from '../../../common/enums/index.js';
+import { UnitOfCalculation } from '../../../common/enums/index.js';
 
 export type WarehouseDocument = HydratedDocument<Warehouse>;
 
 @Schema({ timestamps: true })
 export class Warehouse {
-  @Prop({ required: true, enum: WarehouseInches })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Inch' })
+  inchId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Item' })
+  itemId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Quality' })
+  qualityId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Style' })
+  styleId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Color' })
+  colorId: mongoose.Schema.Types.ObjectId;
+
+  @Prop({ required: true })
   inches: number;
 
-  @Prop({ required: true, enum: WarehouseItem })
+  @Prop({ required: true })
   item: string;
 
-  @Prop({ required: true, enum: WarehouseQuality })
+  @Prop({ required: true })
   quality: string;
 
-  @Prop({ required: true, enum: WarehouseStyle })
+  @Prop({ required: true })
   style: string;
 
-  @Prop({ required: true, enum: WarehouseColor })
+  @Prop({ required: true })
   color: string;
 
   @Prop({ default: 0 })
@@ -72,14 +80,15 @@ export const WarehouseSchema = SchemaFactory.createForClass(Warehouse);
 
 WarehouseSchema.index(
   {
-    inches: 1,
-    item: 1,
-    quality: 1,
-    style: 1,
-    color: 1,
+    inchId: 1,
+    itemId: 1,
+    qualityId: 1,
+    styleId: 1,
+    colorId: 1,
   },
   {
     unique: true,
+    sparse: true,
     partialFilterExpression: {
       isDeleted: false,
     },

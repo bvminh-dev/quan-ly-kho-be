@@ -32,7 +32,7 @@ export class DatabaseSeederService implements OnModuleInit {
     @InjectModel(Permission.name)
     private readonly permissionModel: Model<PermissionDocument>,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     const userCount = await this.userModel.countDocuments();
@@ -444,6 +444,197 @@ export class DatabaseSeederService implements OnModuleInit {
         module: 'dashboard',
         description:
           'Xem báo cáo tổng hợp theo từng nhân viên bán hàng trong kỳ',
+      },
+
+      // Catalog - Item module
+      {
+        name: 'Tạo danh mục sản phẩm',
+        apiPath: '/api/v1/catalog/items',
+        method: 'POST',
+        module: 'catalog-items',
+        description: 'Tạo danh mục sản phẩm mới (chỉ Admin)',
+      },
+      {
+        name: 'Xem danh sách danh mục sản phẩm',
+        apiPath: '/api/v1/catalog/items',
+        method: 'GET',
+        module: 'catalog-items',
+        description:
+          'Xem danh sách tất cả danh mục sản phẩm có phân trang (chỉ Admin)',
+      },
+      {
+        name: 'Xem chi tiết danh mục sản phẩm',
+        apiPath: '/api/v1/catalog/items/:id',
+        method: 'GET',
+        module: 'catalog-items',
+        description:
+          'Xem thông tin chi tiết của danh mục sản phẩm theo ID (chỉ Admin)',
+      },
+      {
+        name: 'Cập nhật danh mục sản phẩm',
+        apiPath: '/api/v1/catalog/items/:id',
+        method: 'PATCH',
+        module: 'catalog-items',
+        description: 'Chỉnh sửa thông tin danh mục sản phẩm (chỉ Admin)',
+      },
+      {
+        name: 'Xóa danh mục sản phẩm',
+        apiPath: '/api/v1/catalog/items/:id',
+        method: 'DELETE',
+        module: 'catalog-items',
+        description: 'Xóa danh mục sản phẩm khỏi hệ thống (chỉ Admin)',
+      },
+
+      // Catalog - Color module
+      {
+        name: 'Tạo màu sắc',
+        apiPath: '/api/v1/catalog/colors',
+        method: 'POST',
+        module: 'catalog-colors',
+        description: 'Tạo màu sắc mới (chỉ Admin)',
+      },
+      {
+        name: 'Xem danh sách màu sắc',
+        apiPath: '/api/v1/catalog/colors',
+        method: 'GET',
+        module: 'catalog-colors',
+        description: 'Xem danh sách tất cả màu sắc có phân trang (chỉ Admin)',
+      },
+      {
+        name: 'Xem chi tiết màu sắc',
+        apiPath: '/api/v1/catalog/colors/:id',
+        method: 'GET',
+        module: 'catalog-colors',
+        description: 'Xem thông tin chi tiết của màu sắc theo ID (chỉ Admin)',
+      },
+      {
+        name: 'Cập nhật màu sắc',
+        apiPath: '/api/v1/catalog/colors/:id',
+        method: 'PATCH',
+        module: 'catalog-colors',
+        description: 'Chỉnh sửa thông tin màu sắc (chỉ Admin)',
+      },
+      {
+        name: 'Xóa màu sắc',
+        apiPath: '/api/v1/catalog/colors/:id',
+        method: 'DELETE',
+        module: 'catalog-colors',
+        description: 'Xóa màu sắc khỏi hệ thống (chỉ Admin)',
+      },
+
+      // Catalog - Inch module
+      {
+        name: 'Tạo kích thước',
+        apiPath: '/api/v1/catalog/inchs',
+        method: 'POST',
+        module: 'catalog-inchs',
+        description: 'Tạo kích thước mới (chỉ Admin)',
+      },
+      {
+        name: 'Xem danh sách kích thước',
+        apiPath: '/api/v1/catalog/inchs',
+        method: 'GET',
+        module: 'catalog-inchs',
+        description:
+          'Xem danh sách tất cả kích thước có phân trang (chỉ Admin)',
+      },
+      {
+        name: 'Xem chi tiết kích thước',
+        apiPath: '/api/v1/catalog/inchs/:id',
+        method: 'GET',
+        module: 'catalog-inchs',
+        description:
+          'Xem thông tin chi tiết của kích thước theo ID (chỉ Admin)',
+      },
+      {
+        name: 'Cập nhật kích thước',
+        apiPath: '/api/v1/catalog/inchs/:id',
+        method: 'PATCH',
+        module: 'catalog-inchs',
+        description: 'Chỉnh sửa thông tin kích thước (chỉ Admin)',
+      },
+      {
+        name: 'Xóa kích thước',
+        apiPath: '/api/v1/catalog/inchs/:id',
+        method: 'DELETE',
+        module: 'catalog-inchs',
+        description: 'Xóa kích thước khỏi hệ thống (chỉ Admin)',
+      },
+
+      // Catalog - Style module
+      {
+        name: 'Tạo kiểu dáng',
+        apiPath: '/api/v1/catalog/styles',
+        method: 'POST',
+        module: 'catalog-styles',
+        description: 'Tạo kiểu dáng mới (chỉ Admin)',
+      },
+      {
+        name: 'Xem danh sách kiểu dáng',
+        apiPath: '/api/v1/catalog/styles',
+        method: 'GET',
+        module: 'catalog-styles',
+        description: 'Xem danh sách tất cả kiểu dáng có phân trang (chỉ Admin)',
+      },
+      {
+        name: 'Xem chi tiết kiểu dáng',
+        apiPath: '/api/v1/catalog/styles/:id',
+        method: 'GET',
+        module: 'catalog-styles',
+        description: 'Xem thông tin chi tiết của kiểu dáng theo ID (chỉ Admin)',
+      },
+      {
+        name: 'Cập nhật kiểu dáng',
+        apiPath: '/api/v1/catalog/styles/:id',
+        method: 'PATCH',
+        module: 'catalog-styles',
+        description: 'Chỉnh sửa thông tin kiểu dáng (chỉ Admin)',
+      },
+      {
+        name: 'Xóa kiểu dáng',
+        apiPath: '/api/v1/catalog/styles/:id',
+        method: 'DELETE',
+        module: 'catalog-styles',
+        description: 'Xóa kiểu dáng khỏi hệ thống (chỉ Admin)',
+      },
+
+      // Catalog - Quality module
+      {
+        name: 'Tạo chất lượng',
+        apiPath: '/api/v1/catalog/qualitys',
+        method: 'POST',
+        module: 'catalog-qualitys',
+        description: 'Tạo chất lượng mới (chỉ Admin)',
+      },
+      {
+        name: 'Xem danh sách chất lượng',
+        apiPath: '/api/v1/catalog/qualitys',
+        method: 'GET',
+        module: 'catalog-qualitys',
+        description:
+          'Xem danh sách tất cả chất lượng có phân trang (chỉ Admin)',
+      },
+      {
+        name: 'Xem chi tiết chất lượng',
+        apiPath: '/api/v1/catalog/qualitys/:id',
+        method: 'GET',
+        module: 'catalog-qualitys',
+        description:
+          'Xem thông tin chi tiết của chất lượng theo ID (chỉ Admin)',
+      },
+      {
+        name: 'Cập nhật chất lượng',
+        apiPath: '/api/v1/catalog/qualitys/:id',
+        method: 'PATCH',
+        module: 'catalog-qualitys',
+        description: 'Chỉnh sửa thông tin chất lượng (chỉ Admin)',
+      },
+      {
+        name: 'Xóa chất lượng',
+        apiPath: '/api/v1/catalog/qualitys/:id',
+        method: 'DELETE',
+        module: 'catalog-qualitys',
+        description: 'Xóa chất lượng khỏi hệ thống (chỉ Admin)',
       },
     ];
 

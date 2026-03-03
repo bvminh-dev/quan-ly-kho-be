@@ -6,6 +6,11 @@ export class WarehouseMapper {
     if (!doc) return null;
     return new WarehouseEntity({
       _id: doc._id.toString(),
+      inchId: doc.inchId ? doc.inchId.toString() : null,
+      itemId: doc.itemId ? doc.itemId.toString() : null,
+      qualityId: doc.qualityId ? doc.qualityId.toString() : null,
+      styleId: doc.styleId ? doc.styleId.toString() : null,
+      colorId: doc.colorId ? doc.colorId.toString() : null,
       inches: doc.inches,
       item: doc.item,
       quality: doc.quality,

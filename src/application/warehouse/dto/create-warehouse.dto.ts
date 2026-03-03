@@ -1,41 +1,49 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
-import {
-  WarehouseInches,
-  WarehouseItem,
-  WarehouseQuality,
-  WarehouseStyle,
-  WarehouseColor,
-  UnitOfCalculation,
-} from '../../../common/enums/index.js';
+import { IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, Min } from 'class-validator';
+import { UnitOfCalculation } from '../../../common/enums/index.js';
 import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class CreateWarehouseDto {
   @IsNotEmpty()
-  @IsEnum(WarehouseInches)
-  @ApiProperty({ example: 14, enum: WarehouseInches })
-  inches: number;
+  @IsMongoId()
+  @ApiProperty({
+    example: '60d0fe4f5311236168a109ca',
+    description: 'ID của inch từ catalog',
+  })
+  inchId: string;
 
   @IsNotEmpty()
-  @IsEnum(WarehouseItem)
-  @ApiProperty({ example: WarehouseItem.CLOSURE, enum: WarehouseItem })
-  item: string;
+  @IsMongoId()
+  @ApiProperty({
+    example: '60d0fe4f5311236168a109cb',
+    description: 'ID của item từ catalog',
+  })
+  itemId: string;
 
   @IsNotEmpty()
-  @IsEnum(WarehouseQuality)
-  @ApiProperty({ example: WarehouseQuality.SDD, enum: WarehouseQuality })
-  quality: string;
+  @IsMongoId()
+  @ApiProperty({
+    example: '60d0fe4f5311236168a109cc',
+    description: 'ID của quality từ catalog',
+  })
+  qualityId: string;
 
   @IsNotEmpty()
-  @IsEnum(WarehouseStyle)
-  @ApiProperty({ example: WarehouseStyle.BONESTRAIGHT, enum: WarehouseStyle })
-  style: string;
+  @IsMongoId()
+  @ApiProperty({
+    example: '60d0fe4f5311236168a109cd',
+    description: 'ID của style từ catalog',
+  })
+  styleId: string;
 
   @IsNotEmpty()
-  @IsEnum(WarehouseColor)
-  @ApiProperty({ example: WarehouseColor.NATURAL, enum: WarehouseColor })
-  color: string;
+  @IsMongoId()
+  @ApiProperty({
+    example: '60d0fe4f5311236168a109ce',
+    description: 'ID của color từ catalog',
+  })
+  colorId: string;
 
   @IsNotEmpty()
   @IsNumber()

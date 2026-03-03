@@ -1,57 +1,54 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEnum, IsNumber, IsOptional, Min } from 'class-validator';
-import {
-  WarehouseInches,
-  WarehouseItem,
-  WarehouseQuality,
-  WarehouseStyle,
-  WarehouseColor,
-  UnitOfCalculation,
-} from '../../../common/enums/index.js';
+import { IsEnum, IsMongoId, IsNumber, IsOptional, Min } from 'class-validator';
+import { UnitOfCalculation } from '../../../common/enums/index.js';
 import { roundToTwo } from '../../../common/utils/number.util.js';
 
 export class UpdateWarehouseDto {
   @IsOptional()
-  @IsEnum(WarehouseInches)
-  @ApiProperty({ example: 14, enum: WarehouseInches, required: false })
-  inches?: number;
+  @IsMongoId()
+  @ApiProperty({
+    example: '60d0fe4f5311236168a109ca',
+    required: false,
+    description: 'ID của inch từ catalog',
+  })
+  inchId?: string;
 
   @IsOptional()
-  @IsEnum(WarehouseItem)
+  @IsMongoId()
   @ApiProperty({
-    example: WarehouseItem.CLOSURE,
-    enum: WarehouseItem,
+    example: '60d0fe4f5311236168a109cb',
     required: false,
+    description: 'ID của item từ catalog',
   })
-  item?: string;
+  itemId?: string;
 
   @IsOptional()
-  @IsEnum(WarehouseQuality)
+  @IsMongoId()
   @ApiProperty({
-    example: WarehouseQuality.SDD,
-    enum: WarehouseQuality,
+    example: '60d0fe4f5311236168a109cc',
     required: false,
+    description: 'ID của quality từ catalog',
   })
-  quality?: string;
+  qualityId?: string;
 
   @IsOptional()
-  @IsEnum(WarehouseStyle)
+  @IsMongoId()
   @ApiProperty({
-    example: WarehouseStyle.BONESTRAIGHT,
-    enum: WarehouseStyle,
+    example: '60d0fe4f5311236168a109cd',
     required: false,
+    description: 'ID của style từ catalog',
   })
-  style?: string;
+  styleId?: string;
 
   @IsOptional()
-  @IsEnum(WarehouseColor)
+  @IsMongoId()
   @ApiProperty({
-    example: WarehouseColor.NATURAL,
-    enum: WarehouseColor,
+    example: '60d0fe4f5311236168a109ce',
     required: false,
+    description: 'ID của color từ catalog',
   })
-  color?: string;
+  colorId?: string;
 
   @IsOptional()
   @IsNumber()

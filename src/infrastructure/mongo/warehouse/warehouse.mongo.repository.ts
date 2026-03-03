@@ -22,24 +22,36 @@ export class WarehouseMongoRepository implements IWarehouseRepository {
   }
 
   async findByAttributes(
-    inches: number,
-    item: string,
-    quality: string,
-    style: string,
-    color: string,
+    inchId: string,
+    itemId: string,
+    qualityId: string,
+    styleId: string,
+    colorId: string,
   ): Promise<WarehouseEntity | null> {
     const doc = await this.warehouseModel
       .findOne({
-        inches,
-        item,
-        quality,
-        style,
-        color,
+        inchId: inchId as any,
+        itemId: itemId as any,
+        qualityId: qualityId as any,
+        styleId: styleId as any,
+        colorId: colorId as any,
         isDeleted: false,
       })
       .lean();
 
     return WarehouseMapper.toDomain(doc);
+  }
+
+  async updateByCatalogId(
+    field: 'inchId' | 'itemId' | 'qualityId' | 'styleId' | 'colorId',
+    catalogId: string,
+    nameField: 'inches' | 'item' | 'quality' | 'style' | 'color',
+    newValue: string | number,
+  ): Promise<void> {
+    await this.warehouseModel.updateMany(
+      { [field]: catalogId as any, isDeleted: false },
+      { $set: { [nameField]: newValue } },
+    );
   }
 
   async create(warehouse: Partial<WarehouseEntity>): Promise<WarehouseEntity> {

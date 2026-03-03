@@ -5,6 +5,21 @@ class WarehouseItemDto {
   @ApiProperty({ example: '60d0fe4f5311236168a109ca' })
   _id: string;
 
+  @ApiProperty({ example: '60d0fe4f5311236168a109ca', nullable: true })
+  inchId: string;
+
+  @ApiProperty({ example: '60d0fe4f5311236168a109cb', nullable: true })
+  itemId: string;
+
+  @ApiProperty({ example: '60d0fe4f5311236168a109cc', nullable: true })
+  qualityId: string;
+
+  @ApiProperty({ example: '60d0fe4f5311236168a109cd', nullable: true })
+  styleId: string;
+
+  @ApiProperty({ example: '60d0fe4f5311236168a109ce', nullable: true })
+  colorId: string;
+
   @ApiProperty({ example: 14 })
   inches: number;
 

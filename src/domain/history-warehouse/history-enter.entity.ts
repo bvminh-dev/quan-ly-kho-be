@@ -24,6 +24,7 @@ export class HistoryEnterMetadata {
   priceLowOld?: number;
   saleNew?: number;
   saleOld?: number;
+  unitOfCalculation?: string;
 }
 
 export class HistoryEnterEntity {

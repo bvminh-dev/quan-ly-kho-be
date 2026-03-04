@@ -19,7 +19,7 @@ export class HistoryEnterMongoRepository implements IHistoryEnterRepository {
       .findOne({ _id: id, isDeleted: false })
       .populate(
         'warehouseId',
-        'item inches quality style color priceHigh priceLow sale totalAmount amountOccupied amountAvailable',
+        'item inches quality style color priceHigh priceLow sale totalAmount amountOccupied amountAvailable unitOfCalculation',
       )
       .populate(
         'metadata.orderId',

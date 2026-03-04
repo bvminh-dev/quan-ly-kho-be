@@ -57,6 +57,11 @@ export class UpdateHistoryExportDto {
 
   @IsOptional()
   @IsString()
+  @ApiProperty({ example: 'Kg', required: false })
+  unitOfCalculation?: string;
+
+  @IsOptional()
+  @IsString()
   @ApiProperty({ example: '60d0fe4f5311236168a109cb', required: false })
   orderId?: string;
 

@@ -48,6 +48,7 @@ export class HistoryExportMapper {
       priceHigh: roundToTwo(doc.priceHigh),
       priceLow: roundToTwo(doc.priceLow),
       sale: roundToTwo(doc.sale),
+      unitOfCalculation: doc.unitOfCalculation,
       orderId,
       type: doc.type,
       priceOrder: roundToTwo(doc.priceOrder),

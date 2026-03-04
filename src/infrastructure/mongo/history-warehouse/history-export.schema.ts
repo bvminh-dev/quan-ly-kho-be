@@ -37,6 +37,9 @@ export class HistoryExport {
   @Prop({ required: true })
   sale: number;
 
+  @Prop()
+  unitOfCalculation?: string;
+
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Order',

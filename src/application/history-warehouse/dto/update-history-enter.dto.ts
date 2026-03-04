@@ -62,6 +62,11 @@ class HistoryEnterMetadataDto {
   @IsOptional()
   @ApiProperty({ example: 0, required: false })
   saleOld?: number;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ example: 'Kg', required: false })
+  unitOfCalculation?: string;
 }
 
 export class UpdateHistoryEnterDto {

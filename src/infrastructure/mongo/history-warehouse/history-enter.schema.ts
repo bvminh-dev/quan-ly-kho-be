@@ -44,6 +44,9 @@ export class HistoryEnterMetadata {
 
   @Prop()
   saleOld?: number;
+
+  @Prop()
+  unitOfCalculation?: string;
 }
 
 @Schema({ timestamps: true })

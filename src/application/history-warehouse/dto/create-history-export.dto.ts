@@ -98,6 +98,15 @@ export class CreateHistoryExportDto {
   @Transform(({ value }) => roundToTwo(value))
   sale: number;
 
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    example: 'Kg',
+    required: false,
+    description: 'Đơn vị tính (Kg hoặc Pcs)',
+  })
+  unitOfCalculation?: string;
+
   @IsNotEmpty()
   @IsString()
   @ApiProperty({

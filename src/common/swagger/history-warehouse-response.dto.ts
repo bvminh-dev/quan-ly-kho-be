@@ -46,6 +46,9 @@ class HistoryEnterMetadataSwaggerDto {
 
   @ApiProperty({ example: 0, required: false })
   saleOld?: number;
+
+  @ApiProperty({ example: 'Kg', required: false })
+  unitOfCalculation?: string;
 }
 
 class WarehouseRefDto {
@@ -84,6 +87,9 @@ class WarehouseRefDto {
 
   @ApiProperty({ example: 50 })
   amountAvailable: number;
+
+  @ApiProperty({ example: 'Kg', required: false })
+  unitOfCalculation?: string;
 }
 
 class OrderRefDto {
@@ -259,6 +265,9 @@ class HistoryExportDetailDto {
 
   @ApiProperty({ example: 0 })
   sale: number;
+
+  @ApiProperty({ example: 'Kg', required: false })
+  unitOfCalculation?: string;
 
   @ApiProperty({
     type: 'string',

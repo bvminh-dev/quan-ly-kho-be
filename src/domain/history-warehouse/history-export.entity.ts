@@ -24,6 +24,7 @@ export class HistoryExportEntity {
   priceHigh: number;
   priceLow: number;
   sale: number;
+  unitOfCalculation?: string;
   orderId:
     | string
     | {

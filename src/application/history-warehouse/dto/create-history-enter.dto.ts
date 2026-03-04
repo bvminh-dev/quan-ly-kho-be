@@ -115,6 +115,15 @@ class HistoryEnterMetadataDto {
     description: 'Sale cũ (khi type = sửa giá)',
   })
   saleOld?: number;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({
+    example: 'Kg',
+    required: false,
+    description: 'Đơn vị tính (Kg hoặc Pcs)',
+  })
+  unitOfCalculation?: string;
 }
 
 export class CreateHistoryEnterDto {

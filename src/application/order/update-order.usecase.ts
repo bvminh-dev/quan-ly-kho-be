@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import {
   BadRequestException,
   Inject,
@@ -6,7 +8,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { OrderState } from '../../common/enums/index.js';
+import { HistoryType, OrderState } from '../../common/enums/index.js';
 import { HISTORY_WAREHOUSE_EVENTS } from '../../common/constants/events.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
@@ -43,7 +45,7 @@ export class UpdateOrderUseCase {
     if (dto.products) {
       // Kiểm tra xem đơn hàng đã có chiếm dụng hàng chưa (đã nhận tiền)
       const hasPaymentHistory = existingOrder.history.some(
-        (h) => h.type === 'khách trả',
+        (h) => h.type === HistoryType.KHACH_TRA,
       );
 
       // Chỉ trả lại hàng cũ nếu đã có chiếm dụng
@@ -82,7 +84,8 @@ export class UpdateOrderUseCase {
 
           if (!product.isCalcSet) {
             totalPriceBase = roundToTwo(
-              totalPriceBase + item.quantity * item.price - (item.sale ?? 0),
+              totalPriceBase +
+                quantitySet * (item.quantity * item.price - (item.sale ?? 0)),
             );
           }
         }
@@ -90,8 +93,8 @@ export class UpdateOrderUseCase {
         if (product.isCalcSet) {
           totalPriceBase = roundToTwo(
             totalPriceBase +
-              (product.quantitySet ?? 1) * (product.priceSet ?? 0) -
-              (product.saleSet ?? 0),
+              (product.quantitySet ?? 1) *
+                ((product.priceSet ?? 0) - (product.saleSet ?? 0)),
           );
         }
       }
@@ -112,24 +115,16 @@ export class UpdateOrderUseCase {
         }
       }
 
-      const exchangeRate =
-        dto.exchangeRate !== undefined
-          ? dto.exchangeRate
-          : existingOrder.exchangeRate;
+      const totalUsd = roundToTwo(totalPriceBase);
 
-      const totalPrice = roundToTwo(totalPriceBase * exchangeRate);
-
-      const totalPaid = roundToTwo(
+      const newPaidedUsd = roundToTwo(
         existingOrder.history
-          .filter((h) => h.type === 'khách trả')
-          .reduce((sum, h) => sum + h.moneyPaidNGN, 0),
+          .filter((h) => h.type === HistoryType.KHACH_TRA)
+          .reduce((sum, h) => sum + h.moneyPaidDolar, 0) -
+          existingOrder.history
+            .filter((h) => h.type === HistoryType.HOAN_TIEN)
+            .reduce((sum, h) => sum + h.moneyPaidDolar, 0),
       );
-      const totalRefunded = roundToTwo(
-        existingOrder.history
-          .filter((h) => h.type === 'hoàn tiền')
-          .reduce((sum, h) => sum + h.moneyPaidNGN, 0),
-      );
-      const newPayment = roundToTwo(totalPaid - totalRefunded - totalPrice);
 
       const debt = roundToTwo(dto.debt ?? existingOrder.debt);
       const paid = roundToTwo(dto.paid ?? existingOrder.paid);
@@ -141,8 +136,8 @@ export class UpdateOrderUseCase {
 
       const updated = await this.orderRepository.update(id, {
         ...dto,
-        totalPrice,
-        payment: newPayment,
+        totalUsd,
+        paidedUsd: newPaidedUsd,
         debt,
         paid,
         state: newState,

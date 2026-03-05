@@ -33,8 +33,8 @@ export class OrderEntity {
   state: string;
   exchangeRate: number;
   customer: string | { _id: string; name: string } | null;
-  totalPrice: number;
-  payment: number;
+  totalUsd: number;
+  paidedUsd: number;
   debt: number;
   paid: number;
   note: string;

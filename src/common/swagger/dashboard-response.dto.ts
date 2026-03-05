@@ -10,9 +10,6 @@ class DashboardOrdersDataDto {
   @ApiProperty({ example: 30, description: 'Tổng số lượng (Pcs)' })
   totalOrdersPcs: number;
 
-  @ApiProperty({ example: 50000000, description: 'Tổng giá trị đơn hàng (NGN)' })
-  totalValueNGN: number;
-
   @ApiProperty({ example: 3125.5, description: 'Tổng giá trị đơn hàng (USD)' })
   totalValueUSD: number;
 
@@ -56,9 +53,6 @@ class DashboardCustomerItemDto {
   @ApiProperty({ example: 1875, description: 'Tổng đã trả (USD)' })
   totalPaidUSD: number;
 
-  @ApiProperty({ example: 10000000, description: 'Tổng nợ (NGN)' })
-  totalDebtNGN: number;
-
   @ApiProperty({ example: 625, description: 'Tổng nợ (USD)' })
   totalDebtUSD: number;
 }
@@ -92,9 +86,6 @@ class DashboardStaffItemDto {
 
   @ApiProperty({ example: 15, description: 'Tổng số khách hàng' })
   totalCustomers: number;
-
-  @ApiProperty({ example: 40000000, description: 'Tổng giá trị (NGN)' })
-  totalValueNGN: number;
 
   @ApiProperty({ example: 2500, description: 'Tổng giá trị (USD)' })
   totalValueUSD: number;

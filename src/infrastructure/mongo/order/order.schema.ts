@@ -102,10 +102,10 @@ export class Order {
   customer: mongoose.Schema.Types.ObjectId;
 
   @Prop({ default: 0 })
-  totalPrice: number;
+  totalUsd: number;
 
   @Prop({ default: 0 })
-  payment: number;
+  paidedUsd: number;
 
   @Prop({ default: 0 })
   debt: number;

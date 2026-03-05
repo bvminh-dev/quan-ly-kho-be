@@ -13,7 +13,6 @@ interface CustomerAgg {
   totalOrdersPcs: number;
   totalPaidNGN: number;
   totalPaidUSD: number;
-  totalValueNGN: number;
   totalValueUSD: number;
 }
 
@@ -55,17 +54,13 @@ export class GetDashboardCustomersUseCase {
           totalOrdersPcs: 0,
           totalPaidNGN: 0,
           totalPaidUSD: 0,
-          totalValueNGN: 0,
           totalValueUSD: 0,
         });
       }
 
       const c = customerMap.get(customerId)!;
       c.totalOrders += 1;
-      c.totalValueNGN += order.totalPrice;
-      if (order.exchangeRate > 0) {
-        c.totalValueUSD += order.totalPrice / order.exchangeRate;
-      }
+      c.totalValueUSD += order.totalUsd ?? 0;
 
       for (const product of order.products) {
         for (const item of product.items) {
@@ -96,7 +91,6 @@ export class GetDashboardCustomersUseCase {
       totalOrdersPcs: roundToTwo(c.totalOrdersPcs),
       totalPaidNGN: roundToTwo(c.totalPaidNGN),
       totalPaidUSD: roundToTwo(c.totalPaidUSD),
-      totalDebtNGN: roundToTwo(c.totalValueNGN - c.totalPaidNGN),
       totalDebtUSD: roundToTwo(c.totalValueUSD - c.totalPaidUSD),
     }));
   }

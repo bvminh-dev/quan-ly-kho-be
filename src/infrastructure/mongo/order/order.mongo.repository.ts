@@ -122,8 +122,7 @@ export class OrderMongoRepository implements IOrderRepository {
 
   async calculateCustomerPayment(customerId: string): Promise<number> {
     type OrderForPayment = {
-      totalPrice?: number;
-      exchangeRate?: number;
+      totalUsd?: number;
       history?: Array<{
         type?: HistoryType | string;
         moneyPaidDolar?: number;
@@ -138,7 +137,7 @@ export class OrderMongoRepository implements IOrderRepository {
       .equals(false)
       .where('state')
       .nin([OrderState.BAO_GIA, OrderState.HOAN_TAC])
-      .select(['totalPrice', 'exchangeRate', 'history', 'state'])
+      .select(['totalUsd', 'history', 'state'])
       .lean()
       .exec()) as OrderForPayment[];
 
@@ -146,10 +145,8 @@ export class OrderMongoRepository implements IOrderRepository {
     let totalPaidUSD = 0;
 
     for (const order of orders) {
-      if (order.exchangeRate && order.exchangeRate > 0 && order.totalPrice) {
-        totalOrderUSD = roundToTwo(
-          totalOrderUSD + order.totalPrice / order.exchangeRate,
-        );
+      if (order.totalUsd) {
+        totalOrderUSD = roundToTwo(totalOrderUSD + order.totalUsd);
       }
 
       const historyList = Array.isArray(order.history) ? order.history : [];

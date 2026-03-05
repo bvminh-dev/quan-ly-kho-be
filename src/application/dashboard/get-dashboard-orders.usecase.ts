@@ -25,17 +25,13 @@ export class GetDashboardOrdersUseCase {
     let totalOrders = 0;
     let totalOrdersKg = 0;
     let totalOrdersPcs = 0;
-    let totalValueNGN = 0;
     let totalValueUSD = 0;
     let totalCollectedNGN = 0;
     let totalCollectedUSD = 0;
 
     for (const order of orders) {
       totalOrders += 1;
-      totalValueNGN += order.totalPrice;
-      if (order.exchangeRate > 0) {
-        totalValueUSD += order.totalPrice / order.exchangeRate;
-      }
+      totalValueUSD += order.totalUsd ?? 0;
 
       for (const product of order.products) {
         for (const item of product.items) {
@@ -62,7 +58,6 @@ export class GetDashboardOrdersUseCase {
       totalOrders,
       totalOrdersKg: roundToTwo(totalOrdersKg),
       totalOrdersPcs: roundToTwo(totalOrdersPcs),
-      totalValueNGN: roundToTwo(totalValueNGN),
       totalValueUSD: roundToTwo(totalValueUSD),
       totalCollectedNGN: roundToTwo(totalCollectedNGN),
       totalCollectedUSD: roundToTwo(totalCollectedUSD),

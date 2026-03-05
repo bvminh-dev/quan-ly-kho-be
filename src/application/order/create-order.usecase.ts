@@ -63,11 +63,11 @@ export class CreateOrderUseCase {
           );
         }
 
-        if (product.isCalcSet) {
-          // skip
-        } else {
+        if (!product.isCalcSet) {
           totalPrice = roundToTwo(
-            totalPrice + item.quantity * item.price - (item.sale ?? 0),
+            totalPrice +
+              quantitySet *
+                (item.quantity * item.price - (item.sale ?? 0)),
           );
         }
       }
@@ -75,15 +75,13 @@ export class CreateOrderUseCase {
       if (product.isCalcSet) {
         totalPrice = roundToTwo(
           totalPrice +
-            (product.quantitySet ?? 1) * (product.priceSet ?? 0) -
-            (product.saleSet ?? 0),
+            (product.quantitySet ?? 1) *
+              ((product.priceSet ?? 0) - (product.saleSet ?? 0)),
         );
       }
     }
 
-    const totalPriceNGN = roundToTwo(totalPrice * dto.exchangeRate);
-
-    const initialPayment = roundToTwo(-totalPriceNGN);
+    const totalUsd = roundToTwo(totalPrice);
     const debt = roundToTwo(dto.debt ?? 0);
     const paid = roundToTwo(dto.paid ?? 0);
 
@@ -92,8 +90,8 @@ export class CreateOrderUseCase {
       state: OrderState.BAO_GIA,
       exchangeRate: roundToTwo(dto.exchangeRate),
       customer: dto.customer,
-      totalPrice: totalPriceNGN,
-      payment: initialPayment,
+      totalUsd,
+      paidedUsd: 0,
       debt,
       paid,
       note: dto.note ?? '',

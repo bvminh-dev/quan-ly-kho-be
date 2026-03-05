@@ -39,7 +39,7 @@ export class RevertOrderUseCase {
       throw new BadRequestException('Đơn hàng đã được hoàn tác rồi');
     }
 
-    if (order.payment * -1 < order.totalPrice) {
+    if (order.paidedUsd > 0) {
       throw new BadRequestException('Phải trả lại khách đủ tiền mới hoàn tác');
     }
 

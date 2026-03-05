@@ -8,7 +8,10 @@ class CustomerItemDto {
   @ApiProperty({ example: 'Nguyễn Văn A' })
   name: string;
 
-  @ApiProperty({ example: 0, description: 'Âm = nợ, dương = trả thừa' })
+  @ApiProperty({
+    example: 0,
+    description: 'Tổng tiền theo USD: âm = khách nợ, dương = khách trả thừa',
+  })
   payment: number;
 
   @ApiProperty({ example: 'Khách VIP' })

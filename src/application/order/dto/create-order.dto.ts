@@ -15,6 +15,7 @@ import {
 } from 'class-validator';
 import { OrderType, UnitOfCalculation } from '../../../common/enums/index.js';
 import { roundToTwo } from '../../../common/utils/number.util.js';
+import { IsMinQuantityByUnit } from '../../../common/validators/min-quantity-by-unit.validator.js';
 
 export class CreateOrderItemDto {
   @IsNotEmpty()
@@ -27,8 +28,11 @@ export class CreateOrderItemDto {
 
   @IsNotEmpty()
   @IsNumber()
-  @Min(1)
-  @ApiProperty({ example: 5, description: 'Số lượng' })
+  @IsMinQuantityByUnit()
+  @ApiProperty({
+    example: 5,
+    description: 'Số lượng (Kg: tối thiểu 0.1, Pcs: tối thiểu 1)',
+  })
   @Type(() => Number)
   @Transform(({ value }) => roundToTwo(value))
   quantity: number;

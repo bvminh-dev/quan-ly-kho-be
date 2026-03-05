@@ -106,11 +106,11 @@ class OrderDetailDto {
   @ApiProperty({ type: () => OrderCustomerRefDto })
   customer: OrderCustomerRefDto;
 
-  @ApiProperty({ example: 500 })
-  totalPrice: number;
+  @ApiProperty({ example: 500, description: 'Tổng tiền đơn hàng tính theo USD' })
+  totalUsd: number;
 
-  @ApiProperty({ example: -500 })
-  payment: number;
+  @ApiProperty({ example: 200, description: 'Tổng số tiền khách đã trả tính theo USD' })
+  paidedUsd: number;
 
   @ApiProperty({
     example: 500000,

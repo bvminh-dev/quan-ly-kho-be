@@ -12,7 +12,6 @@ interface StaffAgg {
   totalOrdersKg: number;
   totalOrdersPcs: number;
   customerSet: Set<string>;
-  totalValueNGN: number;
   totalValueUSD: number;
   totalCollectedNGN: number;
   totalCollectedUSD: number;
@@ -55,7 +54,6 @@ export class GetDashboardStaffUseCase {
           totalOrdersKg: 0,
           totalOrdersPcs: 0,
           customerSet: new Set<string>(),
-          totalValueNGN: 0,
           totalValueUSD: 0,
           totalCollectedNGN: 0,
           totalCollectedUSD: 0,
@@ -71,10 +69,7 @@ export class GetDashboardStaffUseCase {
           : String(order.customer ?? '');
       s.customerSet.add(customerId);
 
-      s.totalValueNGN += order.totalPrice;
-      if (order.exchangeRate > 0) {
-        s.totalValueUSD += order.totalPrice / order.exchangeRate;
-      }
+      s.totalValueUSD += order.totalUsd ?? 0;
 
       for (const product of order.products) {
         for (const item of product.items) {
@@ -104,7 +99,6 @@ export class GetDashboardStaffUseCase {
       totalOrdersKg: roundToTwo(s.totalOrdersKg),
       totalOrdersPcs: roundToTwo(s.totalOrdersPcs),
       totalCustomers: s.customerSet.size,
-      totalValueNGN: roundToTwo(s.totalValueNGN),
       totalValueUSD: roundToTwo(s.totalValueUSD),
       totalCollectedNGN: roundToTwo(s.totalCollectedNGN),
       totalCollectedUSD: roundToTwo(s.totalCollectedUSD),

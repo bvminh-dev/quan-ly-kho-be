@@ -53,10 +53,10 @@ export class AddHistoryUseCase {
     const isRefund =
       dto.type?.toLowerCase() === HistoryType.HOAN_TIEN.toLowerCase();
 
-    const newPayment = roundToTwo(
+    const newPaidedUsd = roundToTwo(
       isRefund
-        ? order.payment - dto.moneyPaidNGN
-        : order.payment + dto.moneyPaidNGN,
+        ? order.paidedUsd - dto.moneyPaidDolar
+        : order.paidedUsd + dto.moneyPaidDolar,
     );
 
     // Khi nhận được một phần tiền thanh toán (không phải hoàn tiền), hàng trong kho được tính là đã chiếm dụng
@@ -106,9 +106,8 @@ export class AddHistoryUseCase {
       }
     }
 
-    // Chỉ cập nhật payment
     await this.orderRepository.update(orderId, {
-      payment: newPayment,
+      paidedUsd: newPaidedUsd,
     });
 
     this.eventEmitter.emit(HISTORY_WAREHOUSE_EVENTS.ORDER_PAYMENT_ADDED, {

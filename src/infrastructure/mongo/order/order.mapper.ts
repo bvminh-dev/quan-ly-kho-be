@@ -15,8 +15,8 @@ export class OrderMapper {
           : doc.customer
             ? doc.customer.toString()
             : null,
-      totalPrice: roundToTwo(doc.totalPrice),
-      payment: roundToTwo(doc.payment),
+      totalUsd: roundToTwo(doc.totalUsd),
+      paidedUsd: roundToTwo(doc.paidedUsd),
       debt: roundToTwo(doc.debt),
       paid: roundToTwo(doc.paid),
       note: doc.note,

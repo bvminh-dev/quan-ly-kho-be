@@ -1,7 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { HistoryType, UnitOfCalculation } from '../../common/enums/index.js';
+import { HistoryType } from '../../common/enums/index.js';
 import { getDateRange } from '../../common/utils/date.util.js';
 import { roundToTwo } from '../../common/utils/number.util.js';
+import { countItemQuantities } from '../../common/utils/order.util.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import { DashboardQueryDto } from './dto/dashboard-query.dto.js';
 
@@ -11,9 +12,11 @@ interface CustomerAgg {
   totalOrders: number;
   totalOrdersKg: number;
   totalOrdersPcs: number;
-  totalPaidNGN: number;
-  totalPaidUSD: number;
   totalValueUSD: number;
+  totalCollectedUSD: number;
+  totalDebtUSD: number;
+  totalValueNGN: number;
+  totalCollectedNGN: number;
 }
 
 @Injectable()
@@ -52,33 +55,35 @@ export class GetDashboardCustomersUseCase {
           totalOrders: 0,
           totalOrdersKg: 0,
           totalOrdersPcs: 0,
-          totalPaidNGN: 0,
-          totalPaidUSD: 0,
           totalValueUSD: 0,
+          totalCollectedUSD: 0,
+          totalDebtUSD: 0,
+          totalValueNGN: 0,
+          totalCollectedNGN: 0,
         });
       }
 
       const c = customerMap.get(customerId)!;
       c.totalOrders += 1;
-      c.totalValueUSD += order.totalUsd ?? 0;
 
-      for (const product of order.products) {
-        for (const item of product.items) {
-          if (item.unitOfCalculation === UnitOfCalculation.KG) {
-            c.totalOrdersKg += item.quantity;
-          } else if (item.unitOfCalculation === UnitOfCalculation.PCS) {
-            c.totalOrdersPcs += item.quantity;
-          }
-        }
-      }
+      const orderTotalUsd = (order.totalUsd ?? 0) + (order.debt ?? 0);
+      const orderPaidedUsd = order.paidedUsd ?? 0;
+      const orderExchangeRate = order.exchangeRate ?? 0;
+
+      c.totalValueUSD += orderTotalUsd;
+      c.totalCollectedUSD += orderPaidedUsd;
+      c.totalDebtUSD += orderTotalUsd - orderPaidedUsd;
+      c.totalValueNGN += orderTotalUsd * orderExchangeRate;
+
+      const { kg, pcs } = countItemQuantities(order.products);
+      c.totalOrdersKg += kg;
+      c.totalOrdersPcs += pcs;
 
       for (const history of order.history ?? []) {
         if (history.type === HistoryType.KHACH_TRA) {
-          c.totalPaidNGN += history.moneyPaidNGN;
-          c.totalPaidUSD += history.moneyPaidDolar;
+          c.totalCollectedNGN += history.moneyPaidNGN;
         } else if (history.type === HistoryType.HOAN_TIEN) {
-          c.totalPaidNGN -= history.moneyPaidNGN;
-          c.totalPaidUSD -= history.moneyPaidDolar;
+          c.totalCollectedNGN -= history.moneyPaidNGN;
         }
       }
     }
@@ -89,9 +94,11 @@ export class GetDashboardCustomersUseCase {
       totalOrders: c.totalOrders,
       totalOrdersKg: roundToTwo(c.totalOrdersKg),
       totalOrdersPcs: roundToTwo(c.totalOrdersPcs),
-      totalPaidNGN: roundToTwo(c.totalPaidNGN),
-      totalPaidUSD: roundToTwo(c.totalPaidUSD),
-      totalDebtUSD: roundToTwo(c.totalValueUSD - c.totalPaidUSD),
+      totalValueUSD: roundToTwo(c.totalValueUSD),
+      totalCollectedUSD: roundToTwo(c.totalCollectedUSD),
+      totalDebtUSD: roundToTwo(c.totalDebtUSD),
+      totalValueNGN: roundToTwo(c.totalValueNGN),
+      totalCollectedNGN: roundToTwo(c.totalCollectedNGN),
     }));
   }
 }

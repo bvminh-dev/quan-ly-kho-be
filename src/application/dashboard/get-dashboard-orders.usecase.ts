@@ -1,7 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { HistoryType, UnitOfCalculation } from '../../common/enums/index.js';
+import { HistoryType } from '../../common/enums/index.js';
 import { getDateRange } from '../../common/utils/date.util.js';
 import { roundToTwo } from '../../common/utils/number.util.js';
+import { countItemQuantities } from '../../common/utils/order.util.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import { DashboardQueryDto } from './dto/dashboard-query.dto.js';
 
@@ -26,30 +27,32 @@ export class GetDashboardOrdersUseCase {
     let totalOrdersKg = 0;
     let totalOrdersPcs = 0;
     let totalValueUSD = 0;
-    let totalCollectedNGN = 0;
     let totalCollectedUSD = 0;
+    let totalDebtUSD = 0;
+    let totalValueNGN = 0;
+    let totalCollectedNGN = 0;
 
     for (const order of orders) {
       totalOrders += 1;
-      totalValueUSD += order.totalUsd ?? 0;
 
-      for (const product of order.products) {
-        for (const item of product.items) {
-          if (item.unitOfCalculation === UnitOfCalculation.KG) {
-            totalOrdersKg += item.quantity;
-          } else if (item.unitOfCalculation === UnitOfCalculation.PCS) {
-            totalOrdersPcs += item.quantity;
-          }
-        }
-      }
+      const orderTotalUsd = (order.totalUsd ?? 0) + (order.debt ?? 0);
+      const orderPaidedUsd = order.paidedUsd ?? 0;
+      const orderExchangeRate = order.exchangeRate ?? 0;
+
+      totalValueUSD += orderTotalUsd;
+      totalCollectedUSD += orderPaidedUsd;
+      totalDebtUSD += orderTotalUsd - orderPaidedUsd;
+      totalValueNGN += orderTotalUsd * orderExchangeRate;
+
+      const { kg, pcs } = countItemQuantities(order.products);
+      totalOrdersKg += kg;
+      totalOrdersPcs += pcs;
 
       for (const history of order.history ?? []) {
         if (history.type === HistoryType.KHACH_TRA) {
           totalCollectedNGN += history.moneyPaidNGN;
-          totalCollectedUSD += history.moneyPaidDolar;
         } else if (history.type === HistoryType.HOAN_TIEN) {
           totalCollectedNGN -= history.moneyPaidNGN;
-          totalCollectedUSD -= history.moneyPaidDolar;
         }
       }
     }
@@ -59,8 +62,10 @@ export class GetDashboardOrdersUseCase {
       totalOrdersKg: roundToTwo(totalOrdersKg),
       totalOrdersPcs: roundToTwo(totalOrdersPcs),
       totalValueUSD: roundToTwo(totalValueUSD),
-      totalCollectedNGN: roundToTwo(totalCollectedNGN),
       totalCollectedUSD: roundToTwo(totalCollectedUSD),
+      totalDebtUSD: roundToTwo(totalDebtUSD),
+      totalValueNGN: roundToTwo(totalValueNGN),
+      totalCollectedNGN: roundToTwo(totalCollectedNGN),
     };
   }
 }

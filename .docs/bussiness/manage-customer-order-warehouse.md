@@ -67,7 +67,7 @@
 - customer: objectId ref: customer
 - exchangeRate: number // tỷ giá
 - totalUsd: number // tổng tiền đơn hàng tính theo usd. Tổng tiền tính bằng các set, item trong products. Nếu là set thì giá 1 set = quantitySet - (priceSet - saleSet) cộng với các item lẻ không trong set với giá được tính quantity - (price-sale)
-- paidedUsd: number // tổng số tiền khách đã trả tính theo usd = sum(moneyPaidDolar, "khách trả") - sum(moneyPaidDolar, "hoàn tiền") trong history(moneyPaidDolar, "hoàn tiền") trong history
+- paidedUsd: number // tổng số tiền khách đã trả tính theo usd = sum(moneyPaidDolar, "khách trả") - sum(moneyPaidDolar, "hoàn tiền") trong history
 - Debt: number // số tiền khách nợ cần trả vào hoá đơn này tính theo usd
 - Paid: number // số tiền khách trả dư, được trừ ở hoá đơn này tính theo usd
 - note: string // ghi chú

@@ -14,8 +14,9 @@ interface StaffAgg {
   totalOrdersPcs: number;
   customerSet: Set<string>;
   totalValueUSD: number;
-  totalCollectedNGN: number;
   totalCollectedUSD: number;
+  totalValueNGN: number;
+  totalCollectedNGN: number;
 }
 
 @Injectable()
@@ -56,8 +57,9 @@ export class GetDashboardStaffUseCase {
           totalOrdersPcs: 0,
           customerSet: new Set<string>(),
           totalValueUSD: 0,
-          totalCollectedNGN: 0,
           totalCollectedUSD: 0,
+          totalValueNGN: 0,
+          totalCollectedNGN: 0,
         });
       }
 
@@ -97,8 +99,9 @@ export class GetDashboardStaffUseCase {
       totalOrdersPcs: roundToTwo(s.totalOrdersPcs),
       totalCustomers: s.customerSet.size,
       totalValueUSD: roundToTwo(s.totalValueUSD),
-      totalCollectedNGN: roundToTwo(s.totalCollectedNGN),
       totalCollectedUSD: roundToTwo(s.totalCollectedUSD),
+      totalValueNGN: roundToTwo(s.totalValueNGN),
+      totalCollectedNGN: roundToTwo(s.totalCollectedNGN),
     }));
   }
 }

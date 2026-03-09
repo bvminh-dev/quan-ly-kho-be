@@ -27,8 +27,10 @@ export class GetDashboardOrdersUseCase {
     let totalOrdersKg = 0;
     let totalOrdersPcs = 0;
     let totalValueUSD = 0;
-    let totalCollectedNGN = 0;
     let totalCollectedUSD = 0;
+    let totalDebtUSD = 0;
+    let totalValueNGN = 0;
+    let totalCollectedNGN = 0;
 
     for (const order of orders) {
       totalOrders += 1;
@@ -57,8 +59,10 @@ export class GetDashboardOrdersUseCase {
       totalOrdersKg: roundToTwo(totalOrdersKg),
       totalOrdersPcs: roundToTwo(totalOrdersPcs),
       totalValueUSD: roundToTwo(totalValueUSD),
-      totalCollectedNGN: roundToTwo(totalCollectedNGN),
       totalCollectedUSD: roundToTwo(totalCollectedUSD),
+      totalDebtUSD: roundToTwo(totalDebtUSD),
+      totalValueNGN: roundToTwo(totalValueNGN),
+      totalCollectedNGN: roundToTwo(totalCollectedNGN),
     };
   }
 }

@@ -1,7 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { HistoryType, UnitOfCalculation } from '../../common/enums/index.js';
+import { UnitOfCalculation } from '../../common/enums/index.js';
 import { getDateRange } from '../../common/utils/date.util.js';
 import { roundToTwo } from '../../common/utils/number.util.js';
+import { computeOrderFinancials } from '../../common/utils/order-financial.util.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import { DashboardQueryDto } from './dto/dashboard-query.dto.js';
 
@@ -69,7 +70,9 @@ export class GetDashboardStaffUseCase {
           : String(order.customer ?? '');
       s.customerSet.add(customerId);
 
-      s.totalValueUSD += order.totalUsd ?? 0;
+      // Tính toán tài chính theo rule
+      const financials = computeOrderFinancials(order);
+      s.totalValueUSD += financials.totalUSD;
 
       for (const product of order.products) {
         for (const item of product.items) {
@@ -81,15 +84,9 @@ export class GetDashboardStaffUseCase {
         }
       }
 
-      for (const history of order.history ?? []) {
-        if (history.type === HistoryType.KHACH_TRA) {
-          s.totalCollectedNGN += history.moneyPaidNGN;
-          s.totalCollectedUSD += history.moneyPaidDolar;
-        } else if (history.type === HistoryType.HOAN_TIEN) {
-          s.totalCollectedNGN -= history.moneyPaidNGN;
-          s.totalCollectedUSD -= history.moneyPaidDolar;
-        }
-      }
+      // Sử dụng giá trị đã trả từ hàm tính toán
+      s.totalCollectedNGN += financials.paidNGN;
+      s.totalCollectedUSD += financials.paidUSD;
     }
 
     return Array.from(staffMap.values()).map((s) => ({

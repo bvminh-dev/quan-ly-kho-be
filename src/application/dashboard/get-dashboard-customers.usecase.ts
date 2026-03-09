@@ -1,7 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { HistoryType, UnitOfCalculation } from '../../common/enums/index.js';
+import { UnitOfCalculation } from '../../common/enums/index.js';
 import { getDateRange } from '../../common/utils/date.util.js';
 import { roundToTwo } from '../../common/utils/number.util.js';
+import { computeOrderFinancials } from '../../common/utils/order-financial.util.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import { DashboardQueryDto } from './dto/dashboard-query.dto.js';
 
@@ -11,9 +12,9 @@ interface CustomerAgg {
   totalOrders: number;
   totalOrdersKg: number;
   totalOrdersPcs: number;
-  totalPaidNGN: number;
-  totalPaidUSD: number;
   totalValueUSD: number;
+  totalCollectedNGN: number;
+  totalCollectedUSD: number;
 }
 
 @Injectable()
@@ -52,15 +53,18 @@ export class GetDashboardCustomersUseCase {
           totalOrders: 0,
           totalOrdersKg: 0,
           totalOrdersPcs: 0,
-          totalPaidNGN: 0,
-          totalPaidUSD: 0,
           totalValueUSD: 0,
+          totalCollectedNGN: 0,
+          totalCollectedUSD: 0,
         });
       }
 
       const c = customerMap.get(customerId)!;
       c.totalOrders += 1;
-      c.totalValueUSD += order.totalUsd ?? 0;
+
+      // Tính toán tài chính theo rule
+      const financials = computeOrderFinancials(order);
+      c.totalValueUSD += financials.totalUSD;
 
       for (const product of order.products) {
         for (const item of product.items) {
@@ -72,15 +76,9 @@ export class GetDashboardCustomersUseCase {
         }
       }
 
-      for (const history of order.history ?? []) {
-        if (history.type === HistoryType.KHACH_TRA) {
-          c.totalPaidNGN += history.moneyPaidNGN;
-          c.totalPaidUSD += history.moneyPaidDolar;
-        } else if (history.type === HistoryType.HOAN_TIEN) {
-          c.totalPaidNGN -= history.moneyPaidNGN;
-          c.totalPaidUSD -= history.moneyPaidDolar;
-        }
-      }
+      // Sử dụng giá trị đã trả từ hàm tính toán
+      c.totalCollectedNGN += financials.paidNGN;
+      c.totalCollectedUSD += financials.paidUSD;
     }
 
     return Array.from(customerMap.values()).map((c) => ({
@@ -89,9 +87,9 @@ export class GetDashboardCustomersUseCase {
       totalOrders: c.totalOrders,
       totalOrdersKg: roundToTwo(c.totalOrdersKg),
       totalOrdersPcs: roundToTwo(c.totalOrdersPcs),
-      totalPaidNGN: roundToTwo(c.totalPaidNGN),
-      totalPaidUSD: roundToTwo(c.totalPaidUSD),
-      totalDebtUSD: roundToTwo(c.totalValueUSD - c.totalPaidUSD),
+      totalValueUSD: roundToTwo(c.totalValueUSD),
+      totalCollectedNGN: roundToTwo(c.totalCollectedNGN),
+      totalCollectedUSD: roundToTwo(c.totalCollectedUSD),
     }));
   }
 }

@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
 import { Model } from 'mongoose';
-import { HistoryType, OrderState } from '../../../common/enums/index.js';
+import { OrderState } from '../../../common/enums/index.js';
 import { roundToTwo } from '../../../common/utils/number.util.js';
+import { computeOrderFinancials } from '../../../common/utils/order-financial.util.js';
 import type { OrderEntity } from '../../../domain/order/order.entity.js';
 import type { IOrderRepository } from '../../../domain/order/order.repository.js';
 import { OrderMapper } from './order.mapper.js';
@@ -121,15 +122,7 @@ export class OrderMongoRepository implements IOrderRepository {
   }
 
   async calculateCustomerPayment(customerId: string): Promise<number> {
-    type OrderForPayment = {
-      totalUsd?: number;
-      history?: Array<{
-        type?: HistoryType | string;
-        moneyPaidDolar?: number;
-      }>;
-    };
-
-    const orders = (await this.orderModel
+    const docs = await this.orderModel
       .find()
       .where('customer')
       .equals(customerId)
@@ -137,31 +130,18 @@ export class OrderMongoRepository implements IOrderRepository {
       .equals(false)
       .where('state')
       .nin([OrderState.BAO_GIA, OrderState.HOAN_TAC])
-      .select(['totalUsd', 'history', 'state'])
       .lean()
-      .exec()) as OrderForPayment[];
+      .exec();
+
+    const orders = OrderMapper.toDomainList(docs);
 
     let totalOrderUSD = 0;
     let totalPaidUSD = 0;
 
     for (const order of orders) {
-      if (order.totalUsd) {
-        totalOrderUSD = roundToTwo(totalOrderUSD + order.totalUsd);
-      }
-
-      const historyList = Array.isArray(order.history) ? order.history : [];
-
-      for (const history of historyList) {
-        if (history.type === HistoryType.KHACH_TRA) {
-          totalPaidUSD = roundToTwo(
-            totalPaidUSD + (history.moneyPaidDolar ?? 0),
-          );
-        } else if (history.type === HistoryType.HOAN_TIEN) {
-          totalPaidUSD = roundToTwo(
-            totalPaidUSD - (history.moneyPaidDolar ?? 0),
-          );
-        }
-      }
+      const financials = computeOrderFinancials(order);
+      totalOrderUSD = roundToTwo(totalOrderUSD + financials.totalUSD);
+      totalPaidUSD = roundToTwo(totalPaidUSD + financials.paidUSD);
     }
 
     return roundToTwo(totalPaidUSD - totalOrderUSD);

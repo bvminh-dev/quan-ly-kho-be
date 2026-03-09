@@ -47,14 +47,14 @@ class DashboardCustomerItemDto {
   @ApiProperty({ example: 20, description: 'Tổng số lượng (Pcs)' })
   totalOrdersPcs: number;
 
-  @ApiProperty({ example: 30000000, description: 'Tổng đã trả (NGN)' })
-  totalPaidNGN: number;
+  @ApiProperty({ example: 2500, description: 'Tổng giá trị (USD)' })
+  totalValueUSD: number;
 
-  @ApiProperty({ example: 1875, description: 'Tổng đã trả (USD)' })
-  totalPaidUSD: number;
+  @ApiProperty({ example: 32000000, description: 'Tổng thu về (NGN)' })
+  totalCollectedNGN: number;
 
-  @ApiProperty({ example: 625, description: 'Tổng nợ (USD)' })
-  totalDebtUSD: number;
+  @ApiProperty({ example: 2000, description: 'Tổng thu về (USD)' })
+  totalCollectedUSD: number;
 }
 
 export class GetDashboardCustomersResponseDto {

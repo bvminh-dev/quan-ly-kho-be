@@ -40,6 +40,7 @@ import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
+import { OrderState } from '../../common/enums/index.js';
 import {
   AddHistoryResponseDto,
   ConfirmOrderResponseDto,
@@ -87,6 +88,27 @@ export class OrderController {
     type: GetOrdersResponseDto,
   })
   @ApiQuery({
+    name: 'state',
+    required: false,
+    description: 'Lọc theo trạng thái đơn hàng',
+    enum: OrderState,
+    enumName: 'OrderState',
+  })
+  @ApiQuery({
+    name: 'createdFrom',
+    required: false,
+    description: 'Thời gian tạo từ (ISO string hoặc date)',
+    type: String,
+    example: '2024-01-01T00:00:00.000Z',
+  })
+  @ApiQuery({
+    name: 'createdTo',
+    required: false,
+    description: 'Thời gian tạo đến (ISO string hoặc date)',
+    type: String,
+    example: '2024-12-31T23:59:59.000Z',
+  })
+  @ApiQuery({
     name: 'current',
     required: false,
     description: 'Số trang hiện tại (mặc định: 1)',
@@ -124,16 +146,26 @@ export class OrderController {
     @Query() query: Record<string, any>,
     @User() user: ICurrentUser,
   ) {
+    const { createdFrom, createdTo, ...restQuery } = query || {};
+
     const queryParams = new URLSearchParams();
 
-    Object.keys(query).forEach((key) => {
+    if (createdFrom) {
+      queryParams.append('createdAt[gte]', String(createdFrom));
+    }
+
+    if (createdTo) {
+      queryParams.append('createdAt[lte]', String(createdTo));
+    }
+
+    Object.keys(restQuery).forEach((key) => {
       if (
         key !== 'current' &&
         key !== 'pageSize' &&
-        query[key] !== undefined &&
-        query[key] !== null
+        restQuery[key] !== undefined &&
+        restQuery[key] !== null
       ) {
-        queryParams.append(key, String(query[key]));
+        queryParams.append(key, String(restQuery[key]));
       }
     });
 

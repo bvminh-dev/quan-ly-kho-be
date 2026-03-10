@@ -112,7 +112,7 @@ export class OrderMongoRepository implements IOrderRepository {
     const docs = await this.orderModel
       .find({
         isDeleted: false,
-        state: { $nin: [OrderState.BAO_GIA, OrderState.HOAN_TAC] },
+        state: { $nin: [OrderState.BAO_GIA] },
         createdAt: { $gte: startDate, $lte: endDate },
       })
       .populate('customer', '_id name')

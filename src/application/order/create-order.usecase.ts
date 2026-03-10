@@ -85,6 +85,13 @@ export class CreateOrderUseCase {
     const debt = roundToTwo(dto.debt ?? 0);
     const paid = roundToTwo(dto.paid ?? 0);
 
+    const customerPayment = roundToTwo(customer.payment ?? 0);
+    if (paid > customerPayment) {
+      throw new BadRequestException(
+        'Số tiền Paid vượt quá số dư của khách hàng, hãy kiểm tra lại Paid',
+      );
+    }
+
     const order = await this.orderRepository.create({
       type: dto.type,
       state: OrderState.BAO_GIA,

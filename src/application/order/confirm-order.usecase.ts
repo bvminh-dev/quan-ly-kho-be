@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OrderState } from '../../common/enums/index.js';
+import { roundToTwo } from '../../common/utils/number.util.js';
 import { HISTORY_WAREHOUSE_EVENTS } from '../../common/constants/events.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
@@ -46,6 +47,20 @@ export class ConfirmOrderUseCase {
 
     if (!order.exchangeRate || order.exchangeRate <= 0) {
       throw new BadRequestException('Tỷ giá của đơn hàng không hợp lệ');
+    }
+
+    if ((order.state as OrderState) === OrderState.BAO_GIA) {
+      const customer = await this.customerRepository.findById(customerId);
+      if (!customer) {
+        throw new NotFoundException(`Khách hàng với id ${customerId} không tồn tại`);
+      }
+      const orderPaid = roundToTwo(order.paid ?? 0);
+      const customerPayment = roundToTwo(customer.payment ?? 0);
+      if (orderPaid > customerPayment) {
+        throw new BadRequestException(
+          'Số tiền Paid vượt quá số dư của khách hàng, hãy kiểm tra lại Paid',
+        );
+      }
     }
 
     const updated = await this.orderRepository.update(id, {

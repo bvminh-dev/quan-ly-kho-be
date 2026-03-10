@@ -129,7 +129,7 @@ export class OrderMongoRepository implements IOrderRepository {
       .where('isDeleted')
       .equals(false)
       .where('state')
-      .nin([OrderState.BAO_GIA, OrderState.HOAN_TAC])
+      .nin([OrderState.BAO_GIA])
       .lean()
       .exec();
 

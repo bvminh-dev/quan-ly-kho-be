@@ -252,41 +252,14 @@ export class HistoryWarehouseService {
     });
   }
 
-  async createHistoryExportForOrderCreated(
-    orderId: string,
-    createdBy: string,
-  ): Promise<void> {
-    const order = await this.orderRepository.findById(orderId);
-    if (!order) {
-      this.logger.warn(`Order ${orderId} not found for history-export created`);
-      return;
-    }
-    for (const product of order.products) {
-      for (const item of product.items) {
-        const quantitySet = product.quantitySet ?? 1;
-        const quantityOrder = roundToTwo(quantitySet * item.quantity);
-
-        await this.createHistoryExportForOrder(
-          String(item.id),
-          orderId,
-          quantityOrder,
-          HistoryExportState.BAO_GIA,
-          0,
-          '',
-          createdBy,
-        );
-      }
-    }
-  }
-
-  async createHistoryExportForOrderConfirmed(
+  async createHistoryExportForOrderDelivered(
     orderId: string,
     updatedBy: string,
   ): Promise<void> {
     const order = await this.orderRepository.findById(orderId);
     if (!order) {
       this.logger.warn(
-        `Order ${orderId} not found for history-export confirmed`,
+        `Order ${orderId} not found for history-export delivered`,
       );
       return;
     }
@@ -299,96 +272,10 @@ export class HistoryWarehouseService {
           String(item.id),
           orderId,
           quantityOrder,
-          HistoryExportState.DA_CHOT,
+          HistoryExportState.DA_GIAO,
           0,
           '',
           updatedBy,
-        );
-      }
-    }
-  }
-
-  async createHistoryExportForOrderUpdated(
-    orderId: string,
-    updatedBy: string,
-  ): Promise<void> {
-    const order = await this.orderRepository.findById(orderId);
-    if (!order) {
-      this.logger.warn(`Order ${orderId} not found for history-export updated`);
-      return;
-    }
-    for (const product of order.products) {
-      for (const item of product.items) {
-        const quantitySet = product.quantitySet ?? 1;
-        const quantityOrder = roundToTwo(quantitySet * item.quantity);
-
-        await this.createHistoryExportForOrder(
-          String(item.id),
-          orderId,
-          quantityOrder,
-          HistoryExportState.CHINH_SUA,
-          0,
-          '',
-          updatedBy,
-        );
-      }
-    }
-  }
-
-  async createHistoryExportForOrderPayment(
-    orderId: string,
-    stateOrder: HistoryExportState,
-    paymentOrder: number,
-    note: string,
-    createdBy: string,
-  ): Promise<void> {
-    const order = await this.orderRepository.findById(orderId);
-    if (!order) {
-      this.logger.warn(`Order ${orderId} not found for history-export payment`);
-      return;
-    }
-    for (const product of order.products) {
-      for (const item of product.items) {
-        const quantitySet = product.quantitySet ?? 1;
-        const quantityOrder = roundToTwo(quantitySet * item.quantity);
-
-        await this.createHistoryExportForOrder(
-          String(item.id),
-          orderId,
-          quantityOrder,
-          stateOrder,
-          paymentOrder,
-          note,
-          createdBy,
-        );
-      }
-    }
-  }
-
-  async createHistoryExportForOrderCompleted(
-    orderId: string,
-    createdBy: string,
-  ): Promise<void> {
-    const order = await this.orderRepository.findById(orderId);
-    if (!order) {
-      this.logger.warn(
-        `Order ${orderId} not found for history-export completed`,
-      );
-      return;
-    }
-    for (const product of order.products) {
-      for (const item of product.items) {
-        const quantitySet = product.quantitySet ?? 1;
-        const quantityOrder = roundToTwo(quantitySet * item.quantity);
-
-        await this.createHistoryExportForOrder(
-          String(item.id),
-          orderId,
-          quantityOrder,
-          HistoryExportState.DA_XONG,
-          0,
-          '',
-          createdBy,
         );
       }
     }

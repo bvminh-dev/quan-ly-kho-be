@@ -111,4 +111,5 @@ export enum HistoryExportState {
   KHACH_TRA = 'Khách trả',
   HOAN_DON = 'Hoàn đơn',
   DA_XONG = 'Đã xong',
+  DA_GIAO = 'Đã giao',
 }

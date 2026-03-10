@@ -129,6 +129,23 @@ export class UpdateOrderUseCase {
       const debt = roundToTwo(dto.debt ?? existingOrder.debt);
       const paid = roundToTwo(dto.paid ?? existingOrder.paid);
 
+      if (existingOrder.state === (OrderState.BAO_GIA as string)) {
+        const customerId =
+          typeof existingOrder.customer === 'object' &&
+          existingOrder.customer !== null
+            ? existingOrder.customer._id
+            : (existingOrder.customer as string);
+        const customer = await this.customerRepository.findById(customerId);
+        if (customer) {
+          const customerPayment = roundToTwo(customer.payment ?? 0);
+          if (paid > customerPayment) {
+            throw new BadRequestException(
+              'Số tiền Paid vượt quá số dư của khách hàng, hãy kiểm tra lại Paid',
+            );
+          }
+        }
+      }
+
       const newState =
         existingOrder.state === (OrderState.BAO_GIA as string)
           ? OrderState.BAO_GIA
@@ -181,6 +198,24 @@ export class UpdateOrderUseCase {
       });
 
       return updated;
+    }
+
+    if (existingOrder.state === (OrderState.BAO_GIA as string)) {
+      const paid = roundToTwo(dto.paid ?? existingOrder.paid);
+      const customerId =
+        typeof existingOrder.customer === 'object' &&
+        existingOrder.customer !== null
+          ? existingOrder.customer._id
+          : (existingOrder.customer as string);
+      const customer = await this.customerRepository.findById(customerId);
+      if (customer) {
+        const customerPayment = roundToTwo(customer.payment ?? 0);
+        if (paid > customerPayment) {
+          throw new BadRequestException(
+            'Số tiền Paid vượt quá số dư của khách hàng, hãy kiểm tra lại Paid',
+          );
+        }
+      }
     }
 
     const updated = await this.orderRepository.update(id, {

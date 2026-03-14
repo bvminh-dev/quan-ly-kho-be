@@ -86,7 +86,7 @@ export class CreateOrderUseCase {
     const paid = roundToTwo(dto.paid ?? 0);
 
     const customerPayment = roundToTwo(customer.payment ?? 0);
-    if (paid > customerPayment) {
+    if (paid > customerPayment && paid > 0) {
       throw new BadRequestException(
         'Số tiền Paid vượt quá số dư của khách hàng, hãy kiểm tra lại Paid',
       );

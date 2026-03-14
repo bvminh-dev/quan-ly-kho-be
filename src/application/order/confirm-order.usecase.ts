@@ -56,7 +56,7 @@ export class ConfirmOrderUseCase {
       }
       const orderPaid = roundToTwo(order.paid ?? 0);
       const customerPayment = roundToTwo(customer.payment ?? 0);
-      if (orderPaid > customerPayment) {
+      if (orderPaid > customerPayment && orderPaid > 0) {
         throw new BadRequestException(
           'Số tiền Paid vượt quá số dư của khách hàng, hãy kiểm tra lại Paid',
         );

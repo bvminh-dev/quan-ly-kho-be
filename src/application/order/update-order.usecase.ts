@@ -138,7 +138,7 @@ export class UpdateOrderUseCase {
         const customer = await this.customerRepository.findById(customerId);
         if (customer) {
           const customerPayment = roundToTwo(customer.payment ?? 0);
-          if (paid > customerPayment) {
+          if (paid > customerPayment && paid > 0) {
             throw new BadRequestException(
               'Số tiền Paid vượt quá số dư của khách hàng, hãy kiểm tra lại Paid',
             );
@@ -210,7 +210,7 @@ export class UpdateOrderUseCase {
       const customer = await this.customerRepository.findById(customerId);
       if (customer) {
         const customerPayment = roundToTwo(customer.payment ?? 0);
-        if (paid > customerPayment) {
+        if (paid > customerPayment && paid > 0) {
           throw new BadRequestException(
             'Số tiền Paid vượt quá số dư của khách hàng, hãy kiểm tra lại Paid',
           );

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { HISTORY_WAREHOUSE_EVENTS } from '../../common/constants/events.js';
-import { OrderState } from '../../common/enums/index.js';
+import { HistoryType, OrderState } from '../../common/enums/index.js';
 import { roundToTwo } from '../../common/utils/number.util.js';
 import type { ICustomerRepository } from '../../domain/customer/customer.repository.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
@@ -57,6 +57,9 @@ export class DeliverOrderUseCase {
 
     // Trừ số lượng trong kho (totalAmount và amountOccupied) khi chuyển sang Đã giao
     // Chỉ thực hiện một lần duy nhất tại thời điểm chuyển trạng thái
+    const anyPaymetKhachTra = order.history.some(
+      (h) => h.type === HistoryType.KHACH_TRA.toLowerCase(),
+    );
     for (const product of order.products) {
       for (const item of product.items) {
         const quantitySet = product.quantitySet ?? 1;
@@ -65,6 +68,7 @@ export class DeliverOrderUseCase {
         await this.warehouseRepository.decreaseTotalAndOccupied(
           item.id,
           totalQuantity,
+          anyPaymetKhachTra,
         );
       }
     }

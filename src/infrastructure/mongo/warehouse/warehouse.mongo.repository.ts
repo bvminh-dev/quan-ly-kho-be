@@ -132,6 +132,7 @@ export class WarehouseMongoRepository implements IWarehouseRepository {
   async decreaseTotalAndOccupied(
     id: string,
     quantity: number,
+    anyPaymetKhachTra: boolean,
   ): Promise<WarehouseEntity | null> {
     const updated = await this.warehouseModel
       .findOneAndUpdate(
@@ -139,7 +140,8 @@ export class WarehouseMongoRepository implements IWarehouseRepository {
         {
           $inc: {
             totalAmount: -quantity,
-            amountOccupied: -quantity,
+            amountAvailable: anyPaymetKhachTra ? 0 : -quantity,
+            amountOccupied: anyPaymetKhachTra ? -quantity : 0,
           },
         },
         { new: true },

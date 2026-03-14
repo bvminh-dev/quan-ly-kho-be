@@ -37,5 +37,6 @@ export interface IWarehouseRepository {
   decreaseTotalAndOccupied(
     id: string,
     quantity: number,
+    anyPaymetKhachTra: boolean,
   ): Promise<WarehouseEntity | null>;
 }

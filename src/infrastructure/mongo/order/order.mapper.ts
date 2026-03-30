@@ -48,6 +48,7 @@ export class OrderMapper {
           paymentMethod: h.paymentMethod,
           datePaid: h.datePaid,
           note: h.note,
+          paymentType: h.paymentType,
         })) ?? [],
       createdBy:
         doc.createdBy && typeof doc.createdBy === 'object' && doc.createdBy.name

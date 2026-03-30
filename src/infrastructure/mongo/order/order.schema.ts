@@ -81,6 +81,9 @@ export class OrderHistory {
 
   @Prop()
   note: string;
+
+  @Prop()
+  paymentType: string;
 }
 
 @Schema({ timestamps: true })

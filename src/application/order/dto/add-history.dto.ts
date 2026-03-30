@@ -51,4 +51,9 @@ export class AddHistoryDto {
   @IsString()
   @ApiProperty({ example: 'Ghi chú thanh toán', required: false })
   note?: string;
+
+  @IsOptional()
+  @IsString()
+  @ApiProperty({ example: 'auto | manual', required: false })
+  paymentType?: string;
 }

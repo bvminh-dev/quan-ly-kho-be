@@ -126,6 +126,7 @@ export class AddHistoryUseCase {
       paymentMethod: dto.paymentMethod,
       datePaid: dto.datePaid,
       note: dto.note ?? '',
+      paymentType: dto.paymentType ?? 'manual',
     });
 
     if (

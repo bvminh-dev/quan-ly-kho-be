@@ -15,7 +15,7 @@ export class OrderMongoRepository implements IOrderRepository {
   constructor(
     @InjectModel(Order.name)
     private readonly orderModel: Model<OrderDocument>,
-  ) {}
+  ) { }
 
   async findById(id: string): Promise<OrderEntity | null> {
     const doc = await this.orderModel
@@ -140,8 +140,8 @@ export class OrderMongoRepository implements IOrderRepository {
 
     for (const order of orders) {
       const financials = computeOrderFinancials(order);
-      totalOrderUSD = roundToTwo(totalOrderUSD + financials.totalUSD);
-      totalPaidUSD = roundToTwo(totalPaidUSD + financials.paidUSD);
+      totalOrderUSD = totalOrderUSD + financials.totalUSD;
+      totalPaidUSD = totalPaidUSD + financials.paidUSD;
     }
 
     return roundToTwo(totalPaidUSD - totalOrderUSD);

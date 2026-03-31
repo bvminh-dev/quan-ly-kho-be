@@ -22,7 +22,7 @@ export class ConfirmOrderUseCase {
     @Inject('CustomerRepository')
     private readonly customerRepository: ICustomerRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   async execute(id: string, updatedBy: string) {
     this.logger.log(`Confirming order ${id}`);
@@ -52,7 +52,9 @@ export class ConfirmOrderUseCase {
     if ((order.state as OrderState) === OrderState.BAO_GIA) {
       const customer = await this.customerRepository.findById(customerId);
       if (!customer) {
-        throw new NotFoundException(`Khách hàng với id ${customerId} không tồn tại`);
+        throw new NotFoundException(
+          `Khách hàng với id ${customerId} không tồn tại`,
+        );
       }
       const orderPaid = roundToTwo(order.paid ?? 0);
       const customerPayment = roundToTwo(customer.payment ?? 0);

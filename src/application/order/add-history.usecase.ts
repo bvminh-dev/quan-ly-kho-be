@@ -39,9 +39,12 @@ export class AddHistoryUseCase {
     const currentState = order.state as OrderState;
 
     // Chỉ ghi nhận thanh toán khi đơn hàng đang ở trạng thái "Đã chốt"
-    if (currentState !== OrderState.DA_CHOT) {
+    if (
+      currentState !== OrderState.DA_CHOT &&
+      currentState !== OrderState.DA_GIAO
+    ) {
       throw new BadRequestException(
-        `Chỉ có thể ghi nhận thanh toán khi đơn hàng đang ở trạng thái "Đã chốt". Trạng thái hiện tại: "${currentState}"`,
+        `Chỉ có thể ghi nhận thanh toán khi đơn hàng đang ở trạng thái "Đã chốt" hoặc "Đã giao". Trạng thái hiện tại: "${currentState}"`,
       );
     }
 
@@ -59,12 +62,14 @@ export class AddHistoryUseCase {
         : order.paidedUsd + dto.moneyPaidDolar,
     );
 
-    // Khi nhận được một phần tiền thanh toán (không phải hoàn tiền), hàng trong kho được tính là đã chiếm dụng
+    // Khi nhận được một phần tiền thanh toán (không phải hoàn tiền), hàng trong kho được tính là đã chiếm dụng và không phải tiền hệ thống tự thanh toán: paymwntType=auto
     // Cập nhật amountOccupied và giảm amountAvailable
-    if (!isRefund && dto.moneyPaidNGN > 0) {
+    if (!isRefund && dto.moneyPaidNGN > 0 && dto.paymentType !== 'auto') {
       // Kiểm tra xem đã chiếm dụng chưa (dựa vào history trước đó)
       const hasPreviousPayment = order.history.some(
-        (h) => h.type === HistoryType.KHACH_TRA,
+        (h) =>
+          h.type === HistoryType.KHACH_TRA.toString() &&
+          h.paymentType !== 'auto',
       );
 
       // Chỉ chiếm dụng lần đầu tiên khi nhận tiền

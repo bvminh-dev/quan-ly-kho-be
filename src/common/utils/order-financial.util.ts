@@ -1,5 +1,9 @@
 import { OrderState, HistoryType } from '../enums/index.js';
-import type { OrderEntity, OrderProductEntity, OrderHistoryEntity } from '../../domain/order/order.entity.js';
+import type {
+  OrderEntity,
+  OrderProductEntity,
+  OrderHistoryEntity,
+} from '../../domain/order/order.entity.js';
 import { roundToTwo } from './number.util.js';
 
 export interface OrderFinancials {
@@ -56,19 +60,19 @@ export function computeOrderFinancials(order: OrderEntity): OrderFinancials {
   }
 
   // Bước 2: Tính Tổng Tiền
-  const baseTotalUSD = roundToTwo(subtotalUSD - discountUSD);
+  const baseTotalUSD = subtotalUSD - discountUSD;
   const debtUSD = order.debt ?? 0;
-  const totalUSD = roundToTwo(baseTotalUSD + debtUSD);
-  const totalNGN = roundToTwo(totalUSD * exchangeRate);
+  const totalUSD = baseTotalUSD + debtUSD;
+  const totalNGN = totalUSD * exchangeRate;
 
   // Bước 3: Tính Đã Trả (Paid)
   let paidUSD = 0;
   let paidNGN = 0;
 
-  if (order.state === OrderState.BAO_GIA) {
+  if (order.state === OrderState.BAO_GIA.toString()) {
     // Trạng thái "báo giá": sử dụng trường paid trực tiếp
     paidUSD = order.paid ?? 0;
-    paidNGN = roundToTwo(paidUSD * exchangeRate);
+    paidNGN = paidUSD * exchangeRate;
   } else {
     // Các trạng thái khác: tính từ lịch sử thanh toán
     // paidUSD và paidNGN được tính độc lập từ các trường tương ứng trong history
@@ -80,8 +84,8 @@ export function computeOrderFinancials(order: OrderEntity): OrderFinancials {
 
       if (isKhachTra) {
         // Khách trả: cộng vào
-        paidUSD += h.moneyPaidDolar ?? 0;
-        paidNGN += h.moneyPaidNGN ?? 0;
+        paidUSD += h.paymentType === 'auto' ? 0 : (h.moneyPaidDolar ?? 0);
+        paidNGN += h.paymentType === 'auto' ? 0 : (h.moneyPaidNGN ?? 0);
       } else if (isHoanTien) {
         // Hoàn tiền: trừ đi
         paidUSD -= h.moneyPaidDolar ?? 0;
@@ -90,12 +94,9 @@ export function computeOrderFinancials(order: OrderEntity): OrderFinancials {
     }
   }
 
-  paidUSD = roundToTwo(paidUSD);
-  paidNGN = roundToTwo(paidNGN);
-
   // Bước 4: Tính Còn Lại (Remaining)
-  const remainingUSD = roundToTwo(totalUSD - paidUSD);
-  const remainingNGN = roundToTwo(remainingUSD * exchangeRate);
+  const remainingUSD = totalUSD - paidUSD;
+  const remainingNGN = remainingUSD * exchangeRate;
 
   return {
     totalUSD,

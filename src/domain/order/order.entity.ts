@@ -25,6 +25,7 @@ export class OrderHistoryEntity {
   paymentMethod: string;
   datePaid: Date;
   note?: string;
+  paymentType?: string;
 }
 
 export class OrderEntity {

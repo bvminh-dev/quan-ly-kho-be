@@ -47,6 +47,8 @@ export class OrderEntity {
   updatedAt: Date;
   isDeleted: boolean;
   deleteBy: string | null;
+  deliveredAt: Date;
+  latestOrder?: boolean;
 
   constructor(partial: Partial<OrderEntity>) {
     Object.assign(this, partial);

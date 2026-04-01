@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { OrderState } from '../../../common/enums/index.js';
 import { roundToTwo } from '../../../common/utils/number.util.js';
 import { computeOrderFinancials } from '../../../common/utils/order-financial.util.js';
@@ -112,13 +112,45 @@ export class OrderMongoRepository implements IOrderRepository {
     const docs = await this.orderModel
       .find({
         isDeleted: false,
-        state: { $nin: [OrderState.BAO_GIA] },
-        createdAt: { $gte: startDate, $lte: endDate },
+        state: OrderState.DA_GIAO,
+        deliveredAt: { $gte: startDate, $lte: endDate },
       })
       .populate('customer', '_id name')
       .populate('createdBy', '_id name')
       .lean();
     return OrderMapper.toDomainList(docs);
+  }
+
+  async findLatestOrderIdsPerCustomer(
+    customerIds: string[],
+  ): Promise<Map<string, string>> {
+    const results = await this.orderModel.aggregate<{
+      _id: string;
+      latestOrderId: string;
+    }>([
+      {
+        $match: {
+          customer: { $in: customerIds.map((id) => new Types.ObjectId(id)) },
+          isDeleted: false,
+          state: {
+            $in: [OrderState.DA_CHOT.toString(), OrderState.DA_GIAO.toString()],
+          },
+        },
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $group: {
+          _id: '$customer',
+          latestOrderId: { $first: '$_id' },
+        },
+      },
+    ]);
+
+    const map = new Map<string, string>();
+    for (const r of results) {
+      map.set(String(r._id), String(r.latestOrderId));
+    }
+    return map;
   }
 
   async calculateCustomerPayment(customerId: string): Promise<number> {
@@ -139,9 +171,12 @@ export class OrderMongoRepository implements IOrderRepository {
     let totalPaidUSD = 0;
 
     for (const order of orders) {
-      const financials = computeOrderFinancials(order);
-      totalOrderUSD = totalOrderUSD + financials.totalUSD;
-      totalPaidUSD = totalPaidUSD + financials.paidUSD;
+      // const financials = computeOrderFinancials(order);
+      // totalOrderUSD = totalOrderUSD + financials.totalUSD;
+      // totalPaidUSD = totalPaidUSD + financials.paidUSD;
+
+      totalOrderUSD = totalOrderUSD + order.totalUsd;
+      totalPaidUSD = totalPaidUSD + order.paidedUsd;
     }
 
     return roundToTwo(totalPaidUSD - totalOrderUSD);

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   Inject,
@@ -26,7 +27,7 @@ export class CreateOrderUseCase {
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   async execute(dto: CreateOrderDto, createdBy: string) {
     this.logger.log(`Creating order for customer ${dto.customer}`);
@@ -54,7 +55,7 @@ export class CreateOrderUseCase {
         }
 
         const quantitySet = product.quantitySet ?? 1;
-        const requiredQuantity = roundToTwo(quantitySet * item.quantity);
+        const requiredQuantity = quantitySet * item.quantity;
 
         if (warehouse.amountAvailable < requiredQuantity) {
           const productName = `${warehouse.inches}" ${warehouse.item} ${warehouse.quality} ${warehouse.style} ${warehouse.color}`;
@@ -64,20 +65,17 @@ export class CreateOrderUseCase {
         }
 
         if (!product.isCalcSet) {
-          totalPrice = roundToTwo(
+          totalPrice =
             totalPrice +
-              quantitySet *
-                (item.quantity * item.price - (item.sale ?? 0)),
-          );
+            quantitySet * item.quantity * (item.price - (item.sale ?? 0));
         }
       }
 
       if (product.isCalcSet) {
-        totalPrice = roundToTwo(
+        totalPrice =
           totalPrice +
-            (product.quantitySet ?? 1) *
-              ((product.priceSet ?? 0) - (product.saleSet ?? 0)),
-        );
+          (product.quantitySet ?? 1) *
+          ((product.priceSet ?? 0) - (product.saleSet ?? 0));
       }
     }
 

@@ -25,7 +25,7 @@ export class DashboardController {
     private readonly getDashboardOrdersUseCase: GetDashboardOrdersUseCase,
     private readonly getDashboardCustomersUseCase: GetDashboardCustomersUseCase,
     private readonly getDashboardStaffUseCase: GetDashboardStaffUseCase,
-  ) {}
+  ) { }
 
   @Get('orders')
   @AllowAllAuthenticated()
@@ -83,7 +83,9 @@ export class DashboardController {
 
   @Get('staff')
   @AllowAllAuthenticated()
-  @ApiOperation({ summary: 'Báo cáo tổng hợp theo nhân viên bán hàng trong kỳ' })
+  @ApiOperation({
+    summary: 'Báo cáo tổng hợp theo nhân viên bán hàng trong kỳ',
+  })
   @ApiQuery({
     name: 'period',
     required: true,

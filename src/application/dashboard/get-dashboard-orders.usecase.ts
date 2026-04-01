@@ -13,7 +13,7 @@ export class GetDashboardOrdersUseCase {
   constructor(
     @Inject('OrderRepository')
     private readonly orderRepo: IOrderRepository,
-  ) {}
+  ) { }
 
   async execute(query: DashboardQueryDto) {
     this.logger.log(
@@ -28,8 +28,6 @@ export class GetDashboardOrdersUseCase {
     let totalOrdersPcs = 0;
     let totalValueUSD = 0;
     let totalCollectedUSD = 0;
-    let totalDebtUSD = 0;
-    let totalValueNGN = 0;
     let totalCollectedNGN = 0;
 
     for (const order of orders) {
@@ -37,13 +35,15 @@ export class GetDashboardOrdersUseCase {
 
       // Tính toán tài chính theo rule
       const financials = computeOrderFinancials(order);
-      totalValueUSD += financials.totalUSD;
+      totalValueUSD += order.totalUsd;
 
       for (const product of order.products) {
         for (const item of product.items) {
-          if (item.unitOfCalculation === UnitOfCalculation.KG) {
+          if (item.unitOfCalculation === UnitOfCalculation.KG.toString()) {
             totalOrdersKg += item.quantity;
-          } else if (item.unitOfCalculation === UnitOfCalculation.PCS) {
+          } else if (
+            item.unitOfCalculation === UnitOfCalculation.PCS.toString()
+          ) {
             totalOrdersPcs += item.quantity;
           }
         }
@@ -56,13 +56,13 @@ export class GetDashboardOrdersUseCase {
 
     return {
       totalOrders,
-      totalOrdersKg: roundToTwo(totalOrdersKg),
-      totalOrdersPcs: roundToTwo(totalOrdersPcs),
-      totalValueUSD: roundToTwo(totalValueUSD),
-      totalCollectedUSD: roundToTwo(totalCollectedUSD),
-      totalDebtUSD: roundToTwo(totalDebtUSD),
-      totalValueNGN: roundToTwo(totalValueNGN),
-      totalCollectedNGN: roundToTwo(totalCollectedNGN),
+      totalOrdersKg: totalOrdersKg,
+      totalOrdersPcs: totalOrdersPcs,
+      totalValueUSD: totalValueUSD,
+      totalCollectedUSD: totalCollectedUSD,
+      totalDebtUSD: 0,
+      totalValueNGN: 0,
+      totalCollectedNGN: totalCollectedNGN,
     };
   }
 }

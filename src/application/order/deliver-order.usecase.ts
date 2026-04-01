@@ -25,7 +25,7 @@ export class DeliverOrderUseCase {
     @Inject('WarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   async execute(id: string, updatedBy: string, note?: string) {
     this.logger.log(`Delivering order ${id}`);
@@ -75,6 +75,7 @@ export class DeliverOrderUseCase {
 
     const updateData: Partial<any> = {
       state: OrderState.DA_GIAO,
+      deliveredAt: new Date(),
       updatedBy,
     };
 

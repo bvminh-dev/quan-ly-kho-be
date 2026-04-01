@@ -142,6 +142,9 @@ export class Order {
 
   @Prop()
   updatedAt: Date;
+
+  @Prop()
+  deliveredAt: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

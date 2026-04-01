@@ -26,7 +26,7 @@ export class GetDashboardStaffUseCase {
   constructor(
     @Inject('OrderRepository')
     private readonly orderRepo: IOrderRepository,
-  ) {}
+  ) { }
 
   async execute(query: DashboardQueryDto) {
     this.logger.log(
@@ -74,13 +74,15 @@ export class GetDashboardStaffUseCase {
 
       // Tính toán tài chính theo rule
       const financials = computeOrderFinancials(order);
-      s.totalValueUSD += financials.totalUSD;
+      s.totalValueUSD += order.totalUsd;
 
       for (const product of order.products) {
         for (const item of product.items) {
-          if (item.unitOfCalculation === UnitOfCalculation.KG) {
+          if (item.unitOfCalculation === UnitOfCalculation.KG.toString()) {
             s.totalOrdersKg += item.quantity;
-          } else if (item.unitOfCalculation === UnitOfCalculation.PCS) {
+          } else if (
+            item.unitOfCalculation === UnitOfCalculation.PCS.toString()
+          ) {
             s.totalOrdersPcs += item.quantity;
           }
         }

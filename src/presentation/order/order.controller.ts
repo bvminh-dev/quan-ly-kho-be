@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Body,
   Controller,
@@ -66,7 +67,7 @@ export class OrderController {
     private readonly confirmOrderUseCase: ConfirmOrderUseCase,
     private readonly revertOrderUseCase: RevertOrderUseCase,
     private readonly deliverOrderUseCase: DeliverOrderUseCase,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Tạo đơn hàng mới (state mặc định: Báo giá)' })

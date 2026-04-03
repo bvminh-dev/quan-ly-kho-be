@@ -31,3 +31,5 @@ export class Inch {
 }
 
 export const InchSchema = SchemaFactory.createForClass(Inch);
+
+InchSchema.index({ code: 1, isDeleted: 1 }, { unique: true });

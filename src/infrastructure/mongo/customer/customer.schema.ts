@@ -34,3 +34,6 @@ export class Customer {
 }
 
 export const CustomerSchema = SchemaFactory.createForClass(Customer);
+
+CustomerSchema.index({ name: 1, isDeleted: 1 });
+CustomerSchema.index({ isDeleted: 1 });

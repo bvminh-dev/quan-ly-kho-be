@@ -102,3 +102,7 @@ export class HistoryEnter {
 }
 
 export const HistoryEnterSchema = SchemaFactory.createForClass(HistoryEnter);
+
+HistoryEnterSchema.index({ warehouseId: 1, isDeleted: 1 });
+HistoryEnterSchema.index({ type: 1, isDeleted: 1 });
+HistoryEnterSchema.index({ isDeleted: 1, createdAt: -1 });

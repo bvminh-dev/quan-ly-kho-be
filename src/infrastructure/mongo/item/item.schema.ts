@@ -31,3 +31,5 @@ export class Item {
 }
 
 export const ItemSchema = SchemaFactory.createForClass(Item);
+
+ItemSchema.index({ code: 1, isDeleted: 1 }, { unique: true });

@@ -88,3 +88,8 @@ export class HistoryExport {
 }
 
 export const HistoryExportSchema = SchemaFactory.createForClass(HistoryExport);
+
+HistoryExportSchema.index({ orderId: 1, isDeleted: 1 });
+HistoryExportSchema.index({ warehouseId: 1, isDeleted: 1 });
+HistoryExportSchema.index({ stateOrder: 1, isDeleted: 1 });
+HistoryExportSchema.index({ isDeleted: 1, createdAt: -1 });

@@ -31,3 +31,5 @@ export class Style {
 }
 
 export const StyleSchema = SchemaFactory.createForClass(Style);
+
+StyleSchema.index({ code: 1, isDeleted: 1 }, { unique: true });

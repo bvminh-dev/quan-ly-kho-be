@@ -43,3 +43,6 @@ export class Permission {
 }
 
 export const PermissionSchema = SchemaFactory.createForClass(Permission);
+
+PermissionSchema.index({ module: 1, method: 1, isDeleted: 1 });
+PermissionSchema.index({ apiPath: 1, method: 1, isDeleted: 1 });

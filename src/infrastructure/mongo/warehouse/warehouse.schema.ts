@@ -94,3 +94,9 @@ WarehouseSchema.index(
     },
   },
 );
+
+WarehouseSchema.index({ inchId: 1, isDeleted: 1 }, { sparse: true });
+WarehouseSchema.index({ itemId: 1, isDeleted: 1 }, { sparse: true });
+WarehouseSchema.index({ qualityId: 1, isDeleted: 1 }, { sparse: true });
+WarehouseSchema.index({ styleId: 1, isDeleted: 1 }, { sparse: true });
+WarehouseSchema.index({ colorId: 1, isDeleted: 1 }, { sparse: true });

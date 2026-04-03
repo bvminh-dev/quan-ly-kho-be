@@ -31,3 +31,5 @@ export class Quality {
 }
 
 export const QualitySchema = SchemaFactory.createForClass(Quality);
+
+QualitySchema.index({ code: 1, isDeleted: 1 }, { unique: true });

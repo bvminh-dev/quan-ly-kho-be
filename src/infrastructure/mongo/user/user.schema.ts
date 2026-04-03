@@ -43,3 +43,7 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.index({ email: 1, isDeleted: 1 }, { unique: true });
+UserSchema.index({ refreshToken: 1, isDeleted: 1 }, { sparse: true });
+UserSchema.index({ isDeleted: 1 });

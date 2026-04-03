@@ -148,3 +148,11 @@ export class Order {
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
+
+OrderSchema.index({ state: 1, deliveredAt: -1, isDeleted: 1 });
+OrderSchema.index({ customer: 1, state: 1, createdAt: -1, isDeleted: 1 });
+OrderSchema.index({ customer: 1, state: 1, isDeleted: 1 });
+OrderSchema.index({ state: 1, createdAt: -1, isDeleted: 1 });
+OrderSchema.index({ createdAt: -1, isDeleted: 1 });
+OrderSchema.index({ type: 1, isDeleted: 1 });
+OrderSchema.index({ createdBy: 1, isDeleted: 1 });

@@ -31,3 +31,5 @@ export class Color {
 }
 
 export const ColorSchema = SchemaFactory.createForClass(Color);
+
+ColorSchema.index({ code: 1, isDeleted: 1 }, { unique: true });

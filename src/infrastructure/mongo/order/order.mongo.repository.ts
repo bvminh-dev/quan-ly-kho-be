@@ -169,6 +169,7 @@ export class OrderMongoRepository implements IOrderRepository {
 
     let totalOrderUSD = 0;
     let totalPaidUSD = 0;
+    let totalPaidAutoUSD = 0;
 
     for (const order of orders) {
       // const financials = computeOrderFinancials(order);
@@ -177,8 +178,12 @@ export class OrderMongoRepository implements IOrderRepository {
 
       totalOrderUSD = totalOrderUSD + order.totalUsd;
       totalPaidUSD = totalPaidUSD + order.paidedUsd;
+      totalPaidAutoUSD =
+        totalPaidAutoUSD +
+        (order.history.find((x) => x.paymentType === 'auto')?.moneyPaidDolar ||
+          0);
     }
 
-    return roundToTwo(totalPaidUSD - totalOrderUSD);
+    return roundToTwo(totalPaidUSD - totalOrderUSD - totalPaidAutoUSD);
   }
 }

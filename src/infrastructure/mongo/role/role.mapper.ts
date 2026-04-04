@@ -18,6 +18,8 @@ export class RoleMapper {
       updatedAt: doc.updatedAt,
       isActive: doc.isActive,
       isDeleted: doc.isDeleted,
+      isViewAllUser: doc.isViewAllUser ?? false,
+      viewAllUserApis: doc.viewAllUserApis ?? [],
       deleteBy: doc.deleteBy ? doc.deleteBy.toString() : null,
     });
   }

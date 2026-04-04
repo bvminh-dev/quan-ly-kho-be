@@ -7,12 +7,12 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -32,9 +32,7 @@ import { ResetPasswordUseCase } from '../../application/user/reset-password.usec
 import { UpdatePasswordUseCase } from '../../application/user/update-password.usecase.js';
 import { UpdateUserUseCase } from '../../application/user/update-user.usecase.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
   CreateUserResponseDto,
@@ -116,6 +114,8 @@ export class UserController {
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const queryParams = new URLSearchParams();
 
@@ -136,6 +136,12 @@ export class UserController {
       finalQueryString,
       +currentPage || 1,
       +pageSize || 10,
+      user._id,
+      user.role?.name,
+      user.role?.isViewAllUser,
+      user.role?.viewAllUserApis,
+      req.path,
+      req.method,
     );
   }
 
@@ -171,14 +177,11 @@ export class UserController {
   }
 
   @Delete(':id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'Xóa user (soft delete, chỉ Admin)' })
+  @ApiOperation({ summary: 'Xóa user (soft delete)' })
   @ApiOkResponse({
     description: 'Xóa user thành công',
     type: DeleteUserResponseDto,
   })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền xóa' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy user' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Delete a User')

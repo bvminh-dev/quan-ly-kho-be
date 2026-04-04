@@ -15,11 +15,17 @@ export class CreateRoleUseCase {
       throw new BadRequestException(`Role "${dto.name}" đã tồn tại`);
     }
 
+    // Admin role luôn có isViewAllUser = true
+    const isViewAllUser =
+      dto.name.toLowerCase() === 'admin' ? true : dto.isViewAllUser ?? false;
+
     return this.roleRepository.create({
       name: dto.name,
       description: dto.description,
       permissions: dto.permissions || [],
       isActive: dto.isActive ?? true,
+      isViewAllUser,
+      viewAllUserApis: dto.viewAllUserApis || [],
       createdBy,
     });
   }

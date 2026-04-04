@@ -7,12 +7,12 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -28,9 +28,7 @@ import { UpdateItemUseCase } from '../../application/item/update-item.usecase.js
 import { CreateItemDto } from '../../application/item/dto/create-item.dto.js';
 import { UpdateItemDto } from '../../application/item/dto/update-item.dto.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
   CreateCatalogResponseDto,
@@ -42,8 +40,6 @@ import {
 
 @ApiTags('Catalog - Item')
 @Controller('catalog/items')
-@Roles('admin')
-@UseGuards(RolesGuard)
 export class ItemController {
   constructor(
     private readonly createItemUseCase: CreateItemUseCase,
@@ -54,13 +50,12 @@ export class ItemController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Tạo item mới (chỉ Admin)' })
+  @ApiOperation({ summary: 'Tạo item mới' })
   @ApiCreatedResponse({
     description: 'Tạo item thành công',
     type: CreateCatalogResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ hoặc đã tồn tại' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Create a new Item')
   async create(@Body() dto: CreateItemDto, @User() user: ICurrentUser) {
@@ -68,7 +63,7 @@ export class ItemController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lấy danh sách item có phân trang (chỉ Admin)' })
+  @ApiOperation({ summary: 'Lấy danh sách item có phân trang' })
   @ApiOkResponse({
     description: 'Trả về danh sách item',
     type: GetCatalogsResponseDto,
@@ -76,13 +71,14 @@ export class ItemController {
   @ApiQuery({ name: 'current', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
   @ApiQuery({ name: 'sort', required: false, type: String, example: '-createdAt' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch list Item with paginate')
   async findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const queryParams = new URLSearchParams();
     Object.keys(query).forEach((key) => {
@@ -99,17 +95,22 @@ export class ItemController {
       queryParams.toString(),
       +currentPage || 1,
       +pageSize || 10,
+      user._id,
+      user.role?.name,
+      user.role?.isViewAllUser,
+      user.role?.viewAllUserApis,
+      req.path,
+      req.method,
     );
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Lấy thông tin item theo ID (chỉ Admin)' })
+  @ApiOperation({ summary: 'Lấy thông tin item theo ID' })
   @ApiOkResponse({
     description: 'Trả về thông tin item',
     type: GetCatalogResponseDto,
   })
   @ApiNotFoundResponse({ description: 'Không tìm thấy item' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch Item by id')
   async findOne(@Param('id') id: string) {
@@ -117,16 +118,15 @@ export class ItemController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Cập nhật item (chỉ Admin)' })
+  @ApiOperation({ summary: 'Cập nhật item' })
   @ApiOkResponse({
     description: 'Cập nhật item thành công',
     type: UpdateCatalogResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy item' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
-  @ResponseMessage('Update an Item')
+  @ResponseMessage('Update a Item')
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateItemDto,
@@ -136,16 +136,15 @@ export class ItemController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Xóa item (soft delete, chỉ Admin)' })
+  @ApiOperation({ summary: 'Xóa item (soft delete)' })
   @ApiOkResponse({
     description: 'Xóa item thành công',
     type: DeleteCatalogResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Item đang được sử dụng trong kho' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy item' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
-  @ResponseMessage('Delete an Item')
+  @ResponseMessage('Delete a Item')
   async remove(@Param('id') id: string, @User() user: ICurrentUser) {
     return this.deleteItemUseCase.execute(id, user._id);
   }

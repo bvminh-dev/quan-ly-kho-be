@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Inject, Injectable } from '@nestjs/common';
+import { canViewAllData } from '../../common/helpers/role-permission.helper.js';
 import type { IOrderRepository } from '../../domain/order/order.repository.js';
 import type { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 
@@ -12,31 +13,33 @@ export class GetOrdersUseCase {
   constructor(
     @Inject('OrderRepository')
     private readonly orderRepository: IOrderRepository,
-  ) { }
+  ) {}
 
   async execute(
     queryString: string,
     currentPage: number,
     pageSize: number,
     user?: ICurrentUser,
+    currentApiPath?: string,
+    currentMethod?: string,
   ) {
-    // Nếu có user và không phải admin thì chỉ lấy đơn hàng của user đó
-    let result;
-    if (user && user.role?.name !== 'admin') {
-      const existingQuery = queryString ? `${queryString}&` : '';
-      const finalQueryString = `${existingQuery}createdBy=${user._id}`;
-      result = await this.orderRepository.findAll(
-        finalQueryString,
-        currentPage,
-        pageSize,
-      );
-    } else {
-      result = await this.orderRepository.findAll(
-        queryString,
-        currentPage,
-        pageSize,
-      );
-    }
+    // Xác định userId và tính toán canViewAllData từ user
+    const userId = user?._id;
+    const canViewAll = canViewAllData(
+      user?.role?.name || '',
+      user?.role?.isViewAllUser || false,
+      user?.role?.viewAllUserApis || [],
+      currentApiPath || '',
+      currentMethod || '',
+    );
+
+    const result = await this.orderRepository.findAll(
+      queryString,
+      currentPage,
+      pageSize,
+      userId,
+      canViewAll,
+    );
 
     // Lấy unique customer IDs từ danh sách orders
     const customerIds = [

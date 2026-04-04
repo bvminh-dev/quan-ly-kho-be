@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import type { InchEntity } from '../../../domain/inch/inch.entity.js';
 import type { IInchRepository } from '../../../domain/inch/inch.repository.js';
 import { InchMapper } from './inch.mapper.js';
@@ -52,20 +52,32 @@ export class InchMongoRepository implements IInchRepository {
     );
   }
 
-  async findAll(queryString: string, currentPage: number, pageSize: number) {
+  async findAll(
+    queryString: string,
+    currentPage: number,
+    pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
+  ) {
     const { filter, sort, population } = aqp(queryString);
     delete filter.current;
     delete filter.pageSize;
 
-    const offset = (currentPage - 1) * pageSize;
-    const total = await this.inchModel.countDocuments({
+    // Apply createdBy filter if user cannot view all data
+    const finalFilter: any = {
       ...filter,
       isDeleted: false,
-    });
+    };
+    if (!canViewAllData && userId) {
+      finalFilter.createdBy = new Types.ObjectId(userId);
+    }
+
+    const offset = (currentPage - 1) * pageSize;
+    const total = await this.inchModel.countDocuments(finalFilter);
     const pages = Math.ceil(total / pageSize);
 
     const docs = await this.inchModel
-      .find({ ...filter, isDeleted: false })
+      .find(finalFilter)
       .skip(offset)
       .limit(pageSize)
       .sort(sort as any)

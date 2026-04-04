@@ -28,4 +28,17 @@ export class UpdateRoleDto {
   @IsBoolean()
   @ApiProperty({ example: true, required: false })
   isActive?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  @ApiProperty({ example: false, required: false })
+  isViewAllUser?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @ApiProperty({
+    example: [{ _id: '123', apiPath: '/api/v1/users', method: 'GET' }],
+    required: false,
+  })
+  viewAllUserApis?: Array<{ _id: string; apiPath: string; method: string }>;
 }

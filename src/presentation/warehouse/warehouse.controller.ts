@@ -7,12 +7,12 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -30,9 +30,7 @@ import { GetWarehouseUseCase } from '../../application/warehouse/get-warehouse.u
 import { GetWarehousesUseCase } from '../../application/warehouse/get-warehouses.usecase.js';
 import { UpdateWarehouseUseCase } from '../../application/warehouse/update-warehouse.usecase.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
   AddStockResponseDto,
@@ -110,6 +108,8 @@ export class WarehouseController {
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const queryParams = new URLSearchParams();
 
@@ -130,6 +130,12 @@ export class WarehouseController {
       finalQueryString,
       +currentPage || 1,
       +pageSize || 10,
+      user._id,
+      user.role?.name,
+      user.role?.isViewAllUser,
+      user.role?.viewAllUserApis,
+      req.path,
+      req.method,
     );
   }
 
@@ -147,15 +153,12 @@ export class WarehouseController {
   }
 
   @Patch(':id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'Cập nhật thông tin warehouse (chỉ Admin)' })
+  @ApiOperation({ summary: 'Cập nhật thông tin warehouse' })
   @ApiOkResponse({
     description: 'Cập nhật warehouse thành công',
     type: UpdateWarehouseResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền cập nhật' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy warehouse' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Update a Warehouse')
@@ -185,14 +188,11 @@ export class WarehouseController {
   }
 
   @Delete(':id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'Xóa warehouse (soft delete, chỉ Admin)' })
+  @ApiOperation({ summary: 'Xóa warehouse (soft delete)' })
   @ApiOkResponse({
     description: 'Xóa warehouse thành công',
     type: DeleteWarehouseResponseDto,
   })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền xóa' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy warehouse' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Delete a Warehouse')

@@ -7,12 +7,12 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -35,9 +35,7 @@ import { GetHistoryExportUseCase } from '../../application/history-warehouse/get
 import { GetHistoryExportsUseCase } from '../../application/history-warehouse/get-history-exports.usecase.js';
 import { UpdateHistoryExportUseCase } from '../../application/history-warehouse/update-history-export.usecase.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
   CreateHistoryEnterResponseDto,
@@ -69,15 +67,12 @@ export class HistoryWarehouseController {
   ) {}
 
   @Post('enter')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Tạo history enter mới (chỉ Admin)' })
   @ApiCreatedResponse({
     description: 'Tạo history enter thành công',
     type: CreateHistoryEnterResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền tạo' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Create a new History Enter')
   async createEnter(
@@ -129,6 +124,8 @@ export class HistoryWarehouseController {
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const queryParams = new URLSearchParams();
 
@@ -149,6 +146,12 @@ export class HistoryWarehouseController {
       finalQueryString,
       +currentPage || 1,
       +pageSize || 10,
+      user._id,
+      user.role?.name,
+      user.role?.isViewAllUser,
+      user.role?.viewAllUserApis,
+      req.path,
+      req.method,
     );
   }
 
@@ -166,15 +169,12 @@ export class HistoryWarehouseController {
   }
 
   @Patch('enter/:id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Cập nhật thông tin history enter (chỉ Admin)' })
   @ApiOkResponse({
     description: 'Cập nhật history enter thành công',
     type: UpdateHistoryEnterResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền cập nhật' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy history enter' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Update a History Enter')
@@ -187,14 +187,11 @@ export class HistoryWarehouseController {
   }
 
   @Delete('enter/:id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Xóa history enter (soft delete, chỉ Admin)' })
   @ApiOkResponse({
     description: 'Xóa history enter thành công',
     type: DeleteHistoryEnterResponseDto,
   })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền xóa' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy history enter' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Delete a History Enter')
@@ -203,15 +200,12 @@ export class HistoryWarehouseController {
   }
 
   @Post('export')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Tạo history export mới (chỉ Admin)' })
   @ApiCreatedResponse({
     description: 'Tạo history export thành công',
     type: CreateHistoryExportResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền tạo' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Create a new History Export')
   async createExport(
@@ -263,6 +257,8 @@ export class HistoryWarehouseController {
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const queryParams = new URLSearchParams();
 
@@ -283,6 +279,12 @@ export class HistoryWarehouseController {
       finalQueryString,
       +currentPage || 1,
       +pageSize || 10,
+      user._id,
+      user.role?.name,
+      user.role?.isViewAllUser,
+      user.role?.viewAllUserApis,
+      req.path,
+      req.method,
     );
   }
 
@@ -300,15 +302,12 @@ export class HistoryWarehouseController {
   }
 
   @Patch('export/:id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Cập nhật thông tin history export (chỉ Admin)' })
   @ApiOkResponse({
     description: 'Cập nhật history export thành công',
     type: UpdateHistoryExportResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền cập nhật' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy history export' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Update a History Export')
@@ -321,14 +320,11 @@ export class HistoryWarehouseController {
   }
 
   @Delete('export/:id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
   @ApiOperation({ summary: 'Xóa history export (soft delete, chỉ Admin)' })
   @ApiOkResponse({
     description: 'Xóa history export thành công',
     type: DeleteHistoryExportResponseDto,
   })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền xóa' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy history export' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Delete a History Export')

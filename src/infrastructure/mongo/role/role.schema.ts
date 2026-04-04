@@ -26,6 +26,21 @@ export class Role {
   @Prop({ default: false })
   isDeleted: boolean;
 
+  @Prop({ default: false })
+  isViewAllUser: boolean;
+
+  @Prop({
+    type: [
+      {
+        _id: String,
+        apiPath: String,
+        method: String,
+      },
+    ],
+    default: [],
+  })
+  viewAllUserApis: Array<{ _id: string; apiPath: string; method: string }> = [];
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   deleteBy: mongoose.Schema.Types.ObjectId;
 

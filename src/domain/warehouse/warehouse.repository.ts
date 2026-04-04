@@ -25,6 +25,8 @@ export interface IWarehouseRepository {
     queryString: string,
     currentPage: number,
     pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
   ): Promise<{
     items: WarehouseEntity[];
     meta: { current: number; pageSize: number; pages: number; total: number };

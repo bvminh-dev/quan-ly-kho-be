@@ -5,6 +5,8 @@ export interface ICurrentUser {
   role: {
     _id: string;
     name: string;
+    isViewAllUser: boolean;
+    viewAllUserApis: Array<{ _id: string; apiPath: string; method: string }>;
   };
   permissions: {
     _id: string;

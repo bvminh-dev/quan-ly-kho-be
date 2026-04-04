@@ -10,6 +10,8 @@ export interface IColorRepository {
     queryString: string,
     currentPage: number,
     pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
   ): Promise<{
     items: ColorEntity[];
     meta: { current: number; pageSize: number; pages: number; total: number };

@@ -57,20 +57,32 @@ export class OrderMongoRepository implements IOrderRepository {
     );
   }
 
-  async findAll(queryString: string, currentPage: number, pageSize: number) {
+  async findAll(
+    queryString: string,
+    currentPage: number,
+    pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
+  ) {
     const { filter, sort, population } = aqp(queryString);
     delete filter.current;
     delete filter.pageSize;
 
-    const offset = (currentPage - 1) * pageSize;
-    const total = await this.orderModel.countDocuments({
+    // Apply createdBy filter if user cannot view all data
+    const finalFilter: any = {
       ...filter,
       isDeleted: false,
-    });
+    };
+    if (!canViewAllData && userId) {
+      finalFilter.createdBy = new Types.ObjectId(userId);
+    }
+
+    const offset = (currentPage - 1) * pageSize;
+    const total = await this.orderModel.countDocuments(finalFilter);
     const pages = Math.ceil(total / pageSize);
 
     const docs = await this.orderModel
-      .find({ ...filter, isDeleted: false })
+      .find(finalFilter)
       .skip(offset)
       .limit(pageSize)
       .sort(sort as any)

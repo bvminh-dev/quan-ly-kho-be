@@ -7,12 +7,12 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -28,9 +28,7 @@ import { UpdateInchUseCase } from '../../application/inch/update-inch.usecase.js
 import { CreateInchDto } from '../../application/inch/dto/create-inch.dto.js';
 import { UpdateInchDto } from '../../application/inch/dto/update-inch.dto.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
   CreateCatalogResponseDto,
@@ -42,8 +40,6 @@ import {
 
 @ApiTags('Catalog - Inch')
 @Controller('catalog/inchs')
-@Roles('admin')
-@UseGuards(RolesGuard)
 export class InchController {
   constructor(
     private readonly createInchUseCase: CreateInchUseCase,
@@ -54,13 +50,12 @@ export class InchController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Tạo inch mới (chỉ Admin)' })
+  @ApiOperation({ summary: 'Tạo inch mới' })
   @ApiCreatedResponse({
     description: 'Tạo inch thành công',
     type: CreateCatalogResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ hoặc đã tồn tại' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Create a new Inch')
   async create(@Body() dto: CreateInchDto, @User() user: ICurrentUser) {
@@ -68,7 +63,7 @@ export class InchController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lấy danh sách inch có phân trang (chỉ Admin)' })
+  @ApiOperation({ summary: 'Lấy danh sách inch có phân trang' })
   @ApiOkResponse({
     description: 'Trả về danh sách inch',
     type: GetCatalogsResponseDto,
@@ -76,13 +71,14 @@ export class InchController {
   @ApiQuery({ name: 'current', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
   @ApiQuery({ name: 'sort', required: false, type: String, example: '-createdAt' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch list Inch with paginate')
   async findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const queryParams = new URLSearchParams();
     Object.keys(query).forEach((key) => {
@@ -99,17 +95,22 @@ export class InchController {
       queryParams.toString(),
       +currentPage || 1,
       +pageSize || 10,
+      user._id,
+      user.role?.name,
+      user.role?.isViewAllUser,
+      user.role?.viewAllUserApis,
+      req.path,
+      req.method,
     );
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Lấy thông tin inch theo ID (chỉ Admin)' })
+  @ApiOperation({ summary: 'Lấy thông tin inch theo ID' })
   @ApiOkResponse({
     description: 'Trả về thông tin inch',
     type: GetCatalogResponseDto,
   })
   @ApiNotFoundResponse({ description: 'Không tìm thấy inch' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch Inch by id')
   async findOne(@Param('id') id: string) {
@@ -117,16 +118,15 @@ export class InchController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Cập nhật inch (chỉ Admin)' })
+  @ApiOperation({ summary: 'Cập nhật inch' })
   @ApiOkResponse({
     description: 'Cập nhật inch thành công',
     type: UpdateCatalogResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy inch' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
-  @ResponseMessage('Update an Inch')
+  @ResponseMessage('Update a Inch')
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateInchDto,
@@ -136,16 +136,15 @@ export class InchController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Xóa inch (soft delete, chỉ Admin)' })
+  @ApiOperation({ summary: 'Xóa inch (soft delete)' })
   @ApiOkResponse({
     description: 'Xóa inch thành công',
     type: DeleteCatalogResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Inch đang được sử dụng trong kho' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy inch' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
-  @ResponseMessage('Delete an Inch')
+  @ResponseMessage('Delete a Inch')
   async remove(@Param('id') id: string, @User() user: ICurrentUser) {
     return this.deleteInchUseCase.execute(id, user._id);
   }

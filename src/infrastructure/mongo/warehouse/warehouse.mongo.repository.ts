@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import type { WarehouseEntity } from '../../../domain/warehouse/warehouse.entity.js';
 import type { IWarehouseRepository } from '../../../domain/warehouse/warehouse.repository.js';
 import { WarehouseMapper } from './warehouse.mapper.js';
@@ -78,20 +78,32 @@ export class WarehouseMongoRepository implements IWarehouseRepository {
     );
   }
 
-  async findAll(queryString: string, currentPage: number, pageSize: number) {
+  async findAll(
+    queryString: string,
+    currentPage: number,
+    pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
+  ) {
     const { filter, sort, population } = aqp(queryString);
     delete filter.current;
     delete filter.pageSize;
 
-    const offset = (currentPage - 1) * pageSize;
-    const total = await this.warehouseModel.countDocuments({
+    // Apply createdBy filter if user cannot view all data
+    const finalFilter: any = {
       ...filter,
       isDeleted: false,
-    });
+    };
+    if (!canViewAllData && userId) {
+      finalFilter.createdBy = new Types.ObjectId(userId);
+    }
+
+    const offset = (currentPage - 1) * pageSize;
+    const total = await this.warehouseModel.countDocuments(finalFilter);
     const pages = Math.ceil(total / pageSize);
 
     const docs = await this.warehouseModel
-      .find({ ...filter, isDeleted: false })
+      .find(finalFilter)
       .skip(offset)
       .limit(pageSize)
       .sort(sort as any)

@@ -8,13 +8,13 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -37,9 +37,7 @@ import { GetOrdersUseCase } from '../../application/order/get-orders.usecase.js'
 import { RevertOrderUseCase } from '../../application/order/revert-order.usecase.js';
 import { UpdateOrderUseCase } from '../../application/order/update-order.usecase.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import { OrderState } from '../../common/enums/index.js';
 import {
@@ -146,6 +144,7 @@ export class OrderController {
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
     @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const { createdFrom, createdTo, ...restQuery } = query || {};
 
@@ -177,6 +176,8 @@ export class OrderController {
       +currentPage || 1,
       +pageSize || 10,
       user,
+      req.path,
+      req.method,
     );
   }
 
@@ -215,14 +216,11 @@ export class OrderController {
   }
 
   @Delete(':id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'Xóa đơn hàng (soft delete, chỉ Admin)' })
+  @ApiOperation({ summary: 'Xóa đơn hàng (soft delete)' })
   @ApiOkResponse({
     description: 'Xóa đơn hàng thành công',
     type: DeleteOrderResponseDto,
   })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền xóa' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy đơn hàng' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Delete a Order')

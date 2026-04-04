@@ -10,8 +10,24 @@ export class UpdateRoleUseCase {
   ) {}
 
   async execute(id: string, dto: UpdateRoleDto, updatedBy: string) {
+    // Get current role to check if name is being changed to admin
+    const currentRole = await this.roleRepository.findById(id);
+    if (!currentRole) {
+      throw new NotFoundException(`Role với id ${id} không tồn tại`);
+    }
+
+    // Admin role luôn có isViewAllUser = true
+    const newRoleName = dto.name ?? currentRole.name;
+    let isViewAllUser = dto.isViewAllUser;
+
+    if (newRoleName.toLowerCase() === 'admin') {
+      isViewAllUser = true;
+    }
+
     const updated = await this.roleRepository.update(id, {
       ...dto,
+      isViewAllUser,
+      viewAllUserApis: dto.viewAllUserApis ?? currentRole.viewAllUserApis,
       updatedBy,
     });
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import type { ColorEntity } from '../../../domain/color/color.entity.js';
 import type { IColorRepository } from '../../../domain/color/color.repository.js';
 import { ColorMapper } from './color.mapper.js';
@@ -52,20 +52,32 @@ export class ColorMongoRepository implements IColorRepository {
     );
   }
 
-  async findAll(queryString: string, currentPage: number, pageSize: number) {
+  async findAll(
+    queryString: string,
+    currentPage: number,
+    pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
+  ) {
     const { filter, sort, population } = aqp(queryString);
     delete filter.current;
     delete filter.pageSize;
 
-    const offset = (currentPage - 1) * pageSize;
-    const total = await this.colorModel.countDocuments({
+    // Apply createdBy filter if user cannot view all data
+    const finalFilter: any = {
       ...filter,
       isDeleted: false,
-    });
+    };
+    if (!canViewAllData && userId) {
+      finalFilter.createdBy = new Types.ObjectId(userId);
+    }
+
+    const offset = (currentPage - 1) * pageSize;
+    const total = await this.colorModel.countDocuments(finalFilter);
     const pages = Math.ceil(total / pageSize);
 
     const docs = await this.colorModel
-      .find({ ...filter, isDeleted: false })
+      .find(finalFilter)
       .skip(offset)
       .limit(pageSize)
       .sort(sort as any)

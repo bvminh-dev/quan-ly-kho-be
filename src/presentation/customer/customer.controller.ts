@@ -7,12 +7,12 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -28,9 +28,7 @@ import { GetCustomerUseCase } from '../../application/customer/get-customer.usec
 import { GetCustomersUseCase } from '../../application/customer/get-customers.usecase.js';
 import { UpdateCustomerUseCase } from '../../application/customer/update-customer.usecase.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
   CreateCustomerResponseDto,
@@ -108,6 +106,8 @@ export class CustomerController {
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const queryParams = new URLSearchParams();
 
@@ -128,6 +128,12 @@ export class CustomerController {
       finalQueryString,
       +currentPage || 1,
       +pageSize || 10,
+      user._id,
+      user.role?.name,
+      user.role?.isViewAllUser,
+      user.role?.viewAllUserApis,
+      req.path,
+      req.method,
     );
   }
 
@@ -163,14 +169,11 @@ export class CustomerController {
   }
 
   @Delete(':id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
-  @ApiOperation({ summary: 'Xóa customer (soft delete, chỉ Admin)' })
+  @ApiOperation({ summary: 'Xóa customer (soft delete)' })
   @ApiOkResponse({
     description: 'Xóa customer thành công',
     type: DeleteCustomerResponseDto,
   })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền xóa' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy customer' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Delete a Customer')

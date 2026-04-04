@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import type { UserEntity } from '../../../domain/user/user.entity.js';
 import type { IUserRepository } from '../../../domain/user/user.repository.js';
 import { UserMapper } from './user.mapper.js';
@@ -60,20 +60,32 @@ export class UserMongoRepository implements IUserRepository {
     );
   }
 
-  async findAll(queryString: string, currentPage: number, pageSize: number) {
+  async findAll(
+    queryString: string,
+    currentPage: number,
+    pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
+  ) {
     const { filter, sort, population } = aqp(queryString);
     delete filter.current;
     delete filter.pageSize;
 
-    const offset = (currentPage - 1) * pageSize;
-    const total = await this.userModel.countDocuments({
+    // Apply createdBy filter if user cannot view all data
+    const finalFilter: any = {
       ...filter,
       isDeleted: false,
-    });
+    };
+    if (!canViewAllData && userId) {
+      finalFilter.createdBy = new Types.ObjectId(userId);
+    }
+
+    const offset = (currentPage - 1) * pageSize;
+    const total = await this.userModel.countDocuments(finalFilter);
     const pages = Math.ceil(total / pageSize);
 
     const docs = await this.userModel
-      .find({ ...filter, isDeleted: false })
+      .find(finalFilter)
       .select('-password -refreshToken')
       .skip(offset)
       .limit(pageSize)

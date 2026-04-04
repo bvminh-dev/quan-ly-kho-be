@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import type { HistoryEnterEntity } from '../../../domain/history-warehouse/history-enter.entity.js';
 import type { IHistoryEnterRepository } from '../../../domain/history-warehouse/history-enter.repository.js';
 import { HistoryEnterMapper } from './history-enter.mapper.js';
@@ -12,7 +13,7 @@ export class HistoryEnterMongoRepository implements IHistoryEnterRepository {
   constructor(
     @InjectModel(HistoryEnter.name)
     private readonly historyEnterModel: Model<HistoryEnterDocument>,
-  ) {}
+  ) { }
 
   async findById(id: string): Promise<HistoryEnterEntity | null> {
     const doc = await this.historyEnterModel
@@ -55,20 +56,32 @@ export class HistoryEnterMongoRepository implements IHistoryEnterRepository {
     );
   }
 
-  async findAll(queryString: string, currentPage: number, pageSize: number) {
+  async findAll(
+    queryString: string,
+    currentPage: number,
+    pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
+  ) {
     const { filter, sort, population } = aqp(queryString);
     delete filter.current;
     delete filter.pageSize;
 
-    const offset = (currentPage - 1) * pageSize;
-    const total = await this.historyEnterModel.countDocuments({
+    // Apply createdBy filter if user cannot view all data
+    const finalFilter: any = {
       ...filter,
       isDeleted: false,
-    });
+    };
+    if (!canViewAllData && userId) {
+      finalFilter.createdBy = new Types.ObjectId(userId);
+    }
+
+    const offset = (currentPage - 1) * pageSize;
+    const total = await this.historyEnterModel.countDocuments(finalFilter);
     const pages = Math.ceil(total / pageSize);
 
     const docs = await this.historyEnterModel
-      .find({ ...filter, isDeleted: false })
+      .find(finalFilter)
       .skip(offset)
       .limit(pageSize)
       .sort(sort as any)

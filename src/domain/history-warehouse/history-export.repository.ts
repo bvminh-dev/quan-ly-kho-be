@@ -12,6 +12,8 @@ export interface IHistoryExportRepository {
     queryString: string,
     currentPage: number,
     pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
   ): Promise<{
     items: HistoryExportEntity[];
     meta: { current: number; pageSize: number; pages: number; total: number };

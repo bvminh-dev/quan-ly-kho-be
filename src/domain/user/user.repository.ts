@@ -11,6 +11,8 @@ export interface IUserRepository {
     queryString: string,
     currentPage: number,
     pageSize: number,
+    userId?: string,
+    canViewAllData?: boolean,
   ): Promise<{
     items: UserEntity[];
     meta: { current: number; pageSize: number; pages: number; total: number };

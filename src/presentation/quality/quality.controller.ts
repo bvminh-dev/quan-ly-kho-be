@@ -7,12 +7,12 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -28,9 +28,7 @@ import { UpdateQualityUseCase } from '../../application/quality/update-quality.u
 import { CreateQualityDto } from '../../application/quality/dto/create-quality.dto.js';
 import { UpdateQualityDto } from '../../application/quality/dto/update-quality.dto.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
   CreateCatalogResponseDto,
@@ -42,8 +40,6 @@ import {
 
 @ApiTags('Catalog - Quality')
 @Controller('catalog/qualitys')
-@Roles('admin')
-@UseGuards(RolesGuard)
 export class QualityController {
   constructor(
     private readonly createQualityUseCase: CreateQualityUseCase,
@@ -54,13 +50,12 @@ export class QualityController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Tạo quality mới (chỉ Admin)' })
+  @ApiOperation({ summary: 'Tạo quality mới' })
   @ApiCreatedResponse({
     description: 'Tạo quality thành công',
     type: CreateCatalogResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ hoặc đã tồn tại' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Create a new Quality')
   async create(@Body() dto: CreateQualityDto, @User() user: ICurrentUser) {
@@ -68,7 +63,7 @@ export class QualityController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Lấy danh sách quality có phân trang (chỉ Admin)' })
+  @ApiOperation({ summary: 'Lấy danh sách quality có phân trang' })
   @ApiOkResponse({
     description: 'Trả về danh sách quality',
     type: GetCatalogsResponseDto,
@@ -76,13 +71,14 @@ export class QualityController {
   @ApiQuery({ name: 'current', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'pageSize', required: false, type: Number, example: 10 })
   @ApiQuery({ name: 'sort', required: false, type: String, example: '-createdAt' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch list Quality with paginate')
   async findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const queryParams = new URLSearchParams();
     Object.keys(query).forEach((key) => {
@@ -99,17 +95,22 @@ export class QualityController {
       queryParams.toString(),
       +currentPage || 1,
       +pageSize || 10,
+      user._id,
+      user.role?.name,
+      user.role?.isViewAllUser,
+      user.role?.viewAllUserApis,
+      req.path,
+      req.method,
     );
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Lấy thông tin quality theo ID (chỉ Admin)' })
+  @ApiOperation({ summary: 'Lấy thông tin quality theo ID' })
   @ApiOkResponse({
     description: 'Trả về thông tin quality',
     type: GetCatalogResponseDto,
   })
   @ApiNotFoundResponse({ description: 'Không tìm thấy quality' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Fetch Quality by id')
   async findOne(@Param('id') id: string) {
@@ -117,13 +118,12 @@ export class QualityController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Cập nhật quality (chỉ Admin)' })
+  @ApiOperation({ summary: 'Cập nhật quality' })
   @ApiOkResponse({
     description: 'Cập nhật quality thành công',
     type: UpdateCatalogResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Dữ liệu không hợp lệ' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy quality' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Update a Quality')
@@ -136,13 +136,12 @@ export class QualityController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Xóa quality (soft delete, chỉ Admin)' })
+  @ApiOperation({ summary: 'Xóa quality (soft delete)' })
   @ApiOkResponse({
     description: 'Xóa quality thành công',
     type: DeleteCatalogResponseDto,
   })
   @ApiBadRequestResponse({ description: 'Quality đang được sử dụng trong kho' })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy quality' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })
   @ResponseMessage('Delete a Quality')

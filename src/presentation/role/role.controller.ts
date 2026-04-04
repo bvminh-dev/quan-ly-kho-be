@@ -7,15 +7,15 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiTags,
   ApiOkResponse,
   ApiCreatedResponse,
   ApiUnauthorizedResponse,
   ApiBadRequestResponse,
-  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOperation,
   ApiQuery,
@@ -27,10 +27,8 @@ import { UpdateRoleUseCase } from '../../application/role/update-role.usecase.js
 import { DeleteRoleUseCase } from '../../application/role/delete-role.usecase.js';
 import { CreateRoleDto } from '../../application/role/dto/create-role.dto.js';
 import { UpdateRoleDto } from '../../application/role/dto/update-role.dto.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
 import { User } from '../../common/decorators/user.decorator.js';
 import { ResponseMessage } from '../../common/decorators/response-message.decorator.js';
-import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { ICurrentUser } from '../../common/interfaces/current-user.interface.js';
 import {
   CreateRoleResponseDto,
@@ -107,6 +105,8 @@ export class RoleController {
     @Query('current') currentPage: string,
     @Query('pageSize') pageSize: string,
     @Query() query: Record<string, any>,
+    @User() user: ICurrentUser,
+    @Req() req: Request,
   ) {
     const queryParams = new URLSearchParams();
 
@@ -127,6 +127,12 @@ export class RoleController {
       finalQueryString,
       +currentPage || 1,
       +pageSize || 10,
+      user._id,
+      user.role?.name,
+      user.role?.isViewAllUser,
+      user.role?.viewAllUserApis,
+      req.path,
+      req.method,
     );
   }
 
@@ -162,16 +168,11 @@ export class RoleController {
   }
 
   @Delete(':id')
-  @Roles('admin')
-  @UseGuards(RolesGuard)
-  @ApiOperation({
-    summary: 'Xóa role (soft delete, chỉ Admin, không được xóa admin role)',
-  })
+  @ApiOperation({ summary: 'Xóa role (soft delete, không được xóa admin role)' })
   @ApiOkResponse({
     description: 'Xóa role thành công',
     type: DeleteRoleResponseDto,
   })
-  @ApiForbiddenResponse({ description: 'Chỉ Admin mới có quyền xóa' })
   @ApiBadRequestResponse({ description: 'Không thể xóa role admin' })
   @ApiNotFoundResponse({ description: 'Không tìm thấy role' })
   @ApiUnauthorizedResponse({ description: 'Chưa đăng nhập' })

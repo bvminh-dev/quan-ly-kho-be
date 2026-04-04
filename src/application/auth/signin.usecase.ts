@@ -45,7 +45,14 @@ export class SigninUseCase {
         _id: user._id,
         name: user.name,
         email: user.email,
-        role: role ? { _id: role._id, name: role.name } : null,
+        role: role
+          ? {
+              _id: role._id,
+              name: role.name,
+              isViewAllUser: role.isViewAllUser,
+              viewAllUserApis: role.viewAllUserApis ?? [],
+            }
+          : null,
         permissions: role ? role.permissions : [],
       },
     };

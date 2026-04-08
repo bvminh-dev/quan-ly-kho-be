@@ -28,7 +28,7 @@ export class UpdateOrderUseCase {
     @Inject('CustomerRepository')
     private readonly customerRepository: ICustomerRepository,
     private readonly eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   async execute(id: string, dto: UpdateOrderDto, updatedBy: string) {
     this.logger.log(`Updating order ${id}`);
@@ -83,19 +83,17 @@ export class UpdateOrderUseCase {
           }
 
           if (!product.isCalcSet) {
-            totalPriceBase = roundToTwo(
+            totalPriceBase =
               totalPriceBase +
-                quantitySet * (item.quantity * item.price - (item.sale ?? 0)),
-            );
+              quantitySet * item.quantity * (item.price - (item.sale ?? 0));
           }
         }
 
         if (product.isCalcSet) {
-          totalPriceBase = roundToTwo(
+          totalPriceBase =
             totalPriceBase +
-              (product.quantitySet ?? 1) *
-                ((product.priceSet ?? 0) - (product.saleSet ?? 0)),
-          );
+            (product.quantitySet ?? 1) *
+            ((product.priceSet ?? 0) - (product.saleSet ?? 0));
         }
       }
 
@@ -121,9 +119,9 @@ export class UpdateOrderUseCase {
         existingOrder.history
           .filter((h) => h.type === HistoryType.KHACH_TRA)
           .reduce((sum, h) => sum + h.moneyPaidDolar, 0) -
-          existingOrder.history
-            .filter((h) => h.type === HistoryType.HOAN_TIEN)
-            .reduce((sum, h) => sum + h.moneyPaidDolar, 0),
+        existingOrder.history
+          .filter((h) => h.type === HistoryType.HOAN_TIEN)
+          .reduce((sum, h) => sum + h.moneyPaidDolar, 0),
       );
 
       const debt = roundToTwo(dto.debt ?? existingOrder.debt);
@@ -132,7 +130,7 @@ export class UpdateOrderUseCase {
       if (existingOrder.state === (OrderState.BAO_GIA as string)) {
         const customerId =
           typeof existingOrder.customer === 'object' &&
-          existingOrder.customer !== null
+            existingOrder.customer !== null
             ? existingOrder.customer._id
             : (existingOrder.customer as string);
         const customer = await this.customerRepository.findById(customerId);
@@ -204,7 +202,7 @@ export class UpdateOrderUseCase {
       const paid = roundToTwo(dto.paid ?? existingOrder.paid);
       const customerId =
         typeof existingOrder.customer === 'object' &&
-        existingOrder.customer !== null
+          existingOrder.customer !== null
           ? existingOrder.customer._id
           : (existingOrder.customer as string);
       const customer = await this.customerRepository.findById(customerId);

@@ -12,4 +12,12 @@ export class AppController {
   getServerStatus() {
     return { message: 'Server is running' };
   }
+
+  @Public()
+  @Get('healthz')
+  @ApiOperation({ summary: 'Health check endpoint' })
+  @ApiOkResponse({ description: 'Health check response' })
+  getHealthz() {
+    return { version: '1.0.0' };
+  }
 }
